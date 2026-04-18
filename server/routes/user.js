@@ -5,27 +5,26 @@ const requireAuth = require('../middleware/auth');
 const router = express.Router();
 router.use(requireAuth);
 
-// ── GET /api/user/export — скачать все свои данные ───
-router.get('/export', (req, res) => {
-  const user        = db.prepare('SELECT id, email, name, created_at FROM users WHERE id = ?').get(req.userId);
-  const trips       = db.prepare('SELECT * FROM trips WHERE user_id = ?').all(req.userId);
-  const reflections = db.prepare('SELECT * FROM reflections WHERE user_id = ?').all(req.userId);
-  const notes       = db.prepare('SELECT * FROM notes WHERE user_id = ?').all(req.userId);
-  const reminders   = db.prepare('SELECT * FROM reminders WHERE user_id = ?').all(req.userId);
+// ── GET /api/user/export ─────────────────────────────
+router.get('/export', async (req, res) => {
+  const user        = await db.one('SELECT id, email, name, created_at FROM users WHERE id = $1', [req.userId]);
+  const trips       = await db.query('SELECT * FROM trips WHERE user_id = $1', [req.userId]);
+  const reflections = await db.query('SELECT * FROM reflections WHERE user_id = $1', [req.userId]);
+  const notes       = await db.query('SELECT * FROM notes WHERE user_id = $1', [req.userId]);
+  const reminders   = await db.query('SELECT * FROM reminders WHERE user_id = $1', [req.userId]);
 
-  // Обогащаем путешествия
-  const fullTrips = trips.map(t => ({
+  const fullTrips = await Promise.all(trips.map(async t => ({
     ...t,
-    info:      db.prepare('SELECT label, value FROM trip_info WHERE trip_id = ?').all(t.id),
-    logistics: db.prepare('SELECT time, icon, text FROM logistics WHERE trip_id = ?').all(t.id),
-    pack:      db.prepare('SELECT label, checked, category FROM pack_items WHERE trip_id = ?').all(t.id)
-  }));
+    info:      await db.query('SELECT label, value FROM trip_info WHERE trip_id = $1', [t.id]),
+    logistics: await db.query('SELECT time, icon, text FROM logistics WHERE trip_id = $1', [t.id]),
+    pack:      await db.query('SELECT label, checked, category FROM pack_items WHERE trip_id = $1', [t.id])
+  })));
 
   const exportData = {
     exported_at: new Date().toISOString(),
     user,
     trips: fullTrips,
-    reflections: reflections.map(r => ({ ...r, answers: JSON.parse(r.answers || '[]') })),
+    reflections,
     notes,
     reminders
   };
@@ -35,20 +34,18 @@ router.get('/export', (req, res) => {
   res.json(exportData);
 });
 
-// ── DELETE /api/user/account — удалить аккаунт ───────
-// Все связанные данные удалятся каскадно (ON DELETE CASCADE в БД)
-router.delete('/account', (req, res) => {
-  db.prepare('DELETE FROM users WHERE id = ?').run(req.userId);
+// ── DELETE /api/user/account ─────────────────────────
+router.delete('/account', async (req, res) => {
+  await db.query('DELETE FROM users WHERE id = $1', [req.userId]);
   res.clearCookie('token');
   res.json({ ok: true, message: 'Аккаунт и все данные удалены' });
 });
 
-// ── PUT /api/user/profile — обновить имя ─────────────
-router.put('/profile', (req, res) => {
+// ── PUT /api/user/profile ────────────────────────────
+router.put('/profile', async (req, res) => {
   const { name } = req.body;
   if (!name) return res.status(400).json({ error: 'Имя обязательно' });
-
-  db.prepare('UPDATE users SET name = ? WHERE id = ?').run(name.trim(), req.userId);
+  await db.query('UPDATE users SET name = $1 WHERE id = $2', [name.trim(), req.userId]);
   res.json({ ok: true });
 });
 

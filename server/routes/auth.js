@@ -14,51 +14,46 @@ function issueToken(res, user) {
     { expiresIn: '7d' }
   );
   res.cookie('token', token, {
-    httpOnly: true,          // недоступен через JS — защита от XSS
+    httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000  // 7 дней
+    maxAge: 7 * 24 * 60 * 60 * 1000
   });
 }
 
 // ── POST /api/auth/register ─────────────────────────
-router.post('/register', (req, res) => {
+router.post('/register', async (req, res) => {
   const { email, password, name } = req.body;
 
-  if (!email || !password || !name) {
+  if (!email || !password || !name)
     return res.status(400).json({ error: 'Заполните все поля' });
-  }
-  if (password.length < 8) {
+  if (password.length < 8)
     return res.status(400).json({ error: 'Пароль минимум 8 символов' });
-  }
 
-  const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email.toLowerCase().trim());
-  if (existing) {
+  const existing = await db.one('SELECT id FROM users WHERE email = $1', [email.toLowerCase().trim()]);
+  if (existing)
     return res.status(409).json({ error: 'Этот email уже зарегистрирован' });
-  }
 
-  const hash = bcrypt.hashSync(password, 12);
-  const result = db.prepare(
-    'INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)'
-  ).run(email.toLowerCase().trim(), hash, name.trim());
+  const hash = await bcrypt.hash(password, 12);
+  const user = await db.one(
+    'INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING id, name',
+    [email.toLowerCase().trim(), hash, name.trim()]
+  );
 
-  const user = { id: result.lastInsertRowid, name: name.trim() };
   issueToken(res, user);
   res.json({ ok: true, name: user.name });
 });
 
 // ── POST /api/auth/login ────────────────────────────
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
+  if (!email || !password)
     return res.status(400).json({ error: 'Введите email и пароль' });
-  }
 
-  const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email.toLowerCase().trim());
-  if (!user || !bcrypt.compareSync(password, user.password_hash)) {
+  const user = await db.one('SELECT * FROM users WHERE email = $1', [email.toLowerCase().trim()]);
+  if (!user || !(await bcrypt.compare(password, user.password_hash)))
     return res.status(401).json({ error: 'Неверный email или пароль' });
-  }
 
   issueToken(res, user);
   res.json({ ok: true, name: user.name });
@@ -71,8 +66,11 @@ router.post('/logout', (req, res) => {
 });
 
 // ── GET /api/auth/me ────────────────────────────────
-router.get('/me', requireAuth, (req, res) => {
-  const user = db.prepare('SELECT id, email, name, created_at FROM users WHERE id = ?').get(req.userId);
+router.get('/me', requireAuth, async (req, res) => {
+  const user = await db.one(
+    'SELECT id, email, name, created_at FROM users WHERE id = $1',
+    [req.userId]
+  );
   if (!user) return res.status(404).json({ error: 'Пользователь не найден' });
   res.json(user);
 });
