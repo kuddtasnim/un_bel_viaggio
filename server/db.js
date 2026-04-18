@@ -1,116 +1,117 @@
-const Database = require('better-sqlite3');
-const path = require('path');
+const { Pool } = require('pg');
 
-const DB_PATH = path.join(__dirname, '..', 'database.db');
-const db = new Database(DB_PATH);
+// Railway автоматически подставляет DATABASE_URL
+// Локально — добавь DATABASE_URL в .env
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production'
+    ? { rejectUnauthorized: false }  // Railway требует SSL
+    : false
+});
 
-// Включаем WAL режим — лучше производительность
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+// ── Хелпер для запросов ──────────────────────────────
+// Использование: const rows = await db.query('SELECT...', [param1, param2])
+const db = {
+  async query(text, params) {
+    const res = await pool.query(text, params);
+    return res.rows;
+  },
+  async one(text, params) {
+    const res = await pool.query(text, params);
+    return res.rows[0] || null;
+  }
+};
 
-// ════════════════════════════════
-//  СОЗДАНИЕ ТАБЛИЦ
-// ════════════════════════════════
+// ── Создание таблиц при первом запуске ───────────────
+async function initSchema() {
+  await pool.query(`
 
-db.exec(`
+    CREATE TABLE IF NOT EXISTS users (
+      id              SERIAL PRIMARY KEY,
+      email           TEXT    NOT NULL UNIQUE,
+      password_hash   TEXT    NOT NULL,
+      name            TEXT    NOT NULL DEFAULT '',
+      created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      gdpr_consent_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
 
-  -- Пользователи
-  CREATE TABLE IF NOT EXISTS users (
-    id              INTEGER PRIMARY KEY AUTOINCREMENT,
-    email           TEXT    NOT NULL UNIQUE,
-    password_hash   TEXT    NOT NULL,
-    name            TEXT    NOT NULL DEFAULT '',
-    created_at      TEXT    NOT NULL DEFAULT (datetime('now')),
-    gdpr_consent_at TEXT    NOT NULL DEFAULT (datetime('now'))
-  );
+    CREATE TABLE IF NOT EXISTS trips (
+      id          SERIAL PRIMARY KEY,
+      user_id     INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name        TEXT    NOT NULL,
+      emoji       TEXT    NOT NULL DEFAULT '✈️',
+      sub         TEXT    NOT NULL DEFAULT '',
+      status      TEXT    NOT NULL DEFAULT 'plan',
+      country     TEXT    NOT NULL DEFAULT '',
+      date        TEXT    NOT NULL DEFAULT '',
+      description TEXT    NOT NULL DEFAULT '',
+      song_title  TEXT    NOT NULL DEFAULT '',
+      song_artist TEXT    NOT NULL DEFAULT '',
+      song_id     TEXT    NOT NULL DEFAULT '',
+      created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
 
-  -- Путешествия
-  CREATE TABLE IF NOT EXISTS trips (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id     INTEGER NOT NULL,
-    name        TEXT    NOT NULL,
-    emoji       TEXT    NOT NULL DEFAULT '✈️',
-    sub         TEXT    NOT NULL DEFAULT '',
-    status      TEXT    NOT NULL DEFAULT 'plan',
-    country     TEXT    NOT NULL DEFAULT '',
-    date        TEXT    NOT NULL DEFAULT '',
-    description TEXT    NOT NULL DEFAULT '',
-    song_title  TEXT    NOT NULL DEFAULT '',
-    song_artist TEXT    NOT NULL DEFAULT '',
-    song_id     TEXT    NOT NULL DEFAULT '',
-    created_at  TEXT    NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
+    CREATE TABLE IF NOT EXISTS trip_info (
+      id      SERIAL PRIMARY KEY,
+      trip_id INTEGER NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+      label   TEXT    NOT NULL,
+      value   TEXT    NOT NULL DEFAULT ''
+    );
 
-  -- Блоки информации о путешествии (Duration, Highlight и т.д.)
-  CREATE TABLE IF NOT EXISTS trip_info (
-    id      INTEGER PRIMARY KEY AUTOINCREMENT,
-    trip_id INTEGER NOT NULL,
-    label   TEXT    NOT NULL,
-    value   TEXT    NOT NULL DEFAULT '',
-    FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
-  );
+    CREATE TABLE IF NOT EXISTS logistics (
+      id         SERIAL PRIMARY KEY,
+      trip_id    INTEGER NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+      time       TEXT    NOT NULL DEFAULT '',
+      icon       TEXT    NOT NULL DEFAULT '·',
+      text       TEXT    NOT NULL,
+      sort_order INTEGER NOT NULL DEFAULT 0
+    );
 
-  -- Логистика (расписание / чеклист дня)
-  CREATE TABLE IF NOT EXISTS logistics (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    trip_id    INTEGER NOT NULL,
-    time       TEXT    NOT NULL DEFAULT '',
-    icon       TEXT    NOT NULL DEFAULT '·',
-    text       TEXT    NOT NULL,
-    sort_order INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE
-  );
+    CREATE TABLE IF NOT EXISTS reflections (
+      id         SERIAL PRIMARY KEY,
+      user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      trip_id    INTEGER REFERENCES trips(id) ON DELETE SET NULL,
+      mood       TEXT    NOT NULL DEFAULT '',
+      mode       TEXT    NOT NULL DEFAULT 'quick',
+      answers    JSONB   NOT NULL DEFAULT '[]',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
 
-  -- Рефлексии
-  CREATE TABLE IF NOT EXISTS reflections (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id    INTEGER NOT NULL,
-    trip_id    INTEGER,
-    mood       TEXT    NOT NULL DEFAULT '',
-    mode       TEXT    NOT NULL DEFAULT 'quick',
-    answers    TEXT    NOT NULL DEFAULT '[]',
-    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE SET NULL
-  );
+    CREATE TABLE IF NOT EXISTS notes (
+      id         SERIAL PRIMARY KEY,
+      trip_id    INTEGER NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+      user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      text       TEXT    NOT NULL DEFAULT '',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
 
-  -- Заметки
-  CREATE TABLE IF NOT EXISTS notes (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    trip_id    INTEGER NOT NULL,
-    user_id    INTEGER NOT NULL,
-    text       TEXT    NOT NULL DEFAULT '',
-    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
+    CREATE TABLE IF NOT EXISTS pack_items (
+      id       SERIAL PRIMARY KEY,
+      trip_id  INTEGER NOT NULL REFERENCES trips(id) ON DELETE CASCADE,
+      user_id  INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      label    TEXT    NOT NULL,
+      checked  BOOLEAN NOT NULL DEFAULT FALSE,
+      category TEXT    NOT NULL DEFAULT ''
+    );
 
-  -- Список вещей
-  CREATE TABLE IF NOT EXISTS pack_items (
-    id       INTEGER PRIMARY KEY AUTOINCREMENT,
-    trip_id  INTEGER NOT NULL,
-    user_id  INTEGER NOT NULL,
-    label    TEXT    NOT NULL,
-    checked  INTEGER NOT NULL DEFAULT 0,
-    category TEXT    NOT NULL DEFAULT '',
-    FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-  );
+    CREATE TABLE IF NOT EXISTS reminders (
+      id         SERIAL PRIMARY KEY,
+      user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      trip_id    INTEGER REFERENCES trips(id) ON DELETE SET NULL,
+      title      TEXT    NOT NULL,
+      date       TEXT    NOT NULL,
+      icon       TEXT    NOT NULL DEFAULT '🔔',
+      done       BOOLEAN NOT NULL DEFAULT FALSE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
 
-  -- Напоминания
-  CREATE TABLE IF NOT EXISTS reminders (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id    INTEGER NOT NULL,
-    trip_id    INTEGER,
-    title      TEXT    NOT NULL,
-    date       TEXT    NOT NULL,
-    done       INTEGER NOT NULL DEFAULT 0,
-    created_at TEXT    NOT NULL DEFAULT (datetime('now')),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (trip_id) REFERENCES trips(id) ON DELETE SET NULL
-  );
+  `);
+  console.log('✦ Схема базы данных готова');
+}
 
-`);
+initSchema().catch(err => {
+  console.error('Ошибка инициализации БД:', err.message);
+  process.exit(1);
+});
 
 module.exports = db;
