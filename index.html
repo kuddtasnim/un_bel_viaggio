@@ -478,6 +478,41 @@ nav{
 .plan-spinner .dot:nth-child(2){animation-delay:.15s}
 .plan-spinner .dot:nth-child(3){animation-delay:.3s}
 @keyframes bounce{0%,80%,100%{transform:scale(.4);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* ── AUTH MODAL ── */
+.auth-overlay{position:fixed;inset:0;background:rgba(44,35,24,.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.auth-box{background:var(--warm);border-radius:20px;padding:36px 32px;max-width:420px;width:100%;box-shadow:0 24px 60px rgba(44,35,24,.3)}
+.auth-box .auth-logo{font-family:'Georgia',serif;font-size:1.3rem;color:var(--bark);font-style:italic;text-align:center;margin-bottom:6px}
+.auth-box .auth-sub{font-family:system-ui,sans-serif;font-size:.8rem;color:var(--dusk);text-align:center;margin-bottom:28px}
+.auth-box h2{font-family:system-ui,sans-serif;font-size:1rem;color:var(--bark);font-weight:600;margin-bottom:20px;text-align:center}
+.auth-field{margin-bottom:14px}
+.auth-field label{display:block;font-family:system-ui,sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--dusk);margin-bottom:5px}
+.auth-field input{width:100%;background:var(--cream);border:1.5px solid var(--mist);border-radius:9px;padding:10px 13px;font-family:system-ui,sans-serif;font-size:.9rem;color:var(--ink);transition:.2s}
+.auth-field input:focus{outline:none;border-color:var(--accent)}
+.auth-btn{width:100%;background:var(--bark);color:#fff;border:none;border-radius:50px;padding:12px;font-family:system-ui,sans-serif;font-size:.9rem;cursor:pointer;transition:.2s;margin-top:8px}
+.auth-btn:hover{background:var(--clay)}
+.auth-switch{text-align:center;margin-top:16px;font-family:system-ui,sans-serif;font-size:.8rem;color:var(--dusk)}
+.auth-switch a{color:var(--accent);cursor:pointer;text-decoration:underline}
+.auth-error{background:#fde8d3;border:1px solid #f0b090;border-radius:9px;padding:10px 14px;font-family:system-ui,sans-serif;font-size:.82rem;color:#a04020;margin-bottom:14px;display:none}
+.auth-consent{display:flex;gap:8px;align-items:flex-start;margin-top:12px}
+.auth-consent input{margin-top:3px;flex-shrink:0;accent-color:var(--bark)}
+.auth-consent label{font-family:system-ui,sans-serif;font-size:.75rem;color:var(--dusk);line-height:1.45}
+.auth-consent a{color:var(--accent)}
+
+/* ── USER MENU ── */
+.user-menu-wrap{position:relative;margin-left:auto;flex-shrink:0}
+.user-btn{background:var(--sand);border:1.5px solid var(--mist);border-radius:50px;padding:6px 14px;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--bark);cursor:pointer;transition:.18s;display:flex;align-items:center;gap:6px}
+.user-btn:hover{background:var(--bark);color:#fff;border-color:var(--bark)}
+.user-dropdown{display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--warm);border:1px solid var(--mist);border-radius:12px;box-shadow:0 8px 28px rgba(44,35,24,.14);min-width:180px;z-index:400;overflow:hidden}
+.user-dropdown.open{display:block}
+.ud-item{padding:10px 16px;font-family:system-ui,sans-serif;font-size:.82rem;color:var(--ink);cursor:pointer;transition:.15s;display:flex;align-items:center;gap:8px}
+.ud-item:hover{background:var(--sand)}
+.ud-sep{height:1px;background:var(--mist);margin:4px 0}
+.ud-item.danger{color:#c04030}
+.ud-item.danger:hover{background:#fde8d3}
+
+/* ── GOOGLE MAP ── */
+#googleMap{width:100%;height:340px;border-radius:var(--r);border:1px solid var(--mist)}
 </style>
 </head>
 <body>
@@ -497,13 +532,58 @@ nav{
       <button class="tab" onclick="showView('maps',this)">Maps</button>
       <button class="tab" onclick="showView('about',this)">About</button>
     </div>
+    <div class="user-menu-wrap" id="userMenuWrap" style="display:none">
+      <button class="user-btn" onclick="toggleUserMenu()">
+        <span id="userMenuName">—</span> ▾
+      </button>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="ud-item" onclick="exportData()">📥 Скачать мои данные</div>
+        <div class="ud-sep"></div>
+        <div class="ud-item danger" onclick="deleteAccount()">🗑 Удалить аккаунт</div>
+        <div class="ud-sep"></div>
+        <div class="ud-item" onclick="logout()">← Выйти</div>
+      </div>
+    </div>
   </div>
 </nav>
+
+<!-- ═══════════════════ AUTH MODAL ═══════════════════ -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-logo">Un Bel Viaggio</div>
+    <div class="auth-sub">твой личный дневник путешествий</div>
+
+    <!-- LOGIN FORM -->
+    <div id="authLogin">
+      <h2>Войти</h2>
+      <div class="auth-error" id="loginError"></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email"/></div>
+      <div class="auth-field"><label>Пароль</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/></div>
+      <button class="auth-btn" onclick="submitLogin()">Войти →</button>
+      <div class="auth-switch">Нет аккаунта? <a onclick="switchAuth('register')">Зарегистрироваться</a></div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="authRegister" style="display:none">
+      <h2>Создать аккаунт</h2>
+      <div class="auth-error" id="registerError"></div>
+      <div class="auth-field"><label>Имя</label><input type="text" id="regName" placeholder="Tasnim" autocomplete="given-name"/></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email"/></div>
+      <div class="auth-field"><label>Пароль (минимум 8 символов)</label><input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password"/></div>
+      <label class="auth-consent">
+        <input type="checkbox" id="regConsent"/>
+        <span>Я принимаю <a href="/privacy.html" target="_blank">политику конфиденциальности</a> и соглашаюсь на хранение моих данных путешествий на сервере.</span>
+      </label>
+      <button class="auth-btn" onclick="submitRegister()">Создать аккаунт →</button>
+      <div class="auth-switch">Уже есть аккаунт? <a onclick="switchAuth('login')">Войти</a></div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══════════════════ DASHBOARD ═══════════════════ -->
 <div class="view active" id="v-dashboard">
   <div style="margin-bottom:24px">
-    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem);color:var(--bark);font-weight:400;margin-bottom:2px">Hello, Tasnim ✦</h1>
+    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem);color:var(--bark);font-weight:400;margin-bottom:2px" id="dashGreeting">Hello ✦</h1>
     <p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)" id="dashDate"></p>
   </div>
 
@@ -783,14 +863,15 @@ nav{
         <p class="label-sm" style="margin-bottom:0">Trip notes</p>
         <span style="font-family:system-ui,sans-serif;font-size:.7rem;color:var(--dusk)">always editable</span>
       </div>
-      <textarea class="td-note-area" placeholder="Write anything — impressions, people you met, things you noticed..."></textarea>
+      <textarea class="td-note-area" id="tripNoteArea" placeholder="Write anything — impressions, people you met, things you noticed..."></textarea>
       <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
         <label class="photo-drop" style="flex:1;padding:12px;font-size:.78rem;cursor:pointer">
           <input type="file" accept="image/*" style="display:none" onchange="previewTripPhoto(this)"/>
           📷 Add photo
         </label>
-        <button class="btn-primary" style="padding:9px 20px;font-size:.82rem">Save note</button>
+        <button class="btn-primary" style="padding:9px 20px;font-size:.82rem" onclick="submitNote()">Save note</button>
       </div>
+      <div id="noteSavedMsg" style="display:none;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--moss);margin-top:8px">✓ Заметка сохранена</div>
       <div id="tripPhotoPreview" style="margin-top:12px"></div>
     </div>
 
@@ -1081,20 +1162,8 @@ nav{
         <span class="cfbtn">🇩🇪 Germany</span>
         <span class="cfbtn">🇮🇹 Italy</span>
       </div>
-      <div class="map-box">
-        <div class="map-grid-lines"></div>
-        <div class="map-pin-el" style="position:absolute;left:72%;top:30%"><div class="pin-dot" style="background:#c9854a"></div><span class="pin-nm">Seoul</span></div>
-        <div class="map-pin-el" style="position:absolute;left:67%;top:28%"><div class="pin-dot" style="background:#c9854a"></div><span class="pin-nm">Beijing</span></div>
-        <div class="map-pin-el" style="position:absolute;left:52%;top:38%"><div class="pin-dot" style="background:#5a6e50"></div><span class="pin-nm">Istanbul</span></div>
-        <div class="map-pin-el" style="position:absolute;left:46%;top:26%"><div class="pin-dot" style="background:#5a6e50"></div><span class="pin-nm">Munich</span></div>
-        <div class="map-pin-el" style="position:absolute;left:49%;top:23%"><div class="pin-dot" style="background:#8b7355"></div><span class="pin-nm">Prague</span></div>
-        <div class="map-pin-el" style="position:absolute;left:51%;top:44%"><div class="pin-dot" style="background:#8b7355"></div><span class="pin-nm">Rome</span></div>
-        <div class="map-btns">
-          <button class="map-btn">📥 Sync Google Maps</button>
-          <button class="map-btn">+ Add place</button>
-        </div>
-      </div>
-      <p style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);margin-top:10px">To sync: export your list from Google Maps (Saved → Export KML) and upload here</p>
+      <div id="googleMap"></div>
+      <p style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);margin-top:10px">Маркеры показывают все твои путешествия. Кликни на маркер, чтобы открыть карточку.</p>
     </div>
     <div>
       <p class="label-sm" style="margin-bottom:10px">Saved (5)</p>
@@ -1152,17 +1221,22 @@ nav{
 <div class="modal-overlay" id="tripModal" onclick="closeIfOverlay(event,'tripModal')">
   <div class="modal">
     <h3>Add trip</h3>
-    <div class="mfield"><label>Destination</label><input type="text" placeholder="Paris, Tokyo..."/></div>
-    <div class="mfield"><label>Dates</label><input type="text" placeholder="10–15 June 2025"/></div>
-    <div class="mfield"><label>Status</label><select><option>Planned</option><option>Soon</option><option>Idea</option><option>Done</option></select></div>
-    <div class="mfield"><label>Cover photo</label>
-      <label class="photo-drop"><input type="file" accept="image/*" onchange="previewPhoto(this,'photoPreview')"/>📷 Tap or drop a photo</label>
-      <img id="photoPreview" style="display:none;border-radius:10px;margin-top:10px;max-height:140px;width:100%;object-fit:cover"/>
+    <div id="tripModalError" style="display:none;background:#fde8d3;border:1px solid #f0b090;border-radius:9px;padding:10px 14px;font-family:system-ui,sans-serif;font-size:.82rem;color:#a04020;margin-bottom:14px"></div>
+    <div class="mfield"><label>Destination</label><input type="text" id="tmDest" placeholder="Paris, Tokyo..."/></div>
+    <div class="mfield"><label>Emoji</label><input type="text" id="tmEmoji" placeholder="🗼" maxlength="2" style="width:60px"/></div>
+    <div class="mfield"><label>Dates / subtitle</label><input type="text" id="tmSub" placeholder="10–15 June 2025 · 5 days"/></div>
+    <div class="mfield"><label>Status</label>
+      <select id="tmStatus">
+        <option value="plan">Planned</option>
+        <option value="soon">Soon</option>
+        <option value="idea">Idea</option>
+        <option value="done">Done</option>
+      </select>
     </div>
-    <div class="mfield"><label>Tags (comma separated)</label><input type="text" placeholder="city, no luggage, solo"/></div>
+    <div class="mfield"><label>Short description (optional)</label><textarea id="tmDesc" placeholder="What this trip is about..." style="min-height:60px"></textarea></div>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('tripModal')">Cancel</button>
-      <button class="btn-save" onclick="closeModal('tripModal')">Save</button>
+      <button class="btn-save" id="tmSaveBtn" onclick="submitTripModal()">Save</button>
     </div>
   </div>
 </div>
@@ -1234,9 +1308,233 @@ nav{
 
 <script>
 // ════════════════════════════════
-//  DATA
+//  AUTH
 // ════════════════════════════════
-const trips = [
+let currentUser = null;
+
+async function initApp() {
+  try {
+    const res = await fetch('/api/auth/me');
+    if (res.ok) {
+      currentUser = await res.json();
+      showApp();
+    } else {
+      showAuthOverlay();
+    }
+  } catch {
+    showAuthOverlay();
+  }
+}
+
+function showAuthOverlay() {
+  document.getElementById('authOverlay').style.display = 'flex';
+}
+
+function hideAuthOverlay() {
+  document.getElementById('authOverlay').style.display = 'none';
+}
+
+function showApp() {
+  hideAuthOverlay();
+  const g = document.getElementById('dashGreeting');
+  if (g) g.textContent = `Hello, ${currentUser.name} ✦`;
+  const wrap = document.getElementById('userMenuWrap');
+  if (wrap) { wrap.style.display = 'flex'; }
+  document.getElementById('userMenuName').textContent = currentUser.name;
+  loadTrips();
+}
+
+function switchAuth(mode) {
+  document.getElementById('authLogin').style.display    = mode === 'login'    ? '' : 'none';
+  document.getElementById('authRegister').style.display = mode === 'register' ? '' : 'none';
+  document.getElementById('loginError').style.display    = 'none';
+  document.getElementById('registerError').style.display = 'none';
+}
+
+async function submitLogin() {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl    = document.getElementById('loginError');
+  errEl.style.display = 'none';
+
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; return; }
+  currentUser = { name: data.name };
+  showApp();
+}
+
+async function submitRegister() {
+  const name     = document.getElementById('regName').value.trim();
+  const email    = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const consent  = document.getElementById('regConsent').checked;
+  const errEl    = document.getElementById('registerError');
+  errEl.style.display = 'none';
+
+  if (!consent) { errEl.textContent = 'Необходимо принять политику конфиденциальности'; errEl.style.display = 'block'; return; }
+
+  const res = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password })
+  });
+  const data = await res.json();
+  if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; return; }
+  currentUser = { name: data.name };
+  showApp();
+}
+
+async function logout() {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  currentUser = null;
+  trips = [];
+  toggleUserMenu(false);
+  showAuthOverlay();
+}
+
+async function exportData() {
+  window.open('/api/user/export', '_blank');
+  toggleUserMenu(false);
+}
+
+async function deleteAccount() {
+  if (!confirm('Удалить аккаунт и ВСЕ данные? Это необратимо.')) return;
+  await fetch('/api/user/account', { method: 'DELETE' });
+  currentUser = null; trips = [];
+  toggleUserMenu(false);
+  showAuthOverlay();
+}
+
+function toggleUserMenu(force) {
+  const d = document.getElementById('userDropdown');
+  const open = force !== undefined ? force : !d.classList.contains('open');
+  d.classList.toggle('open', open);
+}
+document.addEventListener('click', e => {
+  if (!document.getElementById('userMenuWrap')?.contains(e.target)) {
+    document.getElementById('userDropdown')?.classList.remove('open');
+  }
+});
+
+// ════════════════════════════════
+//  DATA (загружается с сервера)
+// ════════════════════════════════
+let trips = [];
+
+async function loadTrips() {
+  try {
+    const res = await fetch('/api/trips');
+    if (res.ok) {
+      const data = await res.json();
+      // Нормализуем формат под существующий код рендеринга
+      trips = data.map((t, idx) => ({
+        ...t,
+        id: idx,          // локальный индекс для openTripDetail
+        _serverId: t.id,  // реальный ID для API
+        info: (t.info || []).map(i => ({ l: i.label, v: i.value })),
+        song: t.song || { title: t.song_title, artist: t.song_artist, id: t.song_id }
+      }));
+    }
+  } catch (e) {
+    console.error('Ошибка загрузки путешествий:', e);
+  }
+  renderTripsList();
+  renderDashTripsList();
+  renderMiniCal();
+  renderSongOfTrip();
+  await loadReminders();
+}
+
+// ── Сохранение путешествия из модала ────────────────
+async function submitTripModal() {
+  const name = document.getElementById('tmDest').value.trim();
+  const errEl = document.getElementById('tripModalError');
+  errEl.style.display = 'none';
+
+  if (!name) { errEl.textContent = 'Введите название / город'; errEl.style.display = 'block'; return; }
+
+  const btn = document.getElementById('tmSaveBtn');
+  btn.textContent = '...'; btn.disabled = true;
+
+  const tripData = {
+    name,
+    emoji: document.getElementById('tmEmoji').value.trim() || '✈️',
+    sub:   document.getElementById('tmSub').value.trim(),
+    status: document.getElementById('tmStatus').value,
+    description: document.getElementById('tmDesc').value.trim()
+  };
+
+  const res = await fetch('/api/trips', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(tripData)
+  });
+
+  btn.textContent = 'Save'; btn.disabled = false;
+
+  if (res.ok) {
+    // Сбрасываем поля
+    ['tmDest','tmEmoji','tmSub','tmDesc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('tmStatus').value = 'plan';
+    closeModal('tripModal');
+    await loadTrips();
+  } else {
+    const data = await res.json();
+    errEl.textContent = data.error || 'Ошибка сохранения';
+    errEl.style.display = 'block';
+  }
+}
+
+// ── Сохранение заметки ───────────────────────────────
+let currentOpenTripServerId = null; // запоминаем при открытии карточки
+
+async function submitNote() {
+  const text = document.getElementById('tripNoteArea').value.trim();
+  if (!text) { alert('Напишите заметку'); return; }
+  if (!currentOpenTripServerId) { alert('Откройте карточку путешествия'); return; }
+
+  const btn = event.target;
+  btn.textContent = '...'; btn.disabled = true;
+
+  const res = await fetch(`/api/trips/${currentOpenTripServerId}/notes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text })
+  });
+
+  btn.textContent = 'Save note'; btn.disabled = false;
+
+  if (res.ok) {
+    document.getElementById('tripNoteArea').value = '';
+    const msg = document.getElementById('noteSavedMsg');
+    msg.style.display = 'block';
+    setTimeout(() => { msg.style.display = 'none'; }, 2500);
+  } else {
+    alert('Ошибка сохранения заметки');
+  }
+}
+
+// ── Сохранение путешествия (из других мест кода) ─────
+async function saveTrip(tripData) {
+  const res = await fetch('/api/trips', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(tripData)
+  });
+  if (res.ok) await loadTrips();
+  return res.ok;
+}
+
+// ════════════════════════════════
+//  LEGACY TRIPS ARRAY (первый запуск без данных)
+// ════════════════════════════════
+// Пример данных для демонстрации (только до первой загрузки с сервера)
+const DEMO_TRIPS = [
   {id:0, name:'Prague → Munich', emoji:'🏔️', sub:'28 May 2025 · overnight transit · no luggage', status:'soon', country:'DE', date:'2025-05-28',
    song:{title:'99 Luftballons', artist:'Nena', id:'Fpu5a0Bl8eY'},
    desc:'An intentional transit stop. Instead of taking a late bus from Prague, arrive early in Munich and spend the evening in the city before the midnight bus.',
@@ -1312,6 +1610,84 @@ const trips = [
 ];
 
 // ════════════════════════════════
+//  GOOGLE MAPS
+// ════════════════════════════════
+let googleMap = null;
+let mapMarkers = [];
+
+function initMap() {
+  const mapEl = document.getElementById('googleMap');
+  if (!mapEl || !window.google) return;
+
+  googleMap = new google.maps.Map(mapEl, {
+    zoom: 3,
+    center: { lat: 35, lng: 30 },
+    mapTypeControl: false,
+    streetViewControl: false,
+    styles: [
+      { featureType: 'all', elementType: 'geometry', stylers: [{ saturation: -20 }] },
+      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#d9cfc2' }] }
+    ]
+  });
+
+  // Добавляем маркеры по путешествиям
+  renderMapMarkers();
+}
+
+async function renderMapMarkers() {
+  if (!googleMap || !window.google) return;
+
+  // Удаляем старые маркеры
+  mapMarkers.forEach(m => m.setMap(null));
+  mapMarkers = [];
+
+  const geocoder = new google.maps.Geocoder();
+
+  for (const trip of trips) {
+    const query = trip.name.split('→')[0].trim(); // берём первый город если транзит
+    geocoder.geocode({ address: query }, (results, status) => {
+      if (status === 'OK' && results[0]) {
+        const marker = new google.maps.Marker({
+          position: results[0].geometry.location,
+          map: googleMap,
+          title: trip.name,
+          label: { text: trip.emoji || '📍', fontSize: '18px' }
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `<div style="font-family:system-ui,sans-serif;padding:4px 2px">
+            <strong style="color:#5c4033">${trip.name}</strong><br>
+            <span style="font-size:.75rem;color:#8b7355">${trip.sub || ''}</span>
+          </div>`
+        });
+
+        marker.addListener('click', () => {
+          infoWindow.open(googleMap, marker);
+          openTripDetail(trip.id);
+        });
+
+        mapMarkers.push(marker);
+      }
+    });
+  }
+}
+
+// Загружаем Google Maps API динамически
+async function loadGoogleMapsScript() {
+  try {
+    const res = await fetch('/api/config');
+    const { googleMapsKey } = await res.json();
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsKey}&callback=initMap&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  } catch(e) {
+    console.error('Ошибка загрузки Google Maps:', e);
+  }
+}
+
+// ════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════
 function showView(id, btn) {
@@ -1333,6 +1709,11 @@ function openTripDetail(idx) {
   const active = [...document.querySelectorAll('.view.active')].find(v => v.id !== 'v-trip-detail');
   if(active) prevView = active.id.replace('v-','');
   const t = trips[idx];
+  // Запоминаем server ID для сохранения заметок
+  currentOpenTripServerId = t._serverId || t.id;
+  // Сбрасываем поле заметки
+  const noteArea = document.getElementById('tripNoteArea');
+  if (noteArea) noteArea.value = '';
   document.getElementById('tdTitle').textContent = t.name;
   document.getElementById('tdSub').textContent = t.sub;
   document.getElementById('tdDesc').textContent = t.desc;
@@ -1620,7 +2001,53 @@ function generatePack(){
     sections.appendChild(sec);
   });
   document.getElementById('packResults').classList.add('show');
+
+  // Показываем кнопку «Сохранить в путешествие»
+  let saveBar = document.getElementById('packSaveBar');
+  if (!saveBar) {
+    saveBar = document.createElement('div');
+    saveBar.id = 'packSaveBar';
+    saveBar.style.cssText = 'margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap';
+    saveBar.innerHTML = `
+      <select id="packTripSel" style="flex:1;background:var(--cream);border:1.5px solid var(--mist);border-radius:9px;padding:9px 12px;font-family:system-ui,sans-serif;font-size:.85rem;color:var(--ink)">
+        <option value="">— Выбрать путешествие для сохранения —</option>
+      </select>
+      <button class="btn-primary" style="padding:9px 20px;font-size:.85rem" onclick="savePackToTrip()">Сохранить список</button>
+      <span id="packSavedMsg" style="display:none;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--moss)">✓ Сохранено</span>`;
+    document.getElementById('packResults').appendChild(saveBar);
+  }
+  // Заполняем список путешествий
+  const sel = document.getElementById('packTripSel');
+  sel.innerHTML = '<option value="">— Выбрать путешествие —</option>' +
+    trips.map(t => `<option value="${t._serverId || t.id}">${t.emoji} ${t.name}</option>`).join('');
 }
+
+async function savePackToTrip() {
+  const tripId = document.getElementById('packTripSel').value;
+  if (!tripId) { alert('Выберите путешествие'); return; }
+
+  // Собираем все чекбоксы
+  const items = [...document.querySelectorAll('#packSections .check-item')].map(el => ({
+    label: el.querySelector('label').textContent,
+    checked: el.querySelector('input[type=checkbox]').checked,
+    category: el.closest('.pack-section').querySelector('.ps-head')?.textContent?.trim()?.split(' ').slice(1).join(' ') || ''
+  }));
+
+  const res = await fetch(`/api/trips/${tripId}/pack`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items })
+  });
+
+  if (res.ok) {
+    const msg = document.getElementById('packSavedMsg');
+    msg.style.display = 'inline';
+    setTimeout(() => { msg.style.display = 'none'; }, 2500);
+  } else {
+    alert('Ошибка сохранения');
+  }
+}
+
 function addPackItem(input, cat){
   const val = input.value.trim();
   if(!val) return;
@@ -1774,13 +2201,17 @@ function saveSong(){
 // ════════════════════════════════
 //  REMINDERS (Calendar)
 // ════════════════════════════════
-let reminders = [
-  {id: 1, title: 'Buy train tickets Milan → Rome', date: '2026-05-15', icon: '🎫', tripId: 1},
-  {id: 2, title: 'Renew passport', date: '2026-05-10', icon: '🛂', tripId: null},
-  {id: 3, title: 'Book hotel in Seoul', date: '2026-06-05', icon: '🏨', tripId: 2}
-];
+let reminders = [];
 let remIconChosen = '🎫';
-let remNextId = 100;
+
+async function loadReminders() {
+  try {
+    const res = await fetch('/api/trips/reminders/all');
+    if (res.ok) reminders = await res.json();
+  } catch(e) { console.error('Reminders load error:', e); }
+  renderReminders();
+  renderCalendar();
+}
 
 function pickRemIcon(el){
   document.querySelectorAll('#remIconPick .chip').forEach(c => c.classList.remove('on'));
@@ -1802,28 +2233,40 @@ function openReminderModal(){
   openModal('reminderModal');
 }
 
-function saveReminder(){
+async function saveReminder(){
   const title = document.getElementById('remTitle').value.trim();
-  const date = document.getElementById('remDate').value;
+  const date  = document.getElementById('remDate').value;
   const tripIdVal = document.getElementById('remTrip').value;
-  if(!title){ alert('Please write what to remember.'); return; }
-  if(!date){ alert('Please pick a date.'); return; }
-  reminders.push({
-    id: remNextId++,
-    title,
-    date,
-    icon: remIconChosen,
-    tripId: tripIdVal === '' ? null : parseInt(tripIdVal, 10)
+  if(!title){ alert('Напишите, что нужно сделать.'); return; }
+  if(!date){  alert('Выберите дату.'); return; }
+
+  const btn = document.querySelector('#reminderModal .btn-save');
+  btn.textContent = '...'; btn.disabled = true;
+
+  const res = await fetch('/api/trips/reminders/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title,
+      date,
+      icon: remIconChosen,
+      trip_id: tripIdVal === '' ? null : parseInt(tripIdVal, 10)
+    })
   });
-  closeModal('reminderModal');
-  renderReminders();
-  renderCalendar();
+
+  btn.textContent = 'Save'; btn.disabled = false;
+
+  if(res.ok){
+    closeModal('reminderModal');
+    await loadReminders();
+  } else {
+    alert('Ошибка сохранения. Попробуйте ещё раз.');
+  }
 }
 
-function deleteReminder(id){
-  reminders = reminders.filter(r => r.id !== id);
-  renderReminders();
-  renderCalendar();
+async function deleteReminder(id){
+  await fetch(`/api/trips/reminders/${id}`, { method: 'DELETE' });
+  await loadReminders();
 }
 
 function renderReminders(){
@@ -1844,11 +2287,14 @@ function renderReminders(){
     else if(diffDays === 1) countdown = 'tomorrow';
     else if(diffDays < 30) countdown = `in ${diffDays}d`;
     else countdown = `in ${Math.round(diffDays/30)}mo`;
-    const trip = r.tripId !== null ? trips.find(t => t.id === r.tripId) : null;
+    // API возвращает trip_id (snake_case), старый код использовал tripId
+    const tripRef = r.trip_id ?? r.tripId ?? null;
+    const trip = tripRef !== null ? trips.find(t => (t._serverId || t.id) === tripRef) : null;
     const tripTag = trip ? `<span style="font-family:system-ui,sans-serif;font-size:.7rem;color:var(--accent)">• ${trip.emoji} ${trip.name}</span>` : '';
     const dateNice = d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+    const icon = r.icon || '🔔';
     return `<div class="rem-row">
-      <div class="rem-icon">${r.icon}</div>
+      <div class="rem-icon">${icon}</div>
       <div class="rem-body">
         <div class="rem-title">${r.title}</div>
         <div class="rem-meta">${dateNice} ${tripTag}</div>
@@ -2003,46 +2449,67 @@ const planDb = {
     {cat:'food', icon:'🍽', name:'Time Out Market', addr:'Av. 24 de Julho 49', walk:15, price:'€€', note:'Good for tasting many things fast.'}
   ]
 };
-function runPlan(){
+async function runPlan(){
   const dest = (document.getElementById('planDest').value||'').trim();
+  const origin = (document.getElementById('planOrigin').value||'').trim();
   const interests = [...document.querySelectorAll('#planInterests .chip.on')].map(e=>e.getAttribute('data-int'));
   const pace = document.querySelector('.chip[data-pace].on')?.getAttribute('data-pace') || 'slow';
   const resEl = document.getElementById('planResults');
   const emptyEl = document.getElementById('planEmpty');
+
+  if (!dest) { alert('Введите город'); return; }
+
   emptyEl.style.display = 'none';
   resEl.classList.add('show');
-  resEl.innerHTML = `<div class="plan-spinner"><span>Planning your ${dest||'trip'}</span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
-  // fake latency — feels like an AI call
-  setTimeout(()=>{
-    const key = dest.toLowerCase();
-    const match = Object.keys(planDb).find(k => key.includes(k));
-    const places = match ? planDb[match] : planDb.paris; // fallback
-    // filter by interests (if any)
-    let filtered = places.filter(p => interests.length === 0 || interests.includes(p.cat));
-    if(filtered.length === 0) filtered = places;
-    // cap by pace
-    const cap = pace === 'slow' ? 6 : pace === 'balanced' ? 10 : 16;
-    filtered = filtered.slice().sort((a,b)=>a.walk - b.walk).slice(0, cap);
-    // group by category
+  resEl.innerHTML = `<div class="plan-spinner"><span>AI составляет маршрут для ${dest}</span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+
+  try {
+    const res = await fetch('/api/plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ destination: dest, origin, interests, pace })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      resEl.innerHTML = `<div style="padding:24px;text-align:center;font-family:system-ui,sans-serif;font-size:.88rem;color:#c04030">${err.error || 'Ошибка AI. Попробуйте ещё раз.'}</div>`;
+      return;
+    }
+
+    const plan = await res.json();
+    const places = plan.places || [];
+
+    if (!places.length) {
+      resEl.innerHTML = `<div class="plan-empty">AI не вернул мест. Попробуйте другой город или интересы.</div>`;
+      return;
+    }
+
+    const catLabel = {coffee:'Coffee',food:'Food',art:'Art',history:'History',books:'Books',nature:'Nature',architecture:'Architecture',music:'Music',viewpoints:'Viewpoints',quiet:'Quiet spots'};
+
+    // Группируем по категориям
     const groups = {};
-    filtered.forEach(p=>{(groups[p.cat] = groups[p.cat]||[]).push(p)});
-    const catLabel = {coffee:'Coffee', food:'Food', art:'Art', history:'History', books:'Books', nature:'Nature', architecture:'Architecture', music:'Music', viewpoints:'Viewpoints', quiet:'Quiet spots'};
-    let html = `<p style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);margin-bottom:20px">${filtered.length} places in <strong>${match? dest : dest+' (using Paris as a reference)'}</strong>, sorted by walking time from your starting point.</p>`;
-    Object.entries(groups).forEach(([cat, arr])=>{
-      arr.sort((a,b)=>a.walk-b.walk);
-      html += `<div class="plan-section"><div class="plan-section-head"><span class="emoji">${arr[0].icon}</span>${catLabel[cat]||cat} <span style="color:var(--dusk);font-weight:400;font-size:.72rem;letter-spacing:0;text-transform:none;margin-left:auto">${arr.length} places</span></div>`;
-      arr.forEach(p=>{
+    places.forEach(p => { (groups[p.category] = groups[p.category]||[]).push(p); });
+
+    let html = `<p style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);margin-bottom:20px">${places.length} мест в <strong>${dest}</strong>, отсортированных по маршруту.</p>`;
+
+    Object.entries(groups).forEach(([cat, arr]) => {
+      html += `<div class="plan-section"><div class="plan-section-head"><span class="emoji">${arr[0].icon||'📍'}</span>${catLabel[cat]||cat} <span style="color:var(--dusk);font-weight:400;font-size:.72rem;letter-spacing:0;text-transform:none;margin-left:auto">${arr.length} мест</span></div>`;
+      arr.forEach(p => {
         html += `<div class="place-card"><div>
           <h4>${p.name}</h4>
-          <div class="pc-addr">${p.addr}</div>
-          <div class="pc-meta"><span>🚶 ${p.walk} min</span><span>💶 ${p.price}</span></div>
-          <div class="pc-note">${p.note}</div>
-        </div><div class="pc-right">${p.walk}<br>min walk</div></div>`;
+          <div class="pc-addr">${p.address||''}</div>
+          <div class="pc-meta"><span>🚶 ${p.walk||'?'} мин</span><span>${p.price||'€€'}</span></div>
+          <div class="pc-note">${p.note||''}</div>
+        </div><div class="pc-right">${p.walk||'?'}<br>мин</div></div>`;
       });
       html += `</div>`;
     });
+
     resEl.innerHTML = html;
-  }, 600);
+
+  } catch(e) {
+    resEl.innerHTML = `<div style="padding:24px;text-align:center;font-family:system-ui,sans-serif;font-size:.88rem;color:#c04030">Ошибка сети. Проверьте соединение и попробуйте снова.</div>`;
+  }
 }
 
 // ════════════════════════════════
@@ -2087,11 +2554,23 @@ function renderRq(){
   document.getElementById('rqText').textContent = rqList[rqCurrent];
   document.getElementById('rqInput').value = '';
 }
+let rqAnswers = [];
 function nextRq(){
+  const answer = document.getElementById('rqInput').value.trim();
+  rqAnswers.push(answer);
   rqCurrent++;
   if(rqCurrent >= rqList.length){
     document.getElementById('rc-questions').classList.remove('show');
     document.getElementById('rc-summary').classList.add('show');
+    // Сохраняем рефлексию на сервере
+    const mood = document.querySelector('.mood-btn.on span')?.textContent || '';
+    const mode = rqList.length <= 3 ? 'quick' : 'deep';
+    fetch('/api/reflections', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mood, mode, answers: rqAnswers })
+    }).catch(console.error);
+    rqAnswers = [];
     return;
   }
   renderRq();
@@ -2171,12 +2650,9 @@ function pickSopt(el){document.querySelectorAll('.sopt').forEach(s=>s.classList.
   if(el)el.textContent=s;
 })();
 
-// Initial renders
-renderSongOfTrip();
-renderTripsList();
-renderDashTripsList();
-renderMiniCal();
-renderReminders();
+// Запуск приложения
+initApp();
+loadGoogleMapsScript();
 </script>
 </body>
 </html>
