@@ -10,12 +10,14 @@ import { ProfilePage } from './pages/ProfilePage'
 import { TripPage } from './pages/TripPage'
 import { AuthPage } from './pages/AuthPage'
 import { PublishPage } from './pages/PublishPage'
+import { OnboardingPage } from './pages/OnboardingPage'
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />
           <Route path="/plan" element={<PlanPage />} />

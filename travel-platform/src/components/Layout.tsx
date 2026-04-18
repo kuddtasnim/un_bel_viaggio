@@ -2,7 +2,7 @@ import { Link, Outlet, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { cn } from '../lib/utils'
 import { useAuth } from '../hooks/useAuth'
-import { Map, BookOpen, Compass, User, Feather, Sparkles } from 'lucide-react'
+import { Map, BookOpen, Compass, User, Feather, Sparkles, Loader2 } from 'lucide-react'
 
 const navItems = [
   { to: '/plan', icon: Sparkles, labelKey: 'nav.plan' },
@@ -16,7 +16,7 @@ const navItems = [
 export function Layout() {
   const { t, i18n } = useTranslation()
   const location = useLocation()
-  const { user, signOut } = useAuth()
+  const { user, loading, signOut } = useAuth()
 
   return (
     <div className="min-h-screen bg-sand-50">
@@ -59,7 +59,9 @@ export function Layout() {
                 </button>
               ))}
             </div>
-            {user ? (
+            {loading ? (
+              <Loader2 size={16} className="animate-spin text-sand-400" />
+            ) : user ? (
               <button
                 onClick={() => signOut()}
                 className="text-sm text-sand-500 hover:text-sand-700 transition-colors"

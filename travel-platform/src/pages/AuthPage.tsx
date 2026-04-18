@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
@@ -6,13 +6,20 @@ import { Mail, Lock, Loader2 } from 'lucide-react'
 
 export function AuthPage() {
   const { t } = useTranslation()
-  const { signIn, signUp, signInWithGoogle } = useAuth()
+  const { user, loading: authLoading, isNewUser, signIn, signUp, signInWithGoogle } = useAuth()
   const navigate = useNavigate()
   const [mode, setMode] = useState<'login' | 'signup'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+
+  // Redirect away if already authenticated
+  useEffect(() => {
+    if (!authLoading && user) {
+      navigate(isNewUser ? '/onboarding' : '/profile', { replace: true })
+    }
+  }, [user, authLoading, isNewUser, navigate])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,10 +30,19 @@ export function AuthPage() {
         ? await signIn(email, password)
         : await signUp(email, password)
       if (error) setError(error.message)
-      else navigate('/profile')
+      // navigation handled by useEffect above
     } finally {
       setLoading(false)
     }
+  }
+
+  // Show nothing while checking session (prevents flash)
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-sand-50">
+        <Loader2 size={24} className="animate-spin text-sand-400" />
+      </div>
+    )
   }
 
   return (

@@ -2,6 +2,27 @@ export type TravelerType = 'reflective' | 'explorer' | 'contemplative' | 'advent
 export type TravelPace = 'slow' | 'moderate' | 'fast'
 export type TravelCategory = 'reflective' | 'adventure' | 'cultural' | 'gastronomic' | 'urban'
 export type Language = 'ru' | 'en' | 'fr'
+export type TripStatus = 'soon' | 'planning' | 'done' | 'idea'
+
+export interface Song {
+  title: string
+  artist: string
+  youtubeId: string
+}
+
+export interface PackItem {
+  id: string
+  label: string
+  checked: boolean
+  category: string
+}
+
+export interface Photo {
+  id: string
+  url: string
+  caption?: string
+  takenAt?: string
+}
 
 export interface Trip {
   id: string
@@ -10,10 +31,13 @@ export interface Trip {
   country?: string
   startDate?: string
   endDate?: string
+  status?: TripStatus
   travelerType?: TravelerType
   summary?: string
+  song?: Song
   isPublic: boolean
   createdAt: string
+  isDraft?: boolean
 }
 
 export interface Note {
@@ -32,6 +56,14 @@ export interface ReflectionQuestion {
   id: string
   question: string
   placeholder: string
+}
+
+export interface Reflection {
+  id: string
+  tripId: string
+  userId: string
+  answers: Record<string, string>
+  createdAt: string
 }
 
 export interface Post {

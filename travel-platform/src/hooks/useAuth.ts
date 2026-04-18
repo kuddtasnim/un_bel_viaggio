@@ -6,6 +6,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [isNewUser, setIsNewUser] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -14,9 +15,19 @@ export function useAuth() {
       setLoading(false)
     })
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session)
       setUser(session?.user ?? null)
+      if (event === 'SIGNED_IN') {
+        const createdAt = session?.user?.created_at
+        if (createdAt) {
+          const ageMs = Date.now() - new Date(createdAt).getTime()
+          setIsNewUser(ageMs < 15_000)
+        }
+      }
+      if (event === 'SIGNED_OUT') {
+        setIsNewUser(false)
+      }
     })
 
     return () => subscription.unsubscribe()
@@ -33,5 +44,5 @@ export function useAuth() {
 
   const signOut = () => supabase.auth.signOut()
 
-  return { user, session, loading, signIn, signUp, signInWithGoogle, signOut }
+  return { user, session, loading, isNewUser, signIn, signUp, signInWithGoogle, signOut }
 }
