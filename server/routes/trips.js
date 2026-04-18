@@ -53,13 +53,15 @@ router.get('/:id', async (req, res) => {
 
 // ── POST /api/trips ──────────────────────────────────
 router.post('/', async (req, res) => {
-  const { name, emoji, sub, status, country, date, description, song, info, logistics } = req.body;
+  const { name, emoji, sub, status, country, date, start_date, end_date, description, song, info, logistics } = req.body;
   if (!name) return res.status(400).json({ error: 'Название обязательно' });
+
+  const effectiveDate = start_date || date || '';
 
   const trip = await db.one(
     `INSERT INTO trips (user_id, name, emoji, sub, status, country, date, description, song_title, song_artist, song_id)
      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING id`,
-    [req.userId, name, emoji||'✈️', sub||'', status||'plan', country||'', date||'',
+    [req.userId, name, emoji||'✈️', sub||'', status||'plan', country||'', effectiveDate,
      description||'', song?.title||'', song?.artist||'', song?.id||'']
   );
 
@@ -76,17 +78,30 @@ router.post('/', async (req, res) => {
   res.json({ ok: true, id: trip.id });
 });
 
+// ── POST /api/trips/:id/song ─────────────────────────
+router.post('/:id/song', async (req, res) => {
+  const trip = await db.one('SELECT id FROM trips WHERE id = $1 AND user_id = $2', [req.params.id, req.userId]);
+  if (!trip) return res.status(404).json({ error: 'Не найдено' });
+  const { song_title, song_artist, song_id } = req.body;
+  await db.query(
+    'UPDATE trips SET song_title=$1, song_artist=$2, song_id=$3 WHERE id=$4',
+    [song_title||'', song_artist||'', song_id||'', trip.id]
+  );
+  res.json({ ok: true });
+});
+
 // ── PUT /api/trips/:id ───────────────────────────────
 router.put('/:id', async (req, res) => {
   const trip = await db.one('SELECT id FROM trips WHERE id = $1 AND user_id = $2', [req.params.id, req.userId]);
   if (!trip) return res.status(404).json({ error: 'Не найдено' });
 
-  const { name, emoji, sub, status, country, date, description, song, info, logistics } = req.body;
+  const { name, emoji, sub, status, country, date, start_date, end_date, description, song, info, logistics } = req.body;
+  const effectiveDate = start_date || date || '';
 
   await db.query(
     `UPDATE trips SET name=$1, emoji=$2, sub=$3, status=$4, country=$5, date=$6,
      description=$7, song_title=$8, song_artist=$9, song_id=$10 WHERE id=$11`,
-    [name, emoji, sub, status, country, date, description,
+    [name, emoji||'✈️', sub||'', status||'plan', country||'', effectiveDate, description||'',
      song?.title||'', song?.artist||'', song?.id||'', trip.id]
   );
 

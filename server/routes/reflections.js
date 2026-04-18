@@ -8,7 +8,6 @@ router.use(requireAuth);
 // ── POST /api/reflections ────────────────────────────
 router.post('/', async (req, res) => {
   const { mood, mode, answers, trip_id } = req.body;
-  if (!mood) return res.status(400).json({ error: 'Настроение обязательно' });
 
   const row = await db.one(
     'INSERT INTO reflections (user_id, trip_id, mood, mode, answers) VALUES ($1,$2,$3,$4,$5) RETURNING id',

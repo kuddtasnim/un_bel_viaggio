@@ -98,8 +98,11 @@ nav{
 #v-trip-detail{position:fixed;inset:0;z-index:200;background:var(--cream);overflow-y:auto;padding:0}
 #v-trip-detail.active{display:flex;flex-direction:column}
 .td-hero{background:linear-gradient(135deg,var(--bark),var(--clay));color:#fff;padding:calc(var(--nav-h) + 20px) 24px 24px}
-.td-back{display:inline-flex;align-items:center;gap:6px;font-family:system-ui,sans-serif;font-size:.82rem;font-weight:600;color:var(--bark);cursor:pointer;margin-bottom:16px;background:#fff;border:1.5px solid #fff;border-radius:50px;padding:8px 18px;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:.2s}
+.td-back{display:inline-flex;align-items:center;gap:6px;font-family:system-ui,sans-serif;font-size:.82rem;font-weight:600;color:var(--bark);cursor:pointer;background:#fff;border:1.5px solid #fff;border-radius:50px;padding:8px 18px;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:.2s;position:sticky;top:12px;z-index:100}
 .td-back:hover{background:var(--accent);color:#fff;border-color:var(--accent);transform:translateX(-2px)}
+.td-topbar{display:flex;align-items:center;gap:10px;margin-bottom:0}
+.td-edit-btn{display:inline-flex;align-items:center;gap:5px;font-family:system-ui,sans-serif;font-size:.82rem;font-weight:600;color:var(--bark);cursor:pointer;background:#fff;border:1.5px solid #fff;border-radius:50px;padding:8px 16px;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:.2s;position:sticky;top:12px;z-index:100}
+.td-edit-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
 .td-title{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:400;margin-bottom:4px}
 .td-sub{font-family:system-ui,sans-serif;font-size:.88rem;opacity:.75}
 .td-inner{max-width:800px;margin:0 auto;padding:24px 20px 60px}
@@ -487,8 +490,9 @@ nav{
 .auth-box h2{font-family:system-ui,sans-serif;font-size:1rem;color:var(--bark);font-weight:600;margin-bottom:20px;text-align:center}
 .auth-field{margin-bottom:14px}
 .auth-field label{display:block;font-family:system-ui,sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--dusk);margin-bottom:5px}
-.auth-field input{width:100%;background:var(--cream);border:1.5px solid var(--mist);border-radius:9px;padding:10px 13px;font-family:system-ui,sans-serif;font-size:.9rem;color:var(--ink);transition:.2s}
-.auth-field input:focus{outline:none;border-color:var(--accent)}
+.auth-field input,.auth-field textarea{width:100%;background:var(--cream);border:1.5px solid var(--mist);border-radius:9px;padding:10px 13px;font-family:system-ui,sans-serif;font-size:.9rem;color:var(--ink);transition:.2s}
+.auth-field input:focus,.auth-field textarea:focus{outline:none;border-color:var(--accent)}
+.auth-field textarea{resize:vertical}
 .auth-btn{width:100%;background:var(--bark);color:#fff;border:none;border-radius:50px;padding:12px;font-family:system-ui,sans-serif;font-size:.9rem;cursor:pointer;transition:.2s;margin-top:8px}
 .auth-btn:hover{background:var(--clay)}
 .auth-switch{text-align:center;margin-top:16px;font-family:system-ui,sans-serif;font-size:.8rem;color:var(--dusk)}
@@ -528,7 +532,6 @@ nav{
       <button class="tab" onclick="showView('calendar',this)">Calendar</button>
       <button class="tab" onclick="showView('pack',this)">Pack</button>
       <button class="tab" onclick="showView('kb',this)">Knowledge Base</button>
-      <button class="tab" onclick="showView('video',this)">Video</button>
       <button class="tab" onclick="showView('maps',this)">Maps</button>
       <button class="tab" onclick="showView('about',this)">About</button>
     </div>
@@ -548,7 +551,7 @@ nav{
 </nav>
 
 <!-- ═══════════════════ AUTH MODAL ═══════════════════ -->
-<div class="auth-overlay" id="authOverlay">
+<div class="auth-overlay" id="authOverlay" style="display:none">
   <div class="auth-box">
     <div class="auth-logo">Un Bel Viaggio</div>
     <div class="auth-sub">твой личный дневник путешествий</div>
@@ -576,6 +579,20 @@ nav{
       </label>
       <button class="auth-btn" onclick="submitRegister()">Создать аккаунт →</button>
       <div class="auth-switch">Уже есть аккаунт? <a onclick="switchAuth('login')">Войти</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ONBOARDING OVERLAY ═══════════════════ -->
+<div class="auth-overlay" id="onboardingOverlay" style="display:none;align-items:flex-start;padding:24px 16px;overflow-y:auto">
+  <div class="auth-box" style="max-width:560px;width:100%;margin-top:20px">
+    <div class="auth-logo" style="margin-bottom:4px">✦ Un Bel Viaggio</div>
+    <div class="auth-sub" style="margin-bottom:24px">Расскажи о своих прошлых путешествиях — и приложение сразу оживёт</div>
+    <div id="obTripList" style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px"></div>
+    <button onclick="addObTrip()" style="width:100%;padding:12px;border:2px dashed var(--mist);border-radius:12px;background:none;font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk);cursor:pointer;transition:.2s;margin-bottom:20px" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--mist)';this.style.color='var(--dusk)'">+ Добавить ещё поездку</button>
+    <div style="display:flex;gap:12px">
+      <button onclick="skipOnboarding()" style="flex:1;padding:13px;border:1.5px solid var(--mist);border-radius:50px;background:none;font-family:system-ui,sans-serif;font-size:.88rem;color:var(--dusk);cursor:pointer">Пропустить</button>
+      <button id="obSaveBtn" onclick="saveOnboarding()" class="auth-btn" style="flex:2;margin-top:0">Сохранить и начать →</button>
     </div>
   </div>
 </div>
@@ -616,6 +633,12 @@ nav{
         <div class="rc-body" id="reflectCard">
           <!-- Step 1: Mood -->
           <div id="rc-mood">
+            <div style="margin-bottom:14px">
+              <label style="font-family:system-ui,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);display:block;margin-bottom:6px">Tie to trip (optional)</label>
+              <select id="reflectTripSel" style="width:100%;border:1.5px solid var(--mist);border-radius:9px;padding:8px 12px;font-family:system-ui,sans-serif;font-size:.83rem;background:var(--cream);color:var(--ink)">
+                <option value="">— no specific trip —</option>
+              </select>
+            </div>
             <p class="mood-label" style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);margin-bottom:10px">How are you feeling right now?</p>
             <div class="mood-row">
               <button class="mood-btn" onclick="pickMood('tired',this)">😴<span>Tired</span></button>
@@ -666,29 +689,7 @@ nav{
         <h2>Upcoming</h2>
         <a onclick="showView('trips',document.querySelectorAll('.tab')[1])">all trips →</a>
       </div>
-      <div class="upcoming-strip mb-8">
-        <div class="up-card" onclick="openTripDetail(0)">
-          <div class="up-emoji">🏔️</div>
-          <div class="up-info">
-            <h3>Prague → Munich</h3>
-            <div class="ud">28 May 2025 · overnight transit</div>
-          </div>
-          <span class="tc-badge b-soon up-badge">Soon</span>
-          <span class="up-arrow">›</span>
-        </div>
-        <div class="up-card" onclick="openTripDetail(1)">
-          <div class="up-emoji">🗼</div>
-          <div class="up-info">
-            <h3>Paris</h3>
-            <div class="ud">10–15 June 2025</div>
-          </div>
-          <span class="tc-badge b-plan up-badge">Planned</span>
-          <span class="up-arrow">›</span>
-        </div>
-        <div class="add-empty" style="min-height:60px;flex-direction:row;gap:10px;padding:14px 18px" onclick="openModal('tripModal')">
-          <span class="plus">+</span> Add trip
-        </div>
-      </div>
+      <div class="upcoming-strip mb-8" id="dashUpcomingStrip"></div>
 
       <!-- INSIGHTS STRIP -->
       <div class="section-head" style="margin-bottom:12px">
@@ -810,7 +811,11 @@ nav{
 <!-- ═══════════════════ TRIP DETAIL (full-screen) ═══════════════════ -->
 <div class="view" id="v-trip-detail">
   <div class="td-hero" id="tdHero">
-    <button class="td-back" onclick="closeTripDetail()">← Back</button>
+    <div class="td-topbar">
+      <button class="td-back" onclick="closeTripDetail()">← Back</button>
+      <button class="td-edit-btn" onclick="openEditTripModal()">✎ Edit</button>
+      <button class="td-edit-btn" onclick="deleteTripFromDetail()" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.3);color:#fff;margin-left:auto" title="Delete trip">🗑</button>
+    </div>
     <div class="td-title" id="tdTitle">Trip</div>
     <div class="td-sub" id="tdSub"></div>
   </div>
@@ -857,41 +862,52 @@ nav{
       <div id="tdPackList" style="display:flex;flex-direction:column;gap:10px;margin-top:12px"></div>
     </div>
 
-    <!-- Notes -->
+    <!-- Notes & Photos -->
     <div class="td-panel" id="tp-notes-td">
-      <div class="section-header-row">
+      <div class="section-header-row" style="margin-bottom:10px">
         <p class="label-sm" style="margin-bottom:0">Trip notes</p>
         <span style="font-family:system-ui,sans-serif;font-size:.7rem;color:var(--dusk)">always editable</span>
       </div>
       <textarea class="td-note-area" id="tripNoteArea" placeholder="Write anything — impressions, people you met, things you noticed..."></textarea>
-      <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
-        <label class="photo-drop" style="flex:1;padding:12px;font-size:.78rem;cursor:pointer">
-          <input type="file" accept="image/*" style="display:none" onchange="previewTripPhoto(this)"/>
-          📷 Add photo
-        </label>
+      <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
         <button class="btn-primary" style="padding:9px 20px;font-size:.82rem" onclick="submitNote()">Save note</button>
       </div>
       <div id="noteSavedMsg" style="display:none;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--moss);margin-top:8px">✓ Заметка сохранена</div>
-      <div id="tripPhotoPreview" style="margin-top:12px"></div>
+
+      <!-- Photo Gallery -->
+      <div style="margin-top:24px">
+        <div class="section-header-row" style="margin-bottom:12px">
+          <p class="label-sm" style="margin-bottom:0">Photos</p>
+          <label style="font-family:system-ui,sans-serif;font-size:.78rem;color:var(--accent);cursor:pointer;display:inline-flex;align-items:center;gap:5px">
+            <input type="file" accept="image/*" multiple style="display:none" onchange="addTripPhotos(this)"/>
+            📷 Add photos
+          </label>
+        </div>
+        <div id="tripPhotoGallery" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px"></div>
+        <div id="galleryEmpty" style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);padding:16px 0">No photos yet — tap «Add photos» to add some.</div>
+      </div>
     </div>
 
     <!-- Reflection for this trip -->
     <div class="td-panel" id="tp-reflect-td">
       <p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk);margin-bottom:16px">Reflect on this trip</p>
-      <div style="display:flex;gap:8px;flex-direction:column">
+      <div style="display:flex;gap:8px;flex-direction:column" id="tdReflectForm">
         <div style="background:var(--warm);border:1px solid var(--mist);border-radius:10px;padding:16px">
           <p style="font-size:.95rem;color:var(--bark);margin-bottom:10px">What's one moment you want to hold onto?</p>
-          <textarea class="td-note-area" style="min-height:70px" placeholder="A person, a light, a sound..."></textarea>
+          <textarea class="td-note-area" id="tdRef1" style="min-height:70px" placeholder="A person, a light, a sound..."></textarea>
         </div>
         <div style="background:var(--warm);border:1px solid var(--mist);border-radius:10px;padding:16px">
           <p style="font-size:.95rem;color:var(--bark);margin-bottom:10px">What feeling kept coming back?</p>
-          <textarea class="td-note-area" style="min-height:70px" placeholder="Not what you did — what you felt..."></textarea>
+          <textarea class="td-note-area" id="tdRef2" style="min-height:70px" placeholder="Not what you did — what you felt..."></textarea>
         </div>
         <div style="background:var(--warm);border:1px solid var(--mist);border-radius:10px;padding:16px">
           <p style="font-size:.95rem;color:var(--bark);margin-bottom:10px">What surprised you about yourself?</p>
-          <textarea class="td-note-area" style="min-height:70px" placeholder=""></textarea>
+          <textarea class="td-note-area" id="tdRef3" style="min-height:70px" placeholder=""></textarea>
         </div>
-        <button class="btn-primary" style="align-self:flex-end">Save reflection</button>
+        <div style="display:flex;align-items:center;gap:12px;align-self:flex-end">
+          <span id="tdReflectSavedMsg" style="display:none;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--moss)">✓ Reflection saved</span>
+          <button class="btn-primary" onclick="saveTripReflection()">Save reflection</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1046,7 +1062,7 @@ nav{
       <span class="ftag" data-tag="nature" onclick="filterByTag('nature',this)">Nature</span>
       <span class="ftag" data-tag="logistics" onclick="filterByTag('logistics',this)">Logistics</span>
     </div>
-    <span style="font-family:system-ui,sans-serif;font-size:.7rem;color:var(--dusk);margin-left:auto">Pick multiple · shows cards matching any selected</span>
+    <span style="font-family:system-ui,sans-serif;font-size:.7rem;color:var(--dusk);margin-left:auto">Pick multiple · cards must match ALL selected tags</span>
     <button class="btn-accent" onclick="openModal('expModal')">+ Add experience</button>
   </div>
   <div class="kb-grid" id="kbGrid">
@@ -1194,14 +1210,14 @@ nav{
       </ul>
     </div>
     <div class="about-block">
-      <h3>Inspired by Polarsteps — features worth borrowing</h3>
+      <h3>Why I travel</h3>
       <div class="polar-grid">
-        <div class="polar-item"><h4>Steps concept</h4><p>Each day of travel = a "step" with location, photos, notes. Creates a visual journey timeline automatically.</p></div>
-        <div class="polar-item"><h4>Route on a real map</h4><p>Pins showing your actual path across a world map. Beautifully visual, tells the story of the route.</p></div>
-        <div class="polar-item"><h4>Auto-generated stats</h4><p>Total distance travelled, days away, countries visited — calculated automatically from your steps.</p></div>
-        <div class="polar-item"><h4>Printed travel book</h4><p>Export your trip as a beautifully formatted PDF book — text, photos, map included. Worth implementing.</p></div>
-        <div class="polar-item"><h4>Weather per step</h4><p>Automatic weather data for each day of travel, attached to the journal entry. Useful for reflection.</p></div>
-        <div class="polar-item"><h4>Offline access</h4><p>Full functionality without internet — essential when abroad. Critical for a travel app.</p></div>
+        <div class="polar-item"><h4>Collect moments, not things</h4><p>A particular quality of light, the smell of a morning market, the way people move in a city — these are what stay.</p></div>
+        <div class="polar-item"><h4>Slow down deliberately</h4><p>One neighbourhood per day. One café, really noticed. The rhythm of a place takes time to absorb.</p></div>
+        <div class="polar-item"><h4>Practice noticing</h4><p>Travel is an exercise in attention. What do I actually see? What do I walk past without realising?</p></div>
+        <div class="polar-item"><h4>Return differently</h4><p>A good trip changes how you read the place you came from. Distance helps you see home more clearly.</p></div>
+        <div class="polar-item"><h4>Build a personal knowledge base</h4><p>Every transit solved, every shortcut found, every discovery worth repeating — captured before it fades.</p></div>
+        <div class="polar-item"><h4>Write while it's still alive</h4><p>The detail that felt unforgettable becomes vague in 48 hours. Notes written on the spot are the most honest ones.</p></div>
       </div>
     </div>
     <div class="about-block">
@@ -1220,20 +1236,27 @@ nav{
 <!-- ═══════════════════ MODALS ═══════════════════ -->
 <div class="modal-overlay" id="tripModal" onclick="closeIfOverlay(event,'tripModal')">
   <div class="modal">
-    <h3>Add trip</h3>
+    <h3 id="tripModalTitle">Add trip</h3>
+    <div id="tripDraftBanner" style="display:none;background:#fdf6e3;border:1px solid #e8d8a0;border-radius:9px;padding:9px 14px;font-family:system-ui,sans-serif;font-size:.78rem;color:#7a6020;margin-bottom:12px">
+      📝 Draft restored · <a onclick="clearTripDraft()" style="cursor:pointer;text-decoration:underline;color:var(--accent)">Discard</a>
+    </div>
     <div id="tripModalError" style="display:none;background:#fde8d3;border:1px solid #f0b090;border-radius:9px;padding:10px 14px;font-family:system-ui,sans-serif;font-size:.82rem;color:#a04020;margin-bottom:14px"></div>
-    <div class="mfield"><label>Destination</label><input type="text" id="tmDest" placeholder="Paris, Tokyo..."/></div>
-    <div class="mfield"><label>Emoji</label><input type="text" id="tmEmoji" placeholder="🗼" maxlength="2" style="width:60px"/></div>
-    <div class="mfield"><label>Dates / subtitle</label><input type="text" id="tmSub" placeholder="10–15 June 2025 · 5 days"/></div>
+    <div class="mfield"><label>Destination / name</label><input type="text" id="tmDest" placeholder="Paris, Tokyo..." oninput="saveTripDraft()"/></div>
+    <div class="mfield"><label>Emoji</label><input type="text" id="tmEmoji" placeholder="🗼" maxlength="2" style="width:60px" oninput="saveTripDraft()"/></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="mfield"><label>Start date</label><input type="date" id="tmStartDate" onchange="saveTripDraft()"/></div>
+      <div class="mfield"><label>End date</label><input type="date" id="tmEndDate" onchange="saveTripDraft()"/></div>
+    </div>
     <div class="mfield"><label>Status</label>
-      <select id="tmStatus">
+      <select id="tmStatus" onchange="saveTripDraft()">
         <option value="plan">Planned</option>
         <option value="soon">Soon</option>
         <option value="idea">Idea</option>
         <option value="done">Done</option>
       </select>
     </div>
-    <div class="mfield"><label>Short description (optional)</label><textarea id="tmDesc" placeholder="What this trip is about..." style="min-height:60px"></textarea></div>
+    <div class="mfield"><label>Short description (optional)</label><textarea id="tmDesc" placeholder="What this trip is about..." style="min-height:60px" oninput="saveTripDraft()"></textarea></div>
+    <input type="hidden" id="tmEditId" value=""/>
     <div class="modal-actions">
       <button class="btn-cancel" onclick="closeModal('tripModal')">Cancel</button>
       <button class="btn-save" id="tmSaveBtn" onclick="submitTripModal()">Save</button>
@@ -1336,12 +1359,69 @@ function hideAuthOverlay() {
 
 function showApp() {
   hideAuthOverlay();
+  document.getElementById('onboardingOverlay').style.display = 'none';
   const g = document.getElementById('dashGreeting');
   if (g) g.textContent = `Hello, ${currentUser.name} ✦`;
   const wrap = document.getElementById('userMenuWrap');
   if (wrap) { wrap.style.display = 'flex'; }
   document.getElementById('userMenuName').textContent = currentUser.name;
+  // Restore trip modal draft if any
+  restoreTripDraft();
   loadTrips();
+}
+
+// ════════════════════════════════
+//  ONBOARDING
+// ════════════════════════════════
+let obTripCount = 0;
+function showOnboarding() {
+  obTripCount = 0;
+  document.getElementById('obTripList').innerHTML = '';
+  addObTrip();
+  document.getElementById('onboardingOverlay').style.display = 'flex';
+}
+function addObTrip() {
+  obTripCount++;
+  const id = `ob_${obTripCount}`;
+  const curYear = new Date().getFullYear();
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'background:var(--warm);border:1px solid var(--mist);border-radius:14px;padding:16px';
+  div.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <span style="font-family:system-ui,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)">Поездка ${obTripCount}</span>
+      ${obTripCount > 1 ? `<button onclick="document.getElementById('${id}').remove()" style="background:none;border:none;font-size:1rem;cursor:pointer;color:var(--dusk)">✕</button>` : ''}
+    </div>
+    <div style="display:grid;grid-template-columns:1fr auto;gap:10px;margin-bottom:10px">
+      <div class="auth-field" style="margin:0"><label>Город / страна</label><input type="text" placeholder="Рим, Стамбул, Сеул..." style="width:100%"/></div>
+      <div class="auth-field" style="margin:0"><label>Год</label><input type="number" value="${curYear}" min="1950" max="${curYear}" style="width:80px"/></div>
+    </div>
+    <div class="auth-field" style="margin:0"><label>Впечатление (необязательно)</label><textarea placeholder="Что запомнилось больше всего?" style="min-height:50px;width:100%"></textarea></div>`;
+  document.getElementById('obTripList').appendChild(div);
+}
+async function saveOnboarding() {
+  const btn = document.getElementById('obSaveBtn');
+  btn.textContent = '...'; btn.disabled = true;
+  const rows = [...document.querySelectorAll('#obTripList > div')].map(div => {
+    const inputs = div.querySelectorAll('input');
+    const dest = inputs[0].value.trim();
+    const year = inputs[1].value || new Date().getFullYear();
+    const imp = div.querySelector('textarea').value.trim();
+    return dest ? { name: dest, emoji: '✈️', sub: year, status: 'done', description: imp, date: `${year}-01-01` } : null;
+  }).filter(Boolean);
+  if (rows.length > 0) {
+    await Promise.all(rows.map(r => fetch('/api/trips', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(r)
+    })));
+  }
+  btn.textContent = 'Сохранить и начать →'; btn.disabled = false;
+  skipOnboarding();
+}
+function skipOnboarding() {
+  document.getElementById('onboardingOverlay').style.display = 'none';
+  showApp();
 }
 
 function switchAuth(mode) {
@@ -1386,7 +1466,8 @@ async function submitRegister() {
   const data = await res.json();
   if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; return; }
   currentUser = { name: data.name };
-  showApp();
+  hideAuthOverlay();
+  showOnboarding();
 }
 
 async function logout() {
@@ -1445,9 +1526,41 @@ async function loadTrips() {
   }
   renderTripsList();
   renderDashTripsList();
+  renderDashUpcomingStrip();
   renderMiniCal();
   renderSongOfTrip();
+  populateTripSelectors();
   await loadReminders();
+}
+
+// ── Draft autosave ───────────────────────────────────
+function saveTripDraft() {
+  const draft = {
+    dest: document.getElementById('tmDest').value,
+    emoji: document.getElementById('tmEmoji').value,
+    startDate: document.getElementById('tmStartDate').value,
+    endDate: document.getElementById('tmEndDate').value,
+    status: document.getElementById('tmStatus').value,
+    desc: document.getElementById('tmDesc').value,
+  };
+  localStorage.setItem('tripDraft', JSON.stringify(draft));
+}
+function clearTripDraft() {
+  localStorage.removeItem('tripDraft');
+  document.getElementById('tripDraftBanner').style.display = 'none';
+}
+function restoreTripDraft() {
+  const raw = localStorage.getItem('tripDraft');
+  if (!raw) return;
+  const d = JSON.parse(raw);
+  if (!d.dest) return; // empty draft — ignore
+  document.getElementById('tmDest').value = d.dest || '';
+  document.getElementById('tmEmoji').value = d.emoji || '';
+  document.getElementById('tmStartDate').value = d.startDate || '';
+  document.getElementById('tmEndDate').value = d.endDate || '';
+  document.getElementById('tmStatus').value = d.status || 'plan';
+  document.getElementById('tmDesc').value = d.desc || '';
+  document.getElementById('tripDraftBanner').style.display = '';
 }
 
 // ── Сохранение путешествия из модала ────────────────
@@ -1461,16 +1574,37 @@ async function submitTripModal() {
   const btn = document.getElementById('tmSaveBtn');
   btn.textContent = '...'; btn.disabled = true;
 
+  const startDate = document.getElementById('tmStartDate').value;
+  const endDate = document.getElementById('tmEndDate').value;
+  // Build a human-readable sub string from dates
+  let sub = '';
+  if (startDate && endDate) {
+    const s = new Date(startDate), e = new Date(endDate);
+    const fmt = d => d.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+    const diffDays = Math.round((e - s) / 86400000) + 1;
+    sub = `${fmt(s)} – ${fmt(e)} · ${diffDays} day${diffDays !== 1 ? 's' : ''}`;
+  } else if (startDate) {
+    const s = new Date(startDate);
+    sub = s.toLocaleDateString('en-GB', {day:'numeric', month:'short', year:'numeric'});
+  }
+
+  const editId = document.getElementById('tmEditId').value;
+
   const tripData = {
     name,
     emoji: document.getElementById('tmEmoji').value.trim() || '✈️',
-    sub:   document.getElementById('tmSub').value.trim(),
+    sub,
+    start_date: startDate || null,
+    end_date: endDate || null,
     status: document.getElementById('tmStatus').value,
     description: document.getElementById('tmDesc').value.trim()
   };
 
-  const res = await fetch('/api/trips', {
-    method: 'POST',
+  const url = editId ? `/api/trips/${editId}` : '/api/trips';
+  const method = editId ? 'PUT' : 'POST';
+
+  const res = await fetch(url, {
+    method,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(tripData)
   });
@@ -1478,9 +1612,11 @@ async function submitTripModal() {
   btn.textContent = 'Save'; btn.disabled = false;
 
   if (res.ok) {
-    // Сбрасываем поля
-    ['tmDest','tmEmoji','tmSub','tmDesc'].forEach(id => document.getElementById(id).value = '');
+    clearTripDraft();
+    ['tmDest','tmEmoji','tmStartDate','tmEndDate','tmDesc'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('tmStatus').value = 'plan';
+    document.getElementById('tmEditId').value = '';
+    document.getElementById('tripModalTitle').textContent = 'Add trip';
     closeModal('tripModal');
     await loadTrips();
   } else {
@@ -1488,6 +1624,35 @@ async function submitTripModal() {
     errEl.textContent = data.error || 'Ошибка сохранения';
     errEl.style.display = 'block';
   }
+}
+
+// ── Удалить путешествие из детального вида ───────────
+async function deleteTripFromDetail(){
+  if(!confirm('Удалить это путешествие? Это действие необратимо.')) return;
+  const res = await fetch(`/api/trips/${currentOpenTripServerId}`, { method: 'DELETE' });
+  if(res.ok){
+    closeTripDetail();
+    await loadTrips();
+  } else {
+    alert('Ошибка удаления');
+  }
+}
+
+// ── Открыть модал редактирования существующей поездки ──
+function openEditTripModal() {
+  const t = trips.find(x => x._serverId === currentOpenTripServerId || x.id === currentOpenTripServerId);
+  if (!t) { openModal('tripModal'); return; }
+  document.getElementById('tripModalTitle').textContent = 'Edit trip';
+  document.getElementById('tmEditId').value = t._serverId || t.id;
+  document.getElementById('tmDest').value = t.name || '';
+  document.getElementById('tmEmoji').value = t.emoji || '';
+  document.getElementById('tmStatus').value = t.status || 'plan';
+  document.getElementById('tmDesc').value = t.desc || '';
+  // Try to parse dates from sub or use stored dates
+  document.getElementById('tmStartDate').value = t.start_date || (t.date || '');
+  document.getElementById('tmEndDate').value = t.end_date || '';
+  document.getElementById('tripDraftBanner').style.display = 'none';
+  openModal('tripModal');
 }
 
 // ── Сохранение заметки ───────────────────────────────
@@ -1734,13 +1899,32 @@ function openTripDetail(idx) {
     const timeCls = l.time ? 'lg-time' : 'lg-time empty';
     return `<li><span class="lg-icon">${l.icon||'·'}</span><span class="${timeCls}">${timeDisp}</span><span class="lg-text">${l.text}</span></li>`;
   }).join('');
-  // pack
+  // pack — load from server if available
   const pl = document.getElementById('tdPackList');
-  if(t.pack && t.pack.length){
-    pl.innerHTML = t.pack.map(p=>`<div style="display:flex;align-items:center;gap:10px;background:var(--warm);border:1px solid var(--mist);border-radius:9px;padding:10px 14px"><input type="checkbox" style="accent-color:var(--bark)"><span style="font-family:system-ui,sans-serif;font-size:.88rem">${p}</span></div>`).join('');
-  } else {
-    pl.innerHTML='<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">Go to the Pack tab to generate a full list for this trip.</p>';
-  }
+  pl.innerHTML='<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">Загружаем список...</p>';
+  const serverId = t._serverId || t.id;
+  fetch(`/api/trips/${serverId}/pack`).then(r=>r.ok?r.json():null).then(packItems=>{
+    const items = packItems || t.pack || [];
+    if(items.length){
+      pl.innerHTML = items.map((p,i)=>{
+        const label = p.label || p;
+        const checked = p.checked || false;
+        const id = `tdpc_${i}`;
+        return `<div style="display:flex;align-items:center;gap:10px;background:var(--warm);border:1px solid var(--mist);border-radius:9px;padding:10px 14px"><input type="checkbox" id="${id}" ${checked?'checked':''} style="accent-color:var(--bark)" onchange="savePackCheck(${serverId},this)"><label for="${id}" style="font-family:system-ui,sans-serif;font-size:.88rem;cursor:pointer;${checked?'text-decoration:line-through;color:var(--dusk)':''}">${label}</label></div>`;
+      }).join('');
+    } else {
+      pl.innerHTML='<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">No packing list yet. Go to <b>Pack</b> tab to generate one for this trip.</p>';
+    }
+  }).catch(()=>{
+    const items = t.pack || [];
+    if(items.length){
+      pl.innerHTML = items.map(p=>`<div style="display:flex;align-items:center;gap:10px;background:var(--warm);border:1px solid var(--mist);border-radius:9px;padding:10px 14px"><input type="checkbox" style="accent-color:var(--bark)"><span style="font-family:system-ui,sans-serif;font-size:.88rem">${p}</span></div>`).join('');
+    } else {
+      pl.innerHTML='<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">Go to the Pack tab to generate a full list for this trip.</p>';
+    }
+  });
+  // Load photo gallery from localStorage
+  renderTripPhotoGallery(serverId);
   // reset td tabs
   openTdTab('overview', document.querySelector('.td-tab'));
   // show
@@ -1754,7 +1938,7 @@ function closeTripDetail() {
   const target = document.getElementById(targetId) || document.getElementById('v-dashboard');
   target.classList.add('active');
   // sync the tab highlight to where we returned to
-  const tabIdx = {dashboard:0, trips:1, plan:2, calendar:3, pack:4, kb:5, video:6, maps:7, about:8}[prevView] ?? 0;
+  const tabIdx = {dashboard:0, trips:1, plan:2, calendar:3, pack:4, kb:5, maps:6, about:7}[prevView] ?? 0;
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', i===tabIdx));
   if(prevView === 'trips') renderTripsList();
   window.scrollTo({top:0,behavior:'smooth'});
@@ -2099,7 +2283,7 @@ function applyKbFilters(){
   document.querySelectorAll('.kb-card').forEach(card=>{
     const tags = (card.getAttribute('data-tags')||'').toLowerCase();
     const textMatch = !kbSearchQuery || card.textContent.toLowerCase().includes(kbSearchQuery);
-    const tagMatch = kbActiveTags.size === 0 || [...kbActiveTags].some(t => tags.includes(t.toLowerCase()));
+    const tagMatch = kbActiveTags.size === 0 || [...kbActiveTags].every(t => tags.includes(t.toLowerCase()));
     card.style.display = (textMatch && tagMatch) ? '' : 'none';
   });
 }
@@ -2175,7 +2359,7 @@ function extractYouTubeId(input){
   if(m) return m[1];
   return input; // last resort
 }
-function saveSong(){
+async function saveSong(){
   const title = document.getElementById('songEditTitle').value.trim() || 'Untitled';
   const artist = document.getElementById('songEditArtist').value.trim() || 'Unknown';
   const id = extractYouTubeId(document.getElementById('songEditUrl').value);
@@ -2188,6 +2372,15 @@ function saveSong(){
   if(tripId !== null){
     const t = trips.find(x=>x.id===tripId);
     if(t) t.song = {title, artist, id};
+    // save song to server
+    const serverId = t?._serverId || tripId;
+    if(serverId) {
+      fetch(`/api/trips/${serverId}/song`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ song_title: title, song_artist: artist, song_id: id })
+      }).catch(console.error);
+    }
   }
   // close player if it was open — source changed
   const card = document.getElementById('songCard');
@@ -2303,6 +2496,36 @@ function renderReminders(){
       <button class="rem-del" onclick="deleteReminder(${r.id})" title="Delete">✕</button>
     </div>`;
   }).join('');
+}
+
+// ════════════════════════════════
+//  POPULATE TRIP SELECTORS (reflection, reminder, song)
+// ════════════════════════════════
+function populateTripSelectors(){
+  const opts = '<option value="">— no specific trip —</option>' + trips.map(t=>`<option value="${t._serverId||t.id}">${t.emoji||'✈️'} ${t.name}</option>`).join('');
+  const reflSel = document.getElementById('reflectTripSel');
+  if(reflSel) reflSel.innerHTML = opts;
+}
+
+// ════════════════════════════════
+//  DASHBOARD UPCOMING STRIP (dynamic)
+// ════════════════════════════════
+function renderDashUpcomingStrip(){
+  const strip = document.getElementById('dashUpcomingStrip');
+  if(!strip) return;
+  const upcoming = trips.filter(t => t.status !== 'done').sort((a,b)=>(a.date||'').localeCompare(b.date||'')).slice(0,4);
+  const cards = upcoming.map(t=>{
+    const badgeClass = t.status==='soon'?'b-soon':t.status==='planned'?'b-plan':'b-idea';
+    const badgeText = t.status==='soon'?'Soon':t.status==='planned'?'Planned':'Idea';
+    return `<div class="up-card" onclick="openTripDetail(${t.id})">
+      <div class="up-emoji">${t.emoji||'✈️'}</div>
+      <div class="up-info"><h3>${t.name}</h3><div class="ud">${t.sub||''}</div></div>
+      <span class="tc-badge ${badgeClass} up-badge">${badgeText}</span>
+      <span class="up-arrow">›</span>
+    </div>`;
+  }).join('');
+  const addCard = `<div class="add-empty" style="min-height:60px;flex-direction:row;gap:10px;padding:14px 18px" onclick="openModal('tripModal')"><span class="plus">+</span> Add trip</div>`;
+  strip.innerHTML = (upcoming.length ? cards : '<div style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);padding:8px 0">No upcoming trips yet.</div>') + addCard;
 }
 
 // ════════════════════════════════
@@ -2565,16 +2788,34 @@ function nextRq(){
     // Сохраняем рефлексию на сервере
     const mood = document.querySelector('.mood-btn.on span')?.textContent || '';
     const mode = rqList.length <= 3 ? 'quick' : 'deep';
+    const tripIdVal = document.getElementById('reflectTripSel')?.value || '';
     fetch('/api/reflections', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mood, mode, answers: rqAnswers })
+      body: JSON.stringify({ mood, mode, answers: rqAnswers, trip_id: tripIdVal || null })
     }).catch(console.error);
     rqAnswers = [];
     return;
   }
   renderRq();
 }
+async function saveTripReflection(){
+  const answers = [
+    document.getElementById('tdRef1')?.value?.trim() || '',
+    document.getElementById('tdRef2')?.value?.trim() || '',
+    document.getElementById('tdRef3')?.value?.trim() || '',
+  ].filter(a => a);
+  if(!answers.length){ alert('Напиши хотя бы один ответ'); return; }
+  await fetch('/api/reflections', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mood: '', mode: 'deep', answers, trip_id: currentOpenTripServerId || null })
+  }).catch(console.error);
+  const msg = document.getElementById('tdReflectSavedMsg');
+  if(msg){ msg.style.display = 'inline'; setTimeout(()=>{ msg.style.display='none'; }, 3000); }
+  ['tdRef1','tdRef2','tdRef3'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+}
+
 function resetReflect(){
   rqCurrent = 0; rqList = [];
   document.getElementById('rc-mood').style.display = '';
@@ -2615,7 +2856,13 @@ function toggleVoice(){
 // ════════════════════════════════
 //  MODALS
 // ════════════════════════════════
-function openModal(id){document.getElementById(id).classList.add('open')}
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  // When opening trip modal fresh (not for edit), try restore draft
+  if(id === 'tripModal' && !document.getElementById('tmEditId').value){
+    restoreTripDraft();
+  }
+}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 function closeIfOverlay(e,id){if(e.target===document.getElementById(id))closeModal(id)}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'))});
@@ -2633,6 +2880,76 @@ function previewTripPhoto(input){
     d.innerHTML=`<img src="${e.target.result}" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px"/>`;
   };
   r.readAsDataURL(f);
+}
+
+// ════════════════════════════════
+//  PHOTO GALLERY (localStorage)
+// ════════════════════════════════
+function renderTripPhotoGallery(tripId) {
+  const gallery = document.getElementById('tripPhotoGallery');
+  const empty = document.getElementById('galleryEmpty');
+  if(!gallery) return;
+  const photos = JSON.parse(localStorage.getItem(`photos_${tripId}`) || '[]');
+  if(photos.length === 0){
+    gallery.innerHTML = '';
+    if(empty) empty.style.display = '';
+    return;
+  }
+  if(empty) empty.style.display = 'none';
+  gallery.innerHTML = photos.map((src,i)=>`
+    <div style="position:relative;aspect-ratio:1;overflow:hidden;border-radius:10px;cursor:pointer" onclick="openPhotoLightbox('${tripId}',${i})">
+      <img src="${src}" style="width:100%;height:100%;object-fit:cover"/>
+      <button onclick="event.stopPropagation();deletePhoto('${tripId}',${i})" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.5);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:.7rem;cursor:pointer;line-height:1">✕</button>
+    </div>`).join('');
+}
+function addTripPhotos(input) {
+  const files = [...input.files];
+  if(!files.length) return;
+  const tripId = currentOpenTripServerId;
+  const photos = JSON.parse(localStorage.getItem(`photos_${tripId}`) || '[]');
+  let loaded = 0;
+  files.forEach(f => {
+    const r = new FileReader();
+    r.onload = e => {
+      photos.push(e.target.result);
+      loaded++;
+      if(loaded === files.length){
+        localStorage.setItem(`photos_${tripId}`, JSON.stringify(photos));
+        renderTripPhotoGallery(tripId);
+      }
+    };
+    r.readAsDataURL(f);
+  });
+  input.value = '';
+}
+function deletePhoto(tripId, idx) {
+  const photos = JSON.parse(localStorage.getItem(`photos_${tripId}`) || '[]');
+  photos.splice(idx, 1);
+  localStorage.setItem(`photos_${tripId}`, JSON.stringify(photos));
+  renderTripPhotoGallery(tripId);
+}
+function openPhotoLightbox(tripId, idx) {
+  const photos = JSON.parse(localStorage.getItem(`photos_${tripId}`) || '[]');
+  if(!photos[idx]) return;
+  let lb = document.getElementById('photoLightbox');
+  if(!lb){
+    lb = document.createElement('div');
+    lb.id = 'photoLightbox';
+    lb.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;cursor:pointer';
+    lb.onclick = () => lb.style.display = 'none';
+    document.body.appendChild(lb);
+  }
+  lb.innerHTML = `<img src="${photos[idx]}" style="max-width:92vw;max-height:92vh;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.5)"/>`;
+  lb.style.display = 'flex';
+}
+
+// ════════════════════════════════
+//  PACK CHECK PERSISTENCE
+// ════════════════════════════════
+function savePackCheck(tripId, checkbox) {
+  // visual feedback only for now — server update on next full save
+  const label = checkbox.nextElementSibling;
+  if(label) label.style.cssText = checkbox.checked ? 'text-decoration:line-through;color:var(--dusk);font-family:system-ui,sans-serif;font-size:.88rem;cursor:pointer' : 'font-family:system-ui,sans-serif;font-size:.88rem;cursor:pointer';
 }
 
 // ════════════════════════════════
