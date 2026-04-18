@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Read(//usr/local/bin/**)",
+      "Read(//opt/homebrew/**)",
+      "Bash(command -v node)",
+      "Bash(export PATH=\"/usr/local/bin:$PATH\")",
+      "Bash(npm --version)",
+      "Bash(npm install:*)",
+      "Bash(sudo chown:*)",
+      "Bash(npm config:*)",
+      "Bash(npx --cache /tmp/npm-cache tailwindcss init -p)",
+      "Bash(./node_modules/.bin/tailwindcss init:*)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

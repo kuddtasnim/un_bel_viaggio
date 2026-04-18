@@ -1,0 +1,75 @@
+{
+  "nav": {
+    "plan": "Planifier",
+    "explore": "Explorer",
+    "map": "Carte",
+    "notes": "Notes",
+    "reflect": "Réflexion",
+    "profile": "Profil"
+  },
+  "home": {
+    "tagline": "Voyagez en conscience",
+    "subtitle": "Pour ceux qui veulent non seulement visiter, mais vraiment comprendre",
+    "cta": "Commencer le voyage",
+    "features": {
+      "plan": { "title": "Planification IA", "desc": "Itinéraires selon votre rythme" },
+      "reflect": { "title": "Réflexion", "desc": "Analysez votre voyage" },
+      "inspire": { "title": "Inspiration", "desc": "Découvrez de nouvelles destinations" }
+    }
+  },
+  "plan": {
+    "title": "Planifier un voyage",
+    "destination": "Où allez-vous?",
+    "destinationPlaceholder": "Ville ou pays",
+    "pace": "Rythme de voyage",
+    "slow": "Lent",
+    "moderate": "Modéré",
+    "fast": "Actif",
+    "interests": "Ce qui compte?",
+    "generate": "Créer l'itinéraire",
+    "save": "Enregistrer le voyage"
+  },
+  "reflect": {
+    "title": "Réflexion sur le voyage",
+    "subtitle": "Quelques questions pour conserver l'essentiel",
+    "questions": {
+      "filled": "Qu'est-ce qui vous a le plus nourri dans ce voyage?",
+      "alive": "Y a-t-il eu un moment où vous vous êtes senti(e) vraiment vivant(e)?",
+      "surprised": "Qu'est-ce qui vous a surpris? Qu'est-ce qui vous a déçu?",
+      "style": "Quel voyageur/voyageuse étiez-vous cette fois?",
+      "next": "Que voulez-vous emporter dans votre prochain voyage?"
+    },
+    "save": "Enregistrer la réflexion",
+    "generating": "Génération du résumé..."
+  },
+  "notes": {
+    "title": "Mes notes",
+    "add": "Nouvelle note",
+    "placeholder": "Écrivez une pensée, une impression, un moment...",
+    "save": "Enregistrer"
+  },
+  "explore": {
+    "title": "Inspiration",
+    "filter": "Type de voyage",
+    "all": "Tout",
+    "reflective": "Réflectif",
+    "adventure": "Aventure",
+    "cultural": "Culturel",
+    "gastronomic": "Gastronomique"
+  },
+  "profile": {
+    "title": "Profil du voyageur",
+    "travelerType": "Type de voyageur",
+    "visits": "Pays visités",
+    "pace": "Mon rythme",
+    "trips": "Mes voyages"
+  },
+  "auth": {
+    "login": "Se connecter",
+    "signup": "S'inscrire",
+    "logout": "Se déconnecter",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "loginWithGoogle": "Continuer avec Google"
+  }
+}

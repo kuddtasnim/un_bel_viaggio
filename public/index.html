@@ -1,0 +1,2658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Un Bel Viaggio</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --sand:#f5f0e8;--cream:#faf7f2;--bark:#5c4033;--clay:#a0522d;
+  --moss:#5a6e50;--dusk:#8b7355;--ink:#2c2318;--mist:#d9cfc2;
+  --warm:#fffdf9;--accent:#c9854a;--r:14px;
+  --sh:0 4px 24px rgba(92,64,51,.10);
+  --nav-h:56px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Georgia',serif;background:var(--cream);color:var(--ink);line-height:1.7;min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+input,textarea,select{font-family:'Georgia',serif}
+
+/* ── NAV ── */
+nav{
+  position:sticky;top:0;z-index:300;
+  background:rgba(250,247,242,.96);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--mist);
+}
+.nav-inner{
+  max-width:1200px;margin:0 auto;padding:0 20px;
+  display:flex;align-items:center;gap:0;height:var(--nav-h);
+}
+.logo{
+  font-family:'Georgia',serif;font-size:1.1rem;
+  color:var(--bark);letter-spacing:.02em;margin-right:32px;flex-shrink:0;
+  font-style:italic;
+}
+.logo span{color:var(--accent);font-style:normal}
+.tabs{
+  display:flex;gap:2px;overflow-x:auto;flex:1;
+  scrollbar-width:none;-webkit-scrollbar:{display:none}
+}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);
+  padding:7px 14px;border-radius:8px;cursor:pointer;
+  border:none;background:none;transition:.18s;white-space:nowrap;flex-shrink:0;
+}
+.tab:hover{background:var(--sand);color:var(--bark)}
+.tab.active{background:var(--bark);color:#fff}
+@media(max-width:600px){
+  .logo{font-size:.95rem;margin-right:16px}
+  .tab{padding:6px 10px;font-size:.75rem}
+}
+
+/* ── VIEWS ── */
+.view{display:none;max-width:1200px;margin:0 auto;padding:28px 20px 80px}
+.view.active{display:block}
+
+/* ── SHARED ── */
+.page-header{margin-bottom:28px}
+.page-header h1{font-size:clamp(1.5rem,3vw,2rem);color:var(--bark);font-weight:400;margin-bottom:4px}
+.page-header p{font-family:system-ui,sans-serif;font-size:.88rem;color:var(--dusk)}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px}
+.section-head h2{font-family:system-ui,sans-serif;font-size:1rem;font-weight:600;color:var(--bark);text-transform:uppercase;letter-spacing:.04em}
+.section-head a{font-family:system-ui,sans-serif;font-size:.78rem;color:var(--accent);cursor:pointer}
+.label-sm{font-family:system-ui,sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:6px}
+.tag{background:var(--sand);border:1px solid var(--mist);padding:3px 10px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.7rem;color:var(--dusk)}
+.btn-primary{background:var(--bark);color:#fff;padding:10px 22px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.88rem;border:none;cursor:pointer;transition:.2s}
+.btn-primary:hover{background:var(--clay)}
+.btn-ghost{border:1.5px solid var(--bark);color:var(--bark);padding:9px 18px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.85rem;background:none;cursor:pointer;transition:.2s}
+.btn-ghost:hover{background:var(--bark);color:#fff}
+.btn-accent{background:var(--accent);color:#fff;padding:10px 22px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.88rem;border:none;cursor:pointer;transition:.2s}
+.btn-accent:hover{background:var(--clay)}
+.card{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r)}
+.add-empty{border:2px dashed var(--mist);border-radius:var(--r);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;color:var(--dusk);font-family:system-ui,sans-serif;font-size:.85rem;transition:.2s;padding:24px}
+.add-empty:hover{border-color:var(--accent);color:var(--accent)}
+.add-empty .plus{font-size:1.8rem;line-height:1}
+.mb-8{margin-bottom:32px}
+
+/* ── TRIP CARDS ── */
+.trips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:900px){.trips-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.trips-grid{grid-template-columns:1fr}}
+.trip-card{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);overflow:hidden;transition:.22s;cursor:pointer}
+.trip-card:hover{box-shadow:var(--sh);transform:translateY(-3px)}
+.tc-top{height:80px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;position:relative}
+.tc-badge{position:absolute;top:8px;right:8px;font-family:system-ui,sans-serif;font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;padding:3px 9px;border-radius:50px}
+.b-soon{background:#fde8d3;color:var(--clay)}
+.b-plan{background:#d8e8d3;color:var(--moss)}
+.b-done{background:var(--mist);color:var(--dusk)}
+.b-idea{background:#e8e0d8;color:var(--dusk)}
+.tc-body{padding:14px 16px}
+.tc-body h3{font-family:system-ui,sans-serif;font-size:.9rem;color:var(--bark);margin-bottom:3px}
+.tc-date{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk)}
+.tc-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+
+/* ── TRIP DETAIL ── */
+#v-trip-detail{position:fixed;inset:0;z-index:200;background:var(--cream);overflow-y:auto;padding:0}
+#v-trip-detail.active{display:flex;flex-direction:column}
+.td-hero{background:linear-gradient(135deg,var(--bark),var(--clay));color:#fff;padding:calc(var(--nav-h) + 20px) 24px 24px}
+.td-back{display:inline-flex;align-items:center;gap:6px;font-family:system-ui,sans-serif;font-size:.82rem;font-weight:600;color:var(--bark);cursor:pointer;margin-bottom:16px;background:#fff;border:1.5px solid #fff;border-radius:50px;padding:8px 18px;box-shadow:0 4px 12px rgba(0,0,0,.15);transition:.2s}
+.td-back:hover{background:var(--accent);color:#fff;border-color:var(--accent);transform:translateX(-2px)}
+.td-title{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:400;margin-bottom:4px}
+.td-sub{font-family:system-ui,sans-serif;font-size:.88rem;opacity:.75}
+.td-inner{max-width:800px;margin:0 auto;padding:24px 20px 60px}
+.td-tabs{display:flex;gap:4px;border-bottom:2px solid var(--mist);margin-bottom:28px;overflow-x:auto}
+.td-tab{font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);padding:8px 16px;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:.15s}
+.td-tab.active{color:var(--bark);border-bottom-color:var(--bark)}
+.td-panel{display:none}
+.td-panel.active{display:block}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+@media(max-width:500px){.info-grid{grid-template-columns:1fr}}
+.info-block{background:var(--warm);border:1px solid var(--mist);border-radius:12px;padding:16px}
+.info-block .ib-label{font-family:system-ui,sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--dusk);margin-bottom:4px}
+.info-block .ib-val{font-family:system-ui,sans-serif;font-size:.95rem;color:var(--bark);font-weight:600}
+.logistics-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.logistics-list li{background:var(--warm);border:1px solid var(--mist);border-radius:10px;padding:10px 14px;font-family:system-ui,sans-serif;font-size:.88rem;color:#5a4a3a;display:flex;align-items:center;gap:10px}
+.logistics-list li .lg-icon{font-size:1rem;flex-shrink:0;width:22px;text-align:center}
+.logistics-list li .lg-text{flex:1;min-width:0}
+.td-note-area{width:100%;background:var(--warm);border:1.5px solid var(--mist);border-radius:10px;padding:16px;font-family:'Georgia',serif;font-size:.95rem;color:var(--ink);min-height:160px;resize:vertical;transition:.2s}
+.td-note-area:focus{outline:none;border-color:var(--accent)}
+
+/* ── DASHBOARD ── */
+.dash-grid{display:grid;grid-template-columns:1fr 380px;gap:24px;align-items:start}
+@media(max-width:960px){.dash-grid{grid-template-columns:1fr}}
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+@media(max-width:560px){.stats-strip{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:16px 18px}
+.stat .sv{font-size:1.7rem;color:var(--bark);line-height:1;margin-bottom:2px}
+.stat .sl{font-family:system-ui,sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--dusk)}
+
+/* Reflection card — PROMINENT */
+.reflect-card{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);overflow:hidden;margin-bottom:28px}
+.rc-header{background:linear-gradient(135deg,var(--bark),var(--clay));color:#fff;padding:18px 24px;display:flex;align-items:center;justify-content:space-between}
+.rc-header h2{font-size:1rem;font-family:system-ui,sans-serif;font-weight:600}
+.rc-header span{font-size:.78rem;opacity:.7;font-family:system-ui,sans-serif}
+.rc-body{padding:24px}
+.mood-label{font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);margin-bottom:12px}
+.mood-row{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.mood-btn{background:var(--sand);border:1.5px solid var(--mist);border-radius:10px;padding:10px 14px;cursor:pointer;font-size:1.3rem;transition:.2s;display:flex;flex-direction:column;align-items:center;gap:3px}
+.mood-btn span{font-family:system-ui,sans-serif;font-size:.65rem;color:var(--dusk)}
+.mood-btn:hover,.mood-btn.on{border-color:var(--accent);background:#fde8d3}
+.mode-choice{display:none;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.mode-choice.show{display:flex}
+.mode-pill{background:var(--sand);border:1.5px solid var(--mist);border-radius:50px;padding:8px 18px;cursor:pointer;font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);transition:.2s}
+.mode-pill:hover,.mode-pill.on{background:var(--bark);color:#fff;border-color:var(--bark)}
+/* Reflection questions */
+.rq-block{display:none}
+.rq-block.show{display:block}
+.rq-progress{display:flex;gap:5px;margin-bottom:16px}
+.rq-dot{height:3px;flex:1;border-radius:3px;background:var(--mist);transition:.3s}
+.rq-dot.active{background:var(--accent)}
+.rq-dot.done{background:var(--moss)}
+.rq-q{font-size:1.05rem;color:var(--bark);margin-bottom:14px;line-height:1.45}
+.rq-area{width:100%;background:var(--cream);border:1.5px solid var(--mist);border-radius:10px;padding:12px 14px;font-family:'Georgia',serif;font-size:.92rem;color:var(--ink);resize:none;min-height:80px;transition:.2s}
+.rq-area:focus{outline:none;border-color:var(--accent)}
+.rq-actions{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.rq-skip{font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);background:none;border:none;cursor:pointer}
+.voice-btn{display:flex;align-items:center;gap:6px;background:var(--sand);border:1.5px solid var(--mist);border-radius:50px;padding:7px 14px;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);cursor:pointer;transition:.2s}
+.voice-btn:hover{border-color:var(--accent);color:var(--accent)}
+.voice-btn.recording{background:#fde8d3;border-color:#e04040;color:#e04040;animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.rq-summary{display:none;text-align:center;padding:8px 0}
+.rq-summary.show{display:block}
+.sum-icon{font-size:2.5rem;margin-bottom:12px}
+.sum-tags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0}
+.sum-tag{background:var(--sand);border:1px solid var(--mist);padding:5px 14px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--bark)}
+
+/* Upcoming trips strip */
+.upcoming-strip{display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.up-card{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:16px;transition:.2s}
+.up-card:hover{box-shadow:var(--sh)}
+.up-emoji{font-size:1.8rem;flex-shrink:0}
+.up-info h3{font-family:system-ui,sans-serif;font-size:.88rem;color:var(--bark);margin-bottom:2px}
+.up-info .ud{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk)}
+.up-badge{margin-left:auto;flex-shrink:0}
+.up-arrow{margin-left:8px;color:var(--dusk);font-size:.9rem}
+
+/* Insights strip */
+.insights-scroll{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px}
+.insights-scroll::-webkit-scrollbar{height:3px}
+.insights-scroll::-webkit-scrollbar-track{background:var(--mist)}
+.insights-scroll::-webkit-scrollbar-thumb{background:var(--dusk);border-radius:3px}
+.ins-tile{flex-shrink:0;width:200px;background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:14px 16px}
+.ins-tile .it-loc{font-family:system-ui,sans-serif;font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);margin-bottom:4px}
+.ins-tile .it-t{font-family:system-ui,sans-serif;font-size:.82rem;color:var(--bark);font-weight:600;margin-bottom:4px}
+.ins-tile .it-b{font-size:.78rem;color:var(--dusk);line-height:1.45}
+
+/* ── CALENDAR ── */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.cal-nav h2{font-family:system-ui,sans-serif;font-size:1.1rem;color:var(--bark)}
+.cal-arrow{background:var(--warm);border:1px solid var(--mist);border-radius:8px;padding:6px 14px;font-family:system-ui,sans-serif;font-size:.88rem;color:var(--bark);cursor:pointer;transition:.2s}
+.cal-arrow:hover{background:var(--bark);color:#fff}
+.cal-grid{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);overflow:hidden;margin-bottom:28px}
+.cal-days-header{display:grid;grid-template-columns:repeat(7,1fr);background:var(--sand);border-bottom:1px solid var(--mist)}
+.cal-day-name{font-family:system-ui,sans-serif;font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--dusk);padding:10px 0;text-align:center}
+.cal-day-name.weekend{color:var(--accent)}
+.cal-cells{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-cell{min-height:60px;border-right:1px solid var(--mist);border-bottom:1px solid var(--mist);padding:6px 8px;position:relative;cursor:default}
+.cal-cell:nth-child(7n){border-right:none}
+.cal-cell.other-month .cn{opacity:.3}
+.cal-cell.weekend{background:#faf8f5}
+.cal-cell.today{background:#fde8d3}
+.cal-cell.has-trip{cursor:pointer}
+.cal-cell.has-trip:hover{background:var(--sand)}
+.cn{font-family:system-ui,sans-serif;font-size:.8rem;color:var(--dusk);margin-bottom:2px}
+.cal-cell.today .cn{color:var(--bark);font-weight:700}
+.trip-dot{font-size:.75rem;line-height:1}
+@media(max-width:600px){
+  .cal-cell{min-height:40px;padding:4px}
+  .cn{font-size:.7rem}
+  .trip-dot{font-size:.65rem}
+}
+
+/* Calendar stats */
+.cal-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+@media(max-width:700px){.cal-stats{grid-template-columns:repeat(2,1fr)}}
+.cs-card{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:16px 18px}
+.cs-card .csv{font-size:1.6rem;color:var(--bark);line-height:1;margin-bottom:2px}
+.cs-card .csl{font-family:system-ui,sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--dusk)}
+.actionable{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);overflow:hidden}
+.act-head{background:var(--sand);padding:14px 20px;font-family:system-ui,sans-serif;font-size:.8rem;font-weight:600;color:var(--bark);text-transform:uppercase;letter-spacing:.06em}
+.act-list{padding:16px 20px;display:flex;flex-direction:column;gap:10px}
+.act-item{display:flex;gap:12px;align-items:flex-start}
+.act-icon{font-size:1rem;flex-shrink:0;margin-top:2px}
+.act-item p{font-family:system-ui,sans-serif;font-size:.85rem;color:#5a4a3a;line-height:1.45}
+.act-item strong{color:var(--bark)}
+
+/* ── PACKING LIST ── */
+.pack-layout{display:grid;grid-template-columns:340px 1fr;gap:24px;align-items:start}
+@media(max-width:900px){.pack-layout{grid-template-columns:1fr}}
+.pack-form-card{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:24px;position:sticky;top:calc(var(--nav-h) + 16px)}
+.pack-form-card h3{font-family:system-ui,sans-serif;font-size:.9rem;font-weight:600;color:var(--bark);margin-bottom:18px}
+.field{margin-bottom:14px}
+.field label{display:block;font-family:system-ui,sans-serif;font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;color:var(--dusk);margin-bottom:5px}
+.field input,.field select{width:100%;background:var(--cream);border:1.5px solid var(--mist);border-radius:9px;padding:9px 12px;font-family:system-ui,sans-serif;font-size:.88rem;color:var(--ink);transition:.2s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--accent)}
+.chip-group{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:var(--sand);border:1.5px solid var(--mist);border-radius:50px;padding:5px 12px;font-family:system-ui,sans-serif;font-size:.75rem;color:var(--dusk);cursor:pointer;transition:.15s}
+.chip:hover,.chip.on{background:var(--bark);color:#fff;border-color:var(--bark)}
+.gen-btn{width:100%;background:var(--bark);color:#fff;border:none;border-radius:50px;padding:12px;font-family:system-ui,sans-serif;font-size:.9rem;cursor:pointer;transition:.2s;margin-top:16px}
+.gen-btn:hover{background:var(--clay)}
+/* Checklist */
+.pack-results{display:none}
+.pack-results.show{display:block}
+.pack-section{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);margin-bottom:16px;overflow:hidden}
+.ps-head{background:var(--sand);padding:12px 18px;display:flex;align-items:center;gap:10px;font-family:system-ui,sans-serif;font-size:.85rem;font-weight:600;color:var(--bark)}
+.ps-head .ps-count{font-size:.7rem;background:var(--mist);padding:2px 8px;border-radius:50px;color:var(--dusk);font-weight:400}
+.ps-items{padding:8px 18px}
+.check-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--mist)}
+.check-item:last-child{border-bottom:none}
+.check-item input[type=checkbox]{width:16px;height:16px;accent-color:var(--bark);flex-shrink:0;cursor:pointer}
+.check-item label{font-family:system-ui,sans-serif;font-size:.88rem;color:var(--ink);flex:1;cursor:pointer}
+.check-item label.checked{text-decoration:line-through;color:var(--dusk)}
+.add-item-row{display:flex;gap:8px;padding:10px 18px;border-top:1px solid var(--mist)}
+.add-item-input{flex:1;background:var(--cream);border:1.5px solid var(--mist);border-radius:8px;padding:7px 12px;font-family:system-ui,sans-serif;font-size:.82rem;color:var(--ink)}
+.add-item-input:focus{outline:none;border-color:var(--accent)}
+.add-item-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-family:system-ui,sans-serif;font-size:.82rem;cursor:pointer}
+.email-reminder{background:#fde8d3;border:1px solid #f0c8a0;border-radius:var(--r);padding:18px 20px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:.2s;margin-top:16px}
+.email-reminder:hover{background:#f8d8b8}
+.er-icon{font-size:1.8rem;flex-shrink:0}
+.er-text h4{font-family:system-ui,sans-serif;font-size:.88rem;color:var(--bark);margin-bottom:2px}
+.er-text p{font-family:system-ui,sans-serif;font-size:.75rem;color:var(--dusk)}
+.er-arrow{margin-left:auto;color:var(--accent);font-size:1.2rem}
+
+/* ── KNOWLEDGE BASE ── */
+.kb-toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:20px}
+.kb-search{flex:1;min-width:180px;background:var(--warm);border:1px solid var(--mist);border-radius:50px;padding:9px 18px;font-family:system-ui,sans-serif;font-size:.85rem;color:var(--ink)}
+.kb-search:focus{outline:none;border-color:var(--accent)}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap}
+.ftag{background:var(--sand);border:1.5px solid var(--mist);border-radius:50px;padding:5px 13px;font-family:system-ui,sans-serif;font-size:.75rem;color:var(--dusk);cursor:pointer;transition:.15s}
+.ftag:hover,.ftag.on{background:var(--bark);color:#fff;border-color:var(--bark)}
+.kb-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+@media(max-width:700px){.kb-grid{grid-template-columns:1fr}}
+.kb-card{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);overflow:hidden}
+.kb-head{background:var(--sand);padding:14px 18px;display:flex;gap:12px;border-bottom:1px solid var(--mist)}
+.kb-emoji{font-size:1.6rem;flex-shrink:0}
+.kb-head h3{font-family:system-ui,sans-serif;font-size:.88rem;color:var(--bark);margin-bottom:2px}
+.kb-route{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk)}
+.kb-body{padding:16px 18px}
+.kb-sec{margin-bottom:12px}
+.kb-sec-label{font-family:system-ui,sans-serif;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:4px}
+.kb-sec p{font-size:.85rem;color:#5a4a3a;line-height:1.5}
+.kb-bullets{list-style:none;display:flex;flex-direction:column;gap:3px}
+.kb-bullets li{font-family:system-ui,sans-serif;font-size:.8rem;color:#5a4a3a;padding-left:12px;position:relative;line-height:1.4}
+.kb-bullets li::before{content:'·';position:absolute;left:0;color:var(--accent)}
+.kb-insight{background:linear-gradient(135deg,#fde8d3,#f5e6c8);border-radius:10px;padding:10px 14px;margin-top:10px}
+.kb-insight .ki-label{font-family:system-ui,sans-serif;font-size:.65rem;text-transform:uppercase;letter-spacing:.1em;color:var(--clay);margin-bottom:3px}
+.kb-insight p{font-size:.82rem;color:var(--bark);font-style:italic}
+.kb-footer{padding:0 18px 14px;display:flex;gap:5px;flex-wrap:wrap}
+.kb-tag{background:var(--sand);border:1px solid var(--mist);border-radius:50px;padding:3px 9px;font-family:system-ui,sans-serif;font-size:.68rem;color:var(--dusk)}
+
+/* ── VIDEO ── */
+.video-layout{display:grid;grid-template-columns:1fr 300px;gap:24px}
+@media(max-width:880px){.video-layout{grid-template-columns:1fr}}
+.video-drop{border:2px dashed var(--mist);border-radius:var(--r);padding:40px 24px;text-align:center;cursor:pointer;font-family:system-ui,sans-serif;color:var(--dusk);transition:.2s;margin-bottom:20px}
+.video-drop:hover{border-color:var(--accent);color:var(--accent)}
+.clips-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:600px){.clips-grid{grid-template-columns:repeat(3,1fr)}}
+.clip{background:var(--sand);border:1px solid var(--mist);border-radius:10px;aspect-ratio:9/16;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-family:system-ui,sans-serif;font-size:.65rem;color:var(--dusk);position:relative;cursor:pointer}
+.clip .ce{font-size:1.6rem}
+.clip-dur{position:absolute;bottom:5px;right:6px;background:rgba(44,35,24,.6);color:#fff;font-size:.6rem;padding:1px 5px;border-radius:3px}
+.vside-card{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:18px;margin-bottom:14px}
+.vside-card h4{font-family:system-ui,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dusk);margin-bottom:12px}
+.style-opts{display:flex;flex-direction:column;gap:7px}
+.sopt{background:var(--cream);border:1.5px solid var(--mist);border-radius:10px;padding:10px 14px;cursor:pointer;font-family:system-ui,sans-serif;font-size:.82rem;color:var(--bark);transition:.2s;display:flex;align-items:center;gap:8px}
+.sopt:hover,.sopt.on{border-color:var(--accent);background:#fde8d3}
+.mchips{display:flex;gap:7px;flex-wrap:wrap}
+.mchip{background:var(--sand);border:1px solid var(--mist);padding:5px 11px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);cursor:pointer;transition:.15s}
+.mchip:hover,.mchip.on{background:var(--moss);color:#fff;border-color:var(--moss)}
+
+/* ── MAPS ── */
+.maps-layout{display:grid;grid-template-columns:1fr 280px;gap:20px}
+@media(max-width:860px){.maps-layout{grid-template-columns:1fr}}
+.map-box{background:var(--sand);border:1px solid var(--mist);border-radius:var(--r);height:340px;position:relative;overflow:hidden}
+.map-grid-lines{position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(92,64,51,.05) 28px,rgba(92,64,51,.05) 29px),repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(92,64,51,.05) 28px,rgba(92,64,51,.05) 29px)}
+.map-pin-el{position:absolute;display:flex;flex-direction:column;align-items:center;gap:2px}
+.pin-dot{width:10px;height:10px;border-radius:50%;border:2px solid var(--warm);box-shadow:0 2px 5px rgba(0,0,0,.2)}
+.pin-nm{font-family:system-ui,sans-serif;font-size:.58rem;background:var(--warm);padding:1px 5px;border-radius:3px;color:var(--bark);white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.map-btns{position:absolute;bottom:14px;right:14px;display:flex;gap:8px}
+.map-btn{background:var(--warm);border:1px solid var(--mist);padding:6px 12px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.75rem;color:var(--bark);cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.07);transition:.2s}
+.map-btn:hover{background:var(--bark);color:#fff}
+.cfilter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.cfbtn{background:var(--sand);border:1px solid var(--mist);padding:4px 12px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);cursor:pointer;transition:.15s}
+.cfbtn:hover,.cfbtn.on{background:var(--bark);color:#fff;border-color:var(--bark)}
+.places-list{display:flex;flex-direction:column;gap:8px}
+.place-row{background:var(--warm);border:1px solid var(--mist);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+.ppin{font-size:1.1rem}
+.pinfo h4{font-family:system-ui,sans-serif;font-size:.82rem;color:var(--bark)}
+.pinfo .pm{font-family:system-ui,sans-serif;font-size:.68rem;color:var(--dusk)}
+.ptag{margin-left:auto;background:var(--sand);border:1px solid var(--mist);padding:3px 8px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.65rem;color:var(--dusk);white-space:nowrap}
+
+/* ── ABOUT ── */
+.about-max{max-width:720px}
+.about-max h2{font-size:1.5rem;color:var(--bark);font-weight:400;margin-bottom:12px}
+.about-max p{font-size:.95rem;color:#5a4a3a;margin-bottom:14px;line-height:1.75}
+.about-block{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:20px 24px;margin:20px 0}
+.about-block h3{font-family:system-ui,sans-serif;font-size:.88rem;font-weight:600;color:var(--bark);margin-bottom:10px}
+.about-block ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.about-block li{font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk);padding-left:14px;position:relative}
+.about-block li::before{content:'→';position:absolute;left:0;color:var(--accent);font-size:.72rem}
+.polar-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:14px}
+@media(max-width:560px){.polar-grid{grid-template-columns:1fr}}
+.polar-item{background:var(--cream);border:1px solid var(--mist);border-radius:10px;padding:14px}
+.polar-item h4{font-family:system-ui,sans-serif;font-size:.82rem;color:var(--bark);margin-bottom:4px}
+.polar-item p{font-size:.78rem;color:var(--dusk)}
+
+/* ── MODAL ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(44,35,24,.5);z-index:500;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--warm);border-radius:20px;padding:28px 32px;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(44,35,24,.25);max-height:90vh;overflow-y:auto}
+.modal h3{font-family:system-ui,sans-serif;font-size:1rem;color:var(--bark);margin-bottom:18px;font-weight:600}
+.mfield{margin-bottom:14px}
+.mfield label{display:block;font-family:system-ui,sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--dusk);margin-bottom:5px}
+.mfield input,.mfield textarea,.mfield select{width:100%;background:var(--cream);border:1.5px solid var(--mist);border-radius:9px;padding:9px 12px;font-family:system-ui,sans-serif;font-size:.88rem;color:var(--ink);transition:.2s}
+.mfield input:focus,.mfield textarea:focus{outline:none;border-color:var(--accent)}
+.mfield textarea{resize:vertical;min-height:70px}
+.photo-drop{border:2px dashed var(--mist);border-radius:9px;padding:20px;text-align:center;cursor:pointer;font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);transition:.2s}
+.photo-drop:hover{border-color:var(--accent);color:var(--accent)}
+.photo-drop input{display:none}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.btn-cancel{background:none;border:1.5px solid var(--mist);padding:9px 18px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);cursor:pointer;transition:.2s}
+.btn-cancel:hover{border-color:var(--bark);color:var(--bark)}
+.btn-save{background:var(--bark);color:#fff;padding:9px 22px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.82rem;border:none;cursor:pointer;transition:.2s}
+.btn-save:hover{background:var(--clay)}
+
+/* ── Responsive fix: grid children must be allowed to shrink ── */
+.dash-grid > *{min-width:0}
+.pack-layout > *, .video-layout > *, .maps-layout > *, .plan-layout > *{min-width:0}
+.view{overflow-x:hidden}
+
+/* ── Song of the trip — compact bar ── */
+.song-card{background:var(--warm);border:1px solid var(--mist);border-radius:50px;padding:8px 14px;margin-bottom:20px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;transition:border-radius .2s}
+.song-card.open{border-radius:var(--r)}
+.song-card .sc-icon{font-size:1rem;color:var(--accent);flex-shrink:0}
+.song-card .sc-meta{min-width:0;flex:1;display:flex;flex-direction:column;overflow:hidden}
+.song-card .sc-title{font-family:system-ui,sans-serif;font-size:.85rem;color:var(--bark);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-card .sc-artist{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.song-card .sc-trip{font-family:system-ui,sans-serif;font-size:.7rem;color:var(--dusk);font-style:italic;flex-shrink:0}
+@media(max-width:560px){.song-card .sc-trip{display:none}}
+.song-play-btn{background:var(--accent);color:#fff;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.7rem;transition:.2s}
+.song-play-btn:hover{background:var(--clay)}
+.song-edit-btn{background:none;border:none;color:var(--dusk);cursor:pointer;font-size:.8rem;padding:4px 6px;border-radius:50px;transition:.15s;flex-shrink:0}
+.song-edit-btn:hover{color:var(--accent);background:var(--sand)}
+.song-player{flex-basis:100%;display:none;margin-top:10px}
+.song-card.open .song-player{display:block}
+.song-frame{position:relative;aspect-ratio:16/9;background:#000;border-radius:8px;overflow:hidden;max-width:400px;margin:0 auto}
+.song-frame iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* ── Dashboard quick-nav ── */
+.quick-nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.qnav-btn{background:var(--warm);border:1px solid var(--mist);border-radius:50px;padding:8px 16px;font-family:system-ui,sans-serif;font-size:.82rem;color:var(--bark);cursor:pointer;transition:.18s;display:inline-flex;align-items:center;gap:6px}
+.qnav-btn:hover{background:var(--bark);color:#fff;border-color:var(--bark)}
+
+/* ── Dashboard mini calendar ── */
+.mini-cal{background:var(--warm);border:1px solid var(--mist);border-radius:12px;padding:14px 16px}
+.mc-title{font-family:system-ui,sans-serif;font-size:.8rem;color:var(--bark);font-weight:600;text-align:center;margin-bottom:8px}
+.mc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.mc-dn{font-family:system-ui,sans-serif;font-size:.58rem;color:var(--dusk);text-align:center;text-transform:uppercase;letter-spacing:.05em;padding:4px 0}
+.mc-cell{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);text-align:center;padding:5px 0;border-radius:6px;position:relative;min-height:26px}
+.mc-cell.other{opacity:.25}
+.mc-cell.today{background:#fde8d3;color:var(--bark);font-weight:600}
+.mc-cell.has-trip{background:var(--sand);cursor:pointer;color:var(--bark);font-weight:600}
+.mc-cell.has-trip:hover{background:#fde8d3}
+.mc-dot{position:absolute;bottom:1px;left:50%;transform:translateX(-50%);font-size:.55rem;line-height:1}
+
+/* ── Trip detail — section edit buttons ── */
+.section-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:10px}
+.section-edit{background:none;border:1px solid var(--mist);border-radius:50px;padding:4px 12px;font-family:system-ui,sans-serif;font-size:.7rem;color:var(--dusk);cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:5px}
+.section-edit:hover{color:var(--bark);border-color:var(--bark)}
+.section-edit.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+[contenteditable="true"]{outline:2px solid var(--accent);outline-offset:4px;border-radius:6px;background:var(--cream);padding:4px 6px;min-height:1em}
+
+/* ── Calendar reminders ── */
+.reminders-section{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);overflow:hidden;margin-bottom:24px}
+.rem-head{background:var(--sand);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.rem-head h3{font-family:system-ui,sans-serif;font-size:.82rem;font-weight:600;color:var(--bark);text-transform:uppercase;letter-spacing:.06em}
+.rem-head .btn-accent{padding:7px 16px;font-size:.78rem}
+.rem-list{padding:10px 20px 16px}
+.rem-empty{font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk);padding:18px 0;text-align:center}
+.rem-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--mist)}
+.rem-row:last-child{border-bottom:none}
+.rem-icon{font-size:1.3rem;flex-shrink:0;width:34px;height:34px;background:var(--sand);border-radius:50%;display:flex;align-items:center;justify-content:center}
+.rem-body{flex:1;min-width:0}
+.rem-body h4,.rem-title{font-family:system-ui,sans-serif;font-size:.88rem;color:var(--bark);font-weight:600;margin-bottom:2px}
+.rem-meta{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk)}
+.rem-countdown{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--accent);font-weight:600;flex-shrink:0;text-align:right;white-space:nowrap}
+.rem-countdown.overdue{color:#c94040}
+.rem-countdown.done{color:var(--dusk);font-weight:400}
+.rem-del{background:none;border:none;color:var(--dusk);cursor:pointer;font-size:1.1rem;padding:4px 8px;border-radius:50%;flex-shrink:0;opacity:0;transition:.18s}
+.rem-row:hover .rem-del{opacity:1}
+.rem-del:hover{color:#c94040}
+.cal-cell.has-reminder::after{content:'●';position:absolute;bottom:3px;right:6px;font-size:.55rem;color:var(--accent)}
+
+/* ── Trip card edit icon ── */
+.tc-edit{position:absolute;top:8px;left:8px;background:rgba(250,247,242,.85);border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:.72rem;color:var(--dusk);display:flex;align-items:center;justify-content:center;opacity:0;transition:.18s}
+.trip-card:hover .tc-edit{opacity:1}
+.tc-edit:hover{background:var(--warm);color:var(--bark)}
+
+/* ── Period filter ── */
+.period-filter{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap}
+.pfbtn{background:var(--sand);border:1.5px solid var(--mist);border-radius:50px;padding:6px 16px;font-family:system-ui,sans-serif;font-size:.8rem;color:var(--dusk);cursor:pointer;transition:.18s}
+.pfbtn:hover{border-color:var(--accent);color:var(--accent)}
+.pfbtn.active{background:var(--bark);color:#fff;border-color:var(--bark)}
+
+/* ── Trips section heads (Upcoming / Past) ── */
+.trips-section{margin-bottom:36px}
+.trips-section-head{font-family:system-ui,sans-serif;font-size:.82rem;font-weight:600;color:var(--bark);text-transform:uppercase;letter-spacing:.06em;margin-bottom:14px;display:flex;align-items:baseline;gap:10px}
+.trips-section-head .count{color:var(--dusk);font-weight:400;font-size:.76rem;text-transform:none;letter-spacing:0}
+.trips-empty{font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk);padding:16px 0}
+
+/* ── Logistics time badge ── */
+.logistics-list li .lg-time{font-family:system-ui,sans-serif;font-size:.72rem;font-weight:600;color:var(--accent);background:var(--sand);border:1px solid var(--mist);padding:4px 10px;border-radius:50px;min-width:58px;text-align:center;letter-spacing:.02em;flex-shrink:0}
+.logistics-list li .lg-time.empty{color:var(--dusk);font-style:italic;opacity:.6}
+.logistics-list li [contenteditable="true"]{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ── Plan tab ── */
+.plan-layout{display:grid;grid-template-columns:340px minmax(0,1fr);gap:24px;align-items:start}
+@media(max-width:900px){.plan-layout{grid-template-columns:1fr}}
+.plan-form-card{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:24px;position:sticky;top:calc(var(--nav-h) + 16px)}
+.plan-form-card h3{font-family:system-ui,sans-serif;font-size:.9rem;font-weight:600;color:var(--bark);margin-bottom:18px}
+.plan-form-card .hint{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);margin-bottom:14px;line-height:1.5}
+.plan-results{display:none}
+.plan-results.show{display:block}
+.plan-empty{background:var(--warm);border:2px dashed var(--mist);border-radius:var(--r);padding:48px 24px;text-align:center;font-family:system-ui,sans-serif;color:var(--dusk);font-size:.88rem}
+.plan-section{margin-bottom:28px}
+.plan-section-head{display:flex;align-items:center;gap:10px;font-family:system-ui,sans-serif;font-size:.85rem;font-weight:600;color:var(--bark);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.plan-section-head .emoji{font-size:1.1rem}
+.place-card{background:var(--warm);border:1px solid var(--mist);border-radius:12px;padding:14px 18px;margin-bottom:10px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:start}
+.place-card h4{font-family:system-ui,sans-serif;font-size:.95rem;color:var(--bark);margin-bottom:4px}
+.place-card .pc-addr{font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);margin-bottom:6px}
+.place-card .pc-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.place-card .pc-meta span{font-family:system-ui,sans-serif;font-size:.7rem;color:var(--dusk);background:var(--sand);border:1px solid var(--mist);padding:2px 9px;border-radius:50px}
+.place-card .pc-note{font-size:.82rem;color:#5a4a3a;font-style:italic;line-height:1.45}
+.place-card .pc-right{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--accent);text-align:right;white-space:nowrap;font-weight:600}
+.plan-spinner{display:flex;align-items:center;gap:10px;justify-content:center;padding:32px;font-family:system-ui,sans-serif;font-size:.88rem;color:var(--dusk)}
+.plan-spinner .dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:bounce 1.2s infinite ease-in-out}
+.plan-spinner .dot:nth-child(2){animation-delay:.15s}
+.plan-spinner .dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,80%,100%{transform:scale(.4);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* ── AUTH MODAL ── */
+.auth-overlay{position:fixed;inset:0;background:rgba(44,35,24,.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(6px)}
+.auth-box{background:var(--warm);border-radius:20px;padding:36px 32px;max-width:420px;width:100%;box-shadow:0 24px 60px rgba(44,35,24,.3)}
+.auth-box .auth-logo{font-family:'Georgia',serif;font-size:1.3rem;color:var(--bark);font-style:italic;text-align:center;margin-bottom:6px}
+.auth-box .auth-sub{font-family:system-ui,sans-serif;font-size:.8rem;color:var(--dusk);text-align:center;margin-bottom:28px}
+.auth-box h2{font-family:system-ui,sans-serif;font-size:1rem;color:var(--bark);font-weight:600;margin-bottom:20px;text-align:center}
+.auth-field{margin-bottom:14px}
+.auth-field label{display:block;font-family:system-ui,sans-serif;font-size:.68rem;text-transform:uppercase;letter-spacing:.09em;color:var(--dusk);margin-bottom:5px}
+.auth-field input{width:100%;background:var(--cream);border:1.5px solid var(--mist);border-radius:9px;padding:10px 13px;font-family:system-ui,sans-serif;font-size:.9rem;color:var(--ink);transition:.2s}
+.auth-field input:focus{outline:none;border-color:var(--accent)}
+.auth-btn{width:100%;background:var(--bark);color:#fff;border:none;border-radius:50px;padding:12px;font-family:system-ui,sans-serif;font-size:.9rem;cursor:pointer;transition:.2s;margin-top:8px}
+.auth-btn:hover{background:var(--clay)}
+.auth-switch{text-align:center;margin-top:16px;font-family:system-ui,sans-serif;font-size:.8rem;color:var(--dusk)}
+.auth-switch a{color:var(--accent);cursor:pointer;text-decoration:underline}
+.auth-error{background:#fde8d3;border:1px solid #f0b090;border-radius:9px;padding:10px 14px;font-family:system-ui,sans-serif;font-size:.82rem;color:#a04020;margin-bottom:14px;display:none}
+.auth-consent{display:flex;gap:8px;align-items:flex-start;margin-top:12px}
+.auth-consent input{margin-top:3px;flex-shrink:0;accent-color:var(--bark)}
+.auth-consent label{font-family:system-ui,sans-serif;font-size:.75rem;color:var(--dusk);line-height:1.45}
+.auth-consent a{color:var(--accent)}
+
+/* ── USER MENU ── */
+.user-menu-wrap{position:relative;margin-left:auto;flex-shrink:0}
+.user-btn{background:var(--sand);border:1.5px solid var(--mist);border-radius:50px;padding:6px 14px;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--bark);cursor:pointer;transition:.18s;display:flex;align-items:center;gap:6px}
+.user-btn:hover{background:var(--bark);color:#fff;border-color:var(--bark)}
+.user-dropdown{display:none;position:absolute;right:0;top:calc(100% + 8px);background:var(--warm);border:1px solid var(--mist);border-radius:12px;box-shadow:0 8px 28px rgba(44,35,24,.14);min-width:180px;z-index:400;overflow:hidden}
+.user-dropdown.open{display:block}
+.ud-item{padding:10px 16px;font-family:system-ui,sans-serif;font-size:.82rem;color:var(--ink);cursor:pointer;transition:.15s;display:flex;align-items:center;gap:8px}
+.ud-item:hover{background:var(--sand)}
+.ud-sep{height:1px;background:var(--mist);margin:4px 0}
+.ud-item.danger{color:#c04030}
+.ud-item.danger:hover{background:#fde8d3}
+
+/* ── GOOGLE MAP ── */
+#googleMap{width:100%;height:340px;border-radius:var(--r);border:1px solid var(--mist)}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ NAV ═══════════════════ -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo"><em>Un Bel Viaggio</em></div>
+    <div class="tabs" id="mainTabs">
+      <button class="tab active" onclick="showView('dashboard',this)">Dashboard</button>
+      <button class="tab" onclick="showView('trips',this)">Trips</button>
+      <button class="tab" onclick="showView('plan',this)">Plan</button>
+      <button class="tab" onclick="showView('calendar',this)">Calendar</button>
+      <button class="tab" onclick="showView('pack',this)">Pack</button>
+      <button class="tab" onclick="showView('kb',this)">Knowledge Base</button>
+      <button class="tab" onclick="showView('video',this)">Video</button>
+      <button class="tab" onclick="showView('maps',this)">Maps</button>
+      <button class="tab" onclick="showView('about',this)">About</button>
+    </div>
+    <div class="user-menu-wrap" id="userMenuWrap" style="display:none">
+      <button class="user-btn" onclick="toggleUserMenu()">
+        <span id="userMenuName">—</span> ▾
+      </button>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="ud-item" onclick="exportData()">📥 Скачать мои данные</div>
+        <div class="ud-sep"></div>
+        <div class="ud-item danger" onclick="deleteAccount()">🗑 Удалить аккаунт</div>
+        <div class="ud-sep"></div>
+        <div class="ud-item" onclick="logout()">← Выйти</div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════ AUTH MODAL ═══════════════════ -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-logo">Un Bel Viaggio</div>
+    <div class="auth-sub">твой личный дневник путешествий</div>
+
+    <!-- LOGIN FORM -->
+    <div id="authLogin">
+      <h2>Войти</h2>
+      <div class="auth-error" id="loginError"></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email"/></div>
+      <div class="auth-field"><label>Пароль</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/></div>
+      <button class="auth-btn" onclick="submitLogin()">Войти →</button>
+      <div class="auth-switch">Нет аккаунта? <a onclick="switchAuth('register')">Зарегистрироваться</a></div>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="authRegister" style="display:none">
+      <h2>Создать аккаунт</h2>
+      <div class="auth-error" id="registerError"></div>
+      <div class="auth-field"><label>Имя</label><input type="text" id="regName" placeholder="Tasnim" autocomplete="given-name"/></div>
+      <div class="auth-field"><label>Email</label><input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email"/></div>
+      <div class="auth-field"><label>Пароль (минимум 8 символов)</label><input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password"/></div>
+      <label class="auth-consent">
+        <input type="checkbox" id="regConsent"/>
+        <span>Я принимаю <a href="/privacy.html" target="_blank">политику конфиденциальности</a> и соглашаюсь на хранение моих данных путешествий на сервере.</span>
+      </label>
+      <button class="auth-btn" onclick="submitRegister()">Создать аккаунт →</button>
+      <div class="auth-switch">Уже есть аккаунт? <a onclick="switchAuth('login')">Войти</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ DASHBOARD ═══════════════════ -->
+<div class="view active" id="v-dashboard">
+  <div style="margin-bottom:24px">
+    <h1 style="font-size:clamp(1.4rem,3vw,1.9rem);color:var(--bark);font-weight:400;margin-bottom:2px" id="dashGreeting">Hello ✦</h1>
+    <p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)" id="dashDate"></p>
+  </div>
+
+  <!-- Song of the trip — compact -->
+  <div class="song-card" id="songCard">
+    <span class="sc-icon">♪</span>
+    <div class="sc-meta">
+      <div class="sc-title" id="songTitle">La Vie en Rose</div>
+      <div class="sc-artist" id="songArtist">Louis Armstrong</div>
+    </div>
+    <span class="sc-trip" id="songTrip">for Paris</span>
+    <button class="song-play-btn" id="songPlayBtn" onclick="toggleSongPlayer()" title="Play">▶</button>
+    <button class="song-edit-btn" onclick="openSongEditor()" title="Change song">✎</button>
+    <div class="song-player">
+      <div class="song-frame">
+        <iframe id="songFrame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+    <!-- LEFT: reflection + upcoming -->
+    <div>
+      <!-- REFLECTION — CENTRAL FEATURE -->
+      <div class="reflect-card mb-8">
+        <div class="rc-header">
+          <h2>Reflection</h2>
+          <span>Capture what you felt, not just what you saw</span>
+        </div>
+        <div class="rc-body" id="reflectCard">
+          <!-- Step 1: Mood -->
+          <div id="rc-mood">
+            <p class="mood-label" style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);margin-bottom:10px">How are you feeling right now?</p>
+            <div class="mood-row">
+              <button class="mood-btn" onclick="pickMood('tired',this)">😴<span>Tired</span></button>
+              <button class="mood-btn" onclick="pickMood('calm',this)">😌<span>Calm</span></button>
+              <button class="mood-btn" onclick="pickMood('energized',this)">✨<span>Energized</span></button>
+              <button class="mood-btn" onclick="pickMood('emotional',this)">🌊<span>Emotional</span></button>
+              <button class="mood-btn" onclick="pickMood('thoughtful',this)">🤔<span>Reflective</span></button>
+            </div>
+            <div class="mode-choice" id="modeChoice">
+              <p style="font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);width:100%;margin-bottom:6px">Choose your reflection mode:</p>
+              <button class="mode-pill" onclick="startReflect('quick')">Quick · 3 questions</button>
+              <button class="mode-pill" onclick="startReflect('deep')">Deep · 7 questions</button>
+            </div>
+          </div>
+          <!-- Step 2: Questions -->
+          <div class="rq-block" id="rc-questions">
+            <div class="rq-progress" id="rqProgress"></div>
+            <p class="label-sm" id="rqLabel" style="margin-bottom:8px">Question 1</p>
+            <p class="rq-q" id="rqText"></p>
+            <textarea class="rq-area" id="rqInput" placeholder="Write freely — this is just for you..."></textarea>
+            <div style="display:flex;gap:10px;margin-top:10px;align-items:center;flex-wrap:wrap">
+              <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎙 Record voice</button>
+              <div id="audioPlayer" style="display:none;flex:1"></div>
+            </div>
+            <div class="rq-actions" style="margin-top:14px">
+              <button class="rq-skip" onclick="nextRq()">Skip →</button>
+              <button class="btn-primary" style="padding:9px 20px;font-size:.85rem" onclick="nextRq()">Next</button>
+            </div>
+          </div>
+          <!-- Step 3: Summary -->
+          <div class="rq-summary" id="rc-summary">
+            <div class="sum-icon">✦</div>
+            <h3 style="color:var(--bark);margin-bottom:8px">Reflection saved</h3>
+            <p style="font-family:system-ui,sans-serif;font-size:.88rem;color:var(--dusk);max-width:340px;margin:0 auto 14px">Your impressions have been captured. Your traveller profile has been updated.</p>
+            <div class="sum-tags">
+              <span class="sum-tag">Observer</span>
+              <span class="sum-tag">Slow pace</span>
+              <span class="sum-tag">Curious</span>
+              <span class="sum-tag">Connected</span>
+            </div>
+            <button class="btn-ghost" style="font-size:.82rem" onclick="resetReflect()">Reflect again</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPCOMING TRIPS -->
+      <div class="section-head mb-8" style="margin-bottom:12px">
+        <h2>Upcoming</h2>
+        <a onclick="showView('trips',document.querySelectorAll('.tab')[1])">all trips →</a>
+      </div>
+      <div class="upcoming-strip mb-8">
+        <div class="up-card" onclick="openTripDetail(0)">
+          <div class="up-emoji">🏔️</div>
+          <div class="up-info">
+            <h3>Prague → Munich</h3>
+            <div class="ud">28 May 2025 · overnight transit</div>
+          </div>
+          <span class="tc-badge b-soon up-badge">Soon</span>
+          <span class="up-arrow">›</span>
+        </div>
+        <div class="up-card" onclick="openTripDetail(1)">
+          <div class="up-emoji">🗼</div>
+          <div class="up-info">
+            <h3>Paris</h3>
+            <div class="ud">10–15 June 2025</div>
+          </div>
+          <span class="tc-badge b-plan up-badge">Planned</span>
+          <span class="up-arrow">›</span>
+        </div>
+        <div class="add-empty" style="min-height:60px;flex-direction:row;gap:10px;padding:14px 18px" onclick="openModal('tripModal')">
+          <span class="plus">+</span> Add trip
+        </div>
+      </div>
+
+      <!-- INSIGHTS STRIP -->
+      <div class="section-head" style="margin-bottom:12px">
+        <h2>Recent Insights</h2>
+        <a onclick="showView('kb',document.querySelectorAll('.tab')[5])">all →</a>
+      </div>
+      <div class="insights-scroll">
+        <div class="ins-tile">
+          <div class="it-loc">Germany</div>
+          <div class="it-t">Munich Transit</div>
+          <div class="it-b">ZOB & Hbf 5 min apart. No luggage = go to the city.</div>
+        </div>
+        <div class="ins-tile">
+          <div class="it-loc">China</div>
+          <div class="it-t">Great Wall exit</div>
+          <div class="it-b">Express route not obvious — check map on the spot.</div>
+        </div>
+        <div class="ins-tile">
+          <div class="it-loc">Korea · Seoul</div>
+          <div class="it-t">Hongdae timing</div>
+          <div class="it-b">Morning = quiet. Evening = different city entirely.</div>
+        </div>
+        <div class="ins-tile">
+          <div class="it-loc">Italy · Rome</div>
+          <div class="it-t">Arriving at mass hour</div>
+          <div class="it-b">Timing the Colosseum right — all the "awkwardness" was just in my head.</div>
+        </div>
+        <div class="ins-tile" style="border:2px dashed var(--mist);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center" onclick="openModal('expModal')">
+          <span style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk)">+ Add insight</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR: chronological trips + mini-cal -->
+    <div>
+      <div class="section-head" style="margin-bottom:12px">
+        <h2>My Trips</h2>
+        <a onclick="showView('trips',document.querySelectorAll('.tab')[1])">all →</a>
+      </div>
+      <div id="dashTripsList" style="display:flex;flex-direction:column;gap:10px"></div>
+
+      <div class="section-head" style="margin:24px 0 10px">
+        <h2>Where I'm going</h2>
+        <a onclick="showView('calendar',document.querySelectorAll('.tab')[3])">calendar →</a>
+      </div>
+      <div class="mini-cal" id="miniCal"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TRIPS ═══════════════════ -->
+<div class="view" id="v-trips">
+  <div class="page-header">
+    <h1>My Trips</h1>
+    <p>Click a trip to open it</p>
+  </div>
+
+  <div class="trips-section">
+    <div class="trips-section-head">Upcoming <span class="count" id="tripsUpCount"></span></div>
+    <div class="trips-grid" id="tripsUpcoming"></div>
+  </div>
+
+  <div class="trips-section">
+    <div class="trips-section-head">Past <span class="count" id="tripsPastCount"></span></div>
+    <div class="trips-grid" id="tripsPast"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ PLAN (AI trip planner) ═══════════════════ -->
+<div class="view" id="v-plan">
+  <div class="page-header">
+    <h1>Plan</h1>
+    <p>AI-powered trip planning — tell it what you're into, get a walkable itinerary</p>
+  </div>
+  <div class="plan-layout">
+    <div class="plan-form-card">
+      <h3>Plan a trip</h3>
+      <p class="hint">Drop in a destination and pick interests. The planner returns places sorted by distance, with walking times, prices and short notes.</p>
+      <div class="field">
+        <label>Destination</label>
+        <input type="text" id="planDest" placeholder="Paris, Lisbon, Tokyo..." value="Paris"/>
+      </div>
+      <div class="field">
+        <label>Starting point (optional)</label>
+        <input type="text" id="planOrigin" placeholder="Hotel / address / neighbourhood"/>
+      </div>
+      <div class="field">
+        <label>Interests (pick any)</label>
+        <div class="chip-group" id="planInterests">
+          <span class="chip on" data-int="coffee" onclick="pickChipMulti(this)">☕ Coffee</span>
+          <span class="chip" data-int="food" onclick="pickChipMulti(this)">🍽 Food</span>
+          <span class="chip" data-int="art" onclick="pickChipMulti(this)">🎨 Art</span>
+          <span class="chip" data-int="history" onclick="pickChipMulti(this)">🏛 History</span>
+          <span class="chip on" data-int="books" onclick="pickChipMulti(this)">📚 Books</span>
+          <span class="chip" data-int="nature" onclick="pickChipMulti(this)">🌿 Nature</span>
+          <span class="chip" data-int="architecture" onclick="pickChipMulti(this)">🏛 Architecture</span>
+          <span class="chip" data-int="music" onclick="pickChipMulti(this)">🎵 Music</span>
+          <span class="chip" data-int="viewpoints" onclick="pickChipMulti(this)">🌄 Viewpoints</span>
+          <span class="chip on" data-int="quiet" onclick="pickChipMulti(this)">🌙 Quiet spots</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Pace</label>
+        <div class="chip-group">
+          <span class="chip on" data-pace="slow" onclick="pickChip(this,'pace')">Slow</span>
+          <span class="chip" data-pace="balanced" onclick="pickChip(this,'pace')">Balanced</span>
+          <span class="chip" data-pace="packed" onclick="pickChip(this,'pace')">Packed</span>
+        </div>
+      </div>
+      <button class="gen-btn" onclick="runPlan()">Generate plan →</button>
+    </div>
+    <div>
+      <div class="plan-empty" id="planEmpty">Enter a destination and hit <strong>Generate plan</strong> — suggestions will appear here, grouped by category and sorted by distance.</div>
+      <div class="plan-results" id="planResults"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ TRIP DETAIL (full-screen) ═══════════════════ -->
+<div class="view" id="v-trip-detail">
+  <div class="td-hero" id="tdHero">
+    <button class="td-back" onclick="closeTripDetail()">← Back</button>
+    <div class="td-title" id="tdTitle">Trip</div>
+    <div class="td-sub" id="tdSub"></div>
+  </div>
+  <div class="td-inner">
+    <div class="td-tabs">
+      <button class="td-tab active" onclick="openTdTab('overview',this)">Overview</button>
+      <button class="td-tab" onclick="openTdTab('logistics',this)">Logistics</button>
+      <button class="td-tab" onclick="openTdTab('pack-td',this)">Packing</button>
+      <button class="td-tab" onclick="openTdTab('notes-td',this)">Notes</button>
+      <button class="td-tab" onclick="openTdTab('reflect-td',this)">Reflection</button>
+    </div>
+
+    <!-- Overview -->
+    <div class="td-panel active" id="tp-overview">
+      <div class="section-header-row">
+        <p class="label-sm" style="margin-bottom:0">Details</p>
+        <button class="section-edit" onclick="toggleEdit('tdInfoGrid',this)">✎ Edit</button>
+      </div>
+      <div class="info-grid" id="tdInfoGrid"></div>
+      <div style="background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:20px;margin-bottom:16px">
+        <div class="section-header-row">
+          <p class="label-sm" style="margin-bottom:0">Description</p>
+          <button class="section-edit" onclick="toggleEdit('tdDesc',this)">✎ Edit</button>
+        </div>
+        <p id="tdDesc" style="font-size:.92rem;color:#5a4a3a;line-height:1.65"></p>
+      </div>
+    </div>
+
+    <!-- Logistics -->
+    <div class="td-panel" id="tp-logistics">
+      <div class="section-header-row">
+        <p class="label-sm" style="margin-bottom:0">Key Logistics</p>
+        <button class="section-edit" onclick="toggleEdit('tdLogistics',this)">✎ Edit</button>
+      </div>
+      <ul class="logistics-list" id="tdLogistics"></ul>
+    </div>
+
+    <!-- Packing (embedded) -->
+    <div class="td-panel" id="tp-pack-td">
+      <div class="section-header-row">
+        <p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk);margin-bottom:0">Quick packing list for this trip</p>
+        <button class="section-edit" onclick="toggleEdit('tdPackList',this)">✎ Edit</button>
+      </div>
+      <div id="tdPackList" style="display:flex;flex-direction:column;gap:10px;margin-top:12px"></div>
+    </div>
+
+    <!-- Notes -->
+    <div class="td-panel" id="tp-notes-td">
+      <div class="section-header-row">
+        <p class="label-sm" style="margin-bottom:0">Trip notes</p>
+        <span style="font-family:system-ui,sans-serif;font-size:.7rem;color:var(--dusk)">always editable</span>
+      </div>
+      <textarea class="td-note-area" id="tripNoteArea" placeholder="Write anything — impressions, people you met, things you noticed..."></textarea>
+      <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+        <label class="photo-drop" style="flex:1;padding:12px;font-size:.78rem;cursor:pointer">
+          <input type="file" accept="image/*" style="display:none" onchange="previewTripPhoto(this)"/>
+          📷 Add photo
+        </label>
+        <button class="btn-primary" style="padding:9px 20px;font-size:.82rem" onclick="submitNote()">Save note</button>
+      </div>
+      <div id="noteSavedMsg" style="display:none;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--moss);margin-top:8px">✓ Заметка сохранена</div>
+      <div id="tripPhotoPreview" style="margin-top:12px"></div>
+    </div>
+
+    <!-- Reflection for this trip -->
+    <div class="td-panel" id="tp-reflect-td">
+      <p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk);margin-bottom:16px">Reflect on this trip</p>
+      <div style="display:flex;gap:8px;flex-direction:column">
+        <div style="background:var(--warm);border:1px solid var(--mist);border-radius:10px;padding:16px">
+          <p style="font-size:.95rem;color:var(--bark);margin-bottom:10px">What's one moment you want to hold onto?</p>
+          <textarea class="td-note-area" style="min-height:70px" placeholder="A person, a light, a sound..."></textarea>
+        </div>
+        <div style="background:var(--warm);border:1px solid var(--mist);border-radius:10px;padding:16px">
+          <p style="font-size:.95rem;color:var(--bark);margin-bottom:10px">What feeling kept coming back?</p>
+          <textarea class="td-note-area" style="min-height:70px" placeholder="Not what you did — what you felt..."></textarea>
+        </div>
+        <div style="background:var(--warm);border:1px solid var(--mist);border-radius:10px;padding:16px">
+          <p style="font-size:.95rem;color:var(--bark);margin-bottom:10px">What surprised you about yourself?</p>
+          <textarea class="td-note-area" style="min-height:70px" placeholder=""></textarea>
+        </div>
+        <button class="btn-primary" style="align-self:flex-end">Save reflection</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ CALENDAR ═══════════════════ -->
+<div class="view" id="v-calendar">
+  <div class="page-header"><h1>Calendar</h1><p>Your travel timeline and stats</p></div>
+  <div class="cal-nav">
+    <button class="cal-arrow" onclick="changeMonth(-1)">← Prev</button>
+    <h2 id="calMonthLabel"></h2>
+    <button class="cal-arrow" onclick="changeMonth(1)">Next →</button>
+  </div>
+  <div class="cal-grid">
+    <div class="cal-days-header">
+      <div class="cal-day-name">Mon</div>
+      <div class="cal-day-name">Tue</div>
+      <div class="cal-day-name">Wed</div>
+      <div class="cal-day-name">Thu</div>
+      <div class="cal-day-name">Fri</div>
+      <div class="cal-day-name weekend">Sat</div>
+      <div class="cal-day-name weekend">Sun</div>
+    </div>
+    <div class="cal-cells" id="calCells"></div>
+  </div>
+
+  <div class="reminders-section">
+    <div class="rem-head">
+      <div>
+        <h3 style="margin:0;font-family:'Fraunces',serif;font-size:1.1rem;color:var(--bark)">Reminders</h3>
+        <div style="font-family:system-ui,sans-serif;font-size:.75rem;color:var(--ink-light);margin-top:2px">Never forget to buy tickets or book a hotel</div>
+      </div>
+      <button class="btn-primary" style="padding:8px 18px;font-size:.8rem" onclick="openReminderModal()">+ Add reminder</button>
+    </div>
+    <div class="rem-list" id="remList"></div>
+  </div>
+
+  <div class="period-filter" id="periodFilter">
+    <button class="pfbtn" data-period="week" onclick="setPeriod('week',this)">Week</button>
+    <button class="pfbtn" data-period="month" onclick="setPeriod('month',this)">Month</button>
+    <button class="pfbtn" data-period="year" onclick="setPeriod('year',this)">Year</button>
+    <button class="pfbtn active" data-period="all" onclick="setPeriod('all',this)">All time</button>
+  </div>
+
+  <div class="cal-stats mb-8">
+    <div class="cs-card"><div class="csv" id="calTrips">0</div><div class="csl" id="calTripsLabel">trips</div></div>
+    <div class="cs-card"><div class="csv" id="calDays">0</div><div class="csl">days travelling</div></div>
+    <div class="cs-card"><div class="csv" id="calCountries">0</div><div class="csl">countries</div></div>
+    <div class="cs-card"><div class="csv" id="calBudget">—</div><div class="csl">avg daily budget</div></div>
+  </div>
+
+  <div class="actionable">
+    <div class="act-head" id="actHead">Actionable insights for next trips</div>
+    <div class="act-list" id="actList"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════ PACKING LIST ═══════════════════ -->
+<div class="view" id="v-pack">
+  <div class="page-header"><h1>Pack</h1><p>Smart packing list built around your trip</p></div>
+  <div class="pack-layout">
+    <!-- Form -->
+    <div class="pack-form-card">
+      <h3>Tell me about this trip</h3>
+      <div class="field">
+        <label>Destination</label>
+        <input type="text" id="packDest" placeholder="Paris, Tokyo, ..."/>
+      </div>
+      <div class="field">
+        <label>Duration</label>
+        <div class="chip-group">
+          <span class="chip on" data-dur="1-3" onclick="pickChip(this,'dur')">1–3 days</span>
+          <span class="chip" data-dur="4-7" onclick="pickChip(this,'dur')">4–7 days</span>
+          <span class="chip" data-dur="1-2w" onclick="pickChip(this,'dur')">1–2 weeks</span>
+          <span class="chip" data-dur="2w+" onclick="pickChip(this,'dur')">2+ weeks</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Transport</label>
+        <div class="chip-group">
+          <span class="chip on" data-tr="flight" onclick="pickChip(this,'tr')">✈️ Flight</span>
+          <span class="chip" data-tr="train" onclick="pickChip(this,'tr')">🚆 Train</span>
+          <span class="chip" data-tr="bus" onclick="pickChip(this,'tr')">🚌 Bus</span>
+          <span class="chip" data-tr="car" onclick="pickChip(this,'tr')">🚗 Car</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Accommodation</label>
+        <div class="chip-group">
+          <span class="chip on" data-acc="hotel" onclick="pickChip(this,'acc')">Hotel</span>
+          <span class="chip" data-acc="airbnb" onclick="pickChip(this,'acc')">Airbnb</span>
+          <span class="chip" data-acc="hostel" onclick="pickChip(this,'acc')">Hostel</span>
+          <span class="chip" data-acc="friend" onclick="pickChip(this,'acc')">Friend's</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Climate</label>
+        <div class="chip-group">
+          <span class="chip" data-cl="hot" onclick="pickChip(this,'cl')">☀️ Hot</span>
+          <span class="chip on" data-cl="mild" onclick="pickChip(this,'cl')">🌤 Mild</span>
+          <span class="chip" data-cl="cold" onclick="pickChip(this,'cl')">🌨 Cold</span>
+          <span class="chip" data-cl="mixed" onclick="pickChip(this,'cl')">🌦 Mixed</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Activities (multi-select)</label>
+        <div class="chip-group">
+          <span class="chip on" data-act="city" onclick="pickChipMulti(this)">🏙 City</span>
+          <span class="chip" data-act="beach" onclick="pickChipMulti(this)">🏖 Beach</span>
+          <span class="chip" data-act="hiking" onclick="pickChipMulti(this)">🥾 Hiking</span>
+          <span class="chip" data-act="work" onclick="pickChipMulti(this)">💻 Work</span>
+          <span class="chip" data-act="night" onclick="pickChipMulti(this)">🌙 Nightlife</span>
+          <span class="chip" data-act="food" onclick="pickChipMulti(this)">🍽 Food</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Hand luggage only?</label>
+        <div class="chip-group">
+          <span class="chip on" data-hl="yes" onclick="pickChip(this,'hl')">Yes</span>
+          <span class="chip" data-hl="no" onclick="pickChip(this,'hl')">No — checked bag</span>
+        </div>
+      </div>
+      <button class="gen-btn" onclick="generatePack()">Generate my packing list →</button>
+    </div>
+
+    <!-- Results -->
+    <div class="pack-results" id="packResults">
+      <div id="packSections"></div>
+      <div class="email-reminder" onclick="sendReminder()">
+        <div class="er-icon">📩</div>
+        <div class="er-text">
+          <h4>Remind me to buy snacks</h4>
+          <p>Get an email reminder on the day of departure</p>
+        </div>
+        <div class="er-arrow">→</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ KNOWLEDGE BASE ═══════════════════ -->
+<div class="view" id="v-kb">
+  <div class="page-header"><h1>Knowledge Base</h1><p>Logistics decisions I've already figured out</p></div>
+  <div class="kb-toolbar">
+    <input class="kb-search" placeholder="🔍  Search city, situation, tag..." type="text" oninput="filterKb(this.value)"/>
+    <div class="filter-row">
+      <span class="ftag on" data-tag="all" onclick="filterByTag('all',this)">All</span>
+      <span class="ftag" data-tag="transit" onclick="filterByTag('transit',this)">Transit</span>
+      <span class="ftag" data-tag="airport" onclick="filterByTag('airport',this)">Airport</span>
+      <span class="ftag" data-tag="no luggage" onclick="filterByTag('no luggage',this)">No luggage</span>
+      <span class="ftag" data-tag="night" onclick="filterByTag('night',this)">Night</span>
+      <span class="ftag" data-tag="nature" onclick="filterByTag('nature',this)">Nature</span>
+      <span class="ftag" data-tag="logistics" onclick="filterByTag('logistics',this)">Logistics</span>
+    </div>
+    <span style="font-family:system-ui,sans-serif;font-size:.7rem;color:var(--dusk);margin-left:auto">Pick multiple · shows cards matching any selected</span>
+    <button class="btn-accent" onclick="openModal('expModal')">+ Add experience</button>
+  </div>
+  <div class="kb-grid" id="kbGrid">
+    <div class="kb-card" data-tags="transit,no luggage,night,germany">
+      <div class="kb-head"><div class="kb-emoji">🚌</div><div><h3>Munich Transit</h3><div class="kb-route">Prague → Munich → midnight bus</div></div></div>
+      <div class="kb-body">
+        <div class="kb-sec"><div class="kb-sec-label">Situation</div><p>Worth spending 3h in Munich before the midnight bus, or arrive late? Travelling without luggage.</p></div>
+        <div class="kb-sec"><div class="kb-sec-label">Solution — yes, go to the city</div>
+          <ul class="kb-bullets"><li>ZOB & Hbf are 5 min walk apart (Arnulfstraße 21)</li><li>U-Bahn from Hbf to Marienplatz: 10 min</li><li>Hofbräuhaus open until midnight, 15 min from ZOB</li><li>Leave at 23:15 to be safe</li></ul>
+        </div>
+        <div class="kb-insight"><div class="ki-label">💡 Insight for next time</div><p>Without luggage, never wait at a station. A 2–3h window at a transit city is a bonus, not a loss.</p></div>
+      </div>
+      <div class="kb-footer"><span class="kb-tag">🇩🇪 Germany</span><span class="kb-tag">transit</span><span class="kb-tag">no luggage</span><span class="kb-tag">night</span></div>
+    </div>
+    <div class="kb-card" data-tags="airport,logistics,china">
+      <div class="kb-head"><div class="kb-emoji">✈️</div><div><h3>Beijing Airport → Centre</h3><div class="kb-route">PEK → hotel in city centre</div></div></div>
+      <div class="kb-body">
+        <div class="kb-sec"><div class="kb-sec-label">Situation</div><p>First time in Beijing — taxi or public transport?</p></div>
+        <div class="kb-sec"><div class="kb-sec-label">Solution</div>
+          <ul class="kb-bullets"><li>Airport Express to Dongzhimen (~30 min, ~25 CNY)</li><li>Transfer to metro — reach anywhere in centre</li><li>Taxi in rush hour can take 1.5–2h</li></ul>
+        </div>
+        <div class="kb-insight"><div class="ki-label">💡 Insight for next time</div><p>In Beijing, airport express is always the first choice. Download offline metro map before landing.</p></div>
+      </div>
+      <div class="kb-footer"><span class="kb-tag">🇨🇳 China</span><span class="kb-tag">airport</span><span class="kb-tag">metro</span><span class="kb-tag">logistics</span></div>
+    </div>
+    <div class="kb-card" data-tags="nature,logistics,russia">
+      <div class="kb-head"><div class="kb-emoji">🌊</div><div><h3>Waterfalls in Sochi</h3><div class="kb-route">Sochi — nature route</div></div></div>
+      <div class="kb-body">
+        <div class="kb-sec"><div class="kb-sec-label">Situation</div><p>How to reach the waterfalls — almost no info, bus schedules unclear.</p></div>
+        <div class="kb-sec"><div class="kb-sec-label">Solution</div>
+          <ul class="kb-bullets"><li>Taxi to trailhead saves ~2h vs waiting for a bus</li><li>Cost reasonable when split</li><li>Bus exists but rare and unreliable schedule</li></ul>
+        </div>
+        <div class="kb-insight"><div class="ki-label">💡 Insight for next time</div><p>For nature routes in Russia off-season: always budget for a taxi. Bus only if schedule confirmed in advance.</p></div>
+      </div>
+      <div class="kb-footer"><span class="kb-tag">🇷🇺 Russia</span><span class="kb-tag">nature</span><span class="kb-tag">taxi</span><span class="kb-tag">logistics</span></div>
+    </div>
+    <div class="kb-card" data-tags="transit,china,great wall">
+      <div class="kb-head"><div class="kb-emoji">🏔️</div><div><h3>Great Wall exit at Badaling</h3><div class="kb-route">Badaling section → Express train</div></div></div>
+      <div class="kb-body">
+        <div class="kb-sec"><div class="kb-sec-label">Situation</div><p>How to get back from the wall exit to the express train — not signposted clearly.</p></div>
+        <div class="kb-sec"><div class="kb-sec-label">Solution</div>
+          <ul class="kb-bullets"><li>Exit via the south gate, not the north</li><li>Shuttle buses run to the train station</li><li>Check the route on the spot — maps don't always match reality</li></ul>
+        </div>
+        <div class="kb-insight"><div class="ki-label">💡 Insight for next time</div><p>Always locate the return route on arrival, before exploring. 10 min spent on this at the start saves 1h of confusion later.</p></div>
+      </div>
+      <div class="kb-footer"><span class="kb-tag">🇨🇳 China</span><span class="kb-tag">transit</span><span class="kb-tag">Great Wall</span></div>
+    </div>
+    <div class="add-empty" style="min-height:200px" onclick="openModal('expModal')">
+      <div class="plus">+</div>Add experience
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ VIDEO ═══════════════════ -->
+<div class="view" id="v-video">
+  <div class="page-header"><h1>Video</h1><p>Turn your clips into a travel reel</p></div>
+  <div class="video-layout">
+    <div>
+      <div class="video-drop">
+        <div style="font-size:2rem;margin-bottom:8px">🎞️</div>
+        <div style="font-family:system-ui,sans-serif;font-size:.88rem;color:var(--bark);margin-bottom:4px">Drop video clips here</div>
+        <div style="font-family:system-ui,sans-serif;font-size:.75rem">MP4, MOV · up to 500 MB each</div>
+      </div>
+      <p class="label-sm" style="margin-bottom:10px">Clips added (3)</p>
+      <div class="clips-grid">
+        <div class="clip"><span class="ce">🏔️</span><span style="font-size:.62rem;font-family:system-ui,sans-serif">hot air balloon</span><span class="clip-dur">0:12</span></div>
+        <div class="clip"><span class="ce">☕</span><span style="font-size:.62rem;font-family:system-ui,sans-serif">morning coffee</span><span class="clip-dur">0:08</span></div>
+        <div class="clip"><span class="ce">🌅</span><span style="font-size:.62rem;font-family:system-ui,sans-serif">sunset</span><span class="clip-dur">0:21</span></div>
+        <div class="clip" style="border:2px dashed var(--mist);background:none"><span style="font-size:1.4rem;color:var(--dusk)">+</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="vside-card">
+        <h4>Edit style</h4>
+        <div class="style-opts">
+          <div class="sopt on" onclick="pickSopt(this)">🌿 Slow · atmospheric</div>
+          <div class="sopt" onclick="pickSopt(this)">⚡ Dynamic · rhythmic</div>
+          <div class="sopt" onclick="pickSopt(this)">📓 Diary · personal</div>
+        </div>
+      </div>
+      <div class="vside-card">
+        <h4>Music</h4>
+        <div class="mchips">
+          <span class="mchip on">Lo-fi</span>
+          <span class="mchip">Acoustic</span>
+          <span class="mchip">Cinematic</span>
+          <span class="mchip">No music</span>
+        </div>
+      </div>
+      <div class="vside-card">
+        <h4>Trip</h4>
+        <select style="width:100%;border:1.5px solid var(--mist);border-radius:8px;padding:8px 10px;font-family:system-ui,sans-serif;font-size:.85rem;background:var(--cream);color:var(--ink)">
+          <option>Cappadocia, May 2025</option>
+          <option>Seoul, October 2024</option>
+          <option>Istanbul, March 2023</option>
+        </select>
+      </div>
+      <button class="btn-primary" style="width:100%;padding:13px;border-radius:50px;font-size:.9rem">Create reel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MAPS ═══════════════════ -->
+<div class="view" id="v-maps">
+  <div class="page-header"><h1>Saved Places</h1><p>From Google Maps — filtered by country</p></div>
+  <div class="maps-layout">
+    <div>
+      <div class="cfilter" style="margin-bottom:16px">
+        <span class="cfbtn on">All</span>
+        <span class="cfbtn">🇰🇷 Korea</span>
+        <span class="cfbtn">🇨🇳 China</span>
+        <span class="cfbtn">🇹🇷 Turkey</span>
+        <span class="cfbtn">🇩🇪 Germany</span>
+        <span class="cfbtn">🇮🇹 Italy</span>
+      </div>
+      <div id="googleMap"></div>
+      <p style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);margin-top:10px">Маркеры показывают все твои путешествия. Кликни на маркер, чтобы открыть карточку.</p>
+    </div>
+    <div>
+      <p class="label-sm" style="margin-bottom:10px">Saved (5)</p>
+      <div class="places-list">
+        <div class="place-row"><span class="ppin">☕</span><div class="pinfo"><h4>Café Bora</h4><div class="pm">Hongdae, Seoul</div></div><span class="ptag">🇰🇷 want</span></div>
+        <div class="place-row"><span class="ppin">🍺</span><div class="pinfo"><h4>Hofbräuhaus</h4><div class="pm">Munich</div></div><span class="ptag">🇩🇪 been</span></div>
+        <div class="place-row"><span class="ppin">🕌</span><div class="pinfo"><h4>Grand Bazaar</h4><div class="pm">Istanbul</div></div><span class="ptag">🇹🇷 been</span></div>
+        <div class="place-row"><span class="ppin">🏛</span><div class="pinfo"><h4>Colosseum at night</h4><div class="pm">Rome</div></div><span class="ptag">🇮🇹 been</span></div>
+        <div class="place-row"><span class="ppin">🌸</span><div class="pinfo"><h4>Changdeokgung</h4><div class="pm">Seoul</div></div><span class="ptag">🇰🇷 want</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ ABOUT ═══════════════════ -->
+<div class="view" id="v-about">
+  <div class="about-max">
+    <p class="label-sm" style="margin-bottom:8px">About</p>
+    <h2>Un Bel Viaggio</h2>
+    <p>A personal tool for conscious travel. Not a booking platform — a place to plan intentionally, reflect deeply, and remember what actually mattered.</p>
+    <div class="about-block">
+      <h3>Four core moments</h3>
+      <ul>
+        <li><strong>Before</strong> — AI trip planning around your rhythm and interests</li>
+        <li><strong>During & after</strong> — reflection, notes, scans, multilingual publishing</li>
+        <li><strong>Between trips</strong> — inspiration, traveller profile, knowledge base</li>
+        <li><strong>Packing</strong> — smart lists built on your past experience</li>
+      </ul>
+    </div>
+    <div class="about-block">
+      <h3>Inspired by Polarsteps — features worth borrowing</h3>
+      <div class="polar-grid">
+        <div class="polar-item"><h4>Steps concept</h4><p>Each day of travel = a "step" with location, photos, notes. Creates a visual journey timeline automatically.</p></div>
+        <div class="polar-item"><h4>Route on a real map</h4><p>Pins showing your actual path across a world map. Beautifully visual, tells the story of the route.</p></div>
+        <div class="polar-item"><h4>Auto-generated stats</h4><p>Total distance travelled, days away, countries visited — calculated automatically from your steps.</p></div>
+        <div class="polar-item"><h4>Printed travel book</h4><p>Export your trip as a beautifully formatted PDF book — text, photos, map included. Worth implementing.</p></div>
+        <div class="polar-item"><h4>Weather per step</h4><p>Automatic weather data for each day of travel, attached to the journal entry. Useful for reflection.</p></div>
+        <div class="polar-item"><h4>Offline access</h4><p>Full functionality without internet — essential when abroad. Critical for a travel app.</p></div>
+      </div>
+    </div>
+    <div class="about-block">
+      <h3>Tech stack</h3>
+      <ul>
+        <li>React + Vite + TypeScript + Tailwind CSS</li>
+        <li>Supabase — database (PostgreSQL), Auth, file Storage</li>
+        <li>OpenAI API — reflection summaries, translations (RU/EN/FR)</li>
+        <li>Mapbox — interactive trip map</li>
+        <li>Web Speech API — voice recording & transcription</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ MODALS ═══════════════════ -->
+<div class="modal-overlay" id="tripModal" onclick="closeIfOverlay(event,'tripModal')">
+  <div class="modal">
+    <h3>Add trip</h3>
+    <div id="tripModalError" style="display:none;background:#fde8d3;border:1px solid #f0b090;border-radius:9px;padding:10px 14px;font-family:system-ui,sans-serif;font-size:.82rem;color:#a04020;margin-bottom:14px"></div>
+    <div class="mfield"><label>Destination</label><input type="text" id="tmDest" placeholder="Paris, Tokyo..."/></div>
+    <div class="mfield"><label>Emoji</label><input type="text" id="tmEmoji" placeholder="🗼" maxlength="2" style="width:60px"/></div>
+    <div class="mfield"><label>Dates / subtitle</label><input type="text" id="tmSub" placeholder="10–15 June 2025 · 5 days"/></div>
+    <div class="mfield"><label>Status</label>
+      <select id="tmStatus">
+        <option value="plan">Planned</option>
+        <option value="soon">Soon</option>
+        <option value="idea">Idea</option>
+        <option value="done">Done</option>
+      </select>
+    </div>
+    <div class="mfield"><label>Short description (optional)</label><textarea id="tmDesc" placeholder="What this trip is about..." style="min-height:60px"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('tripModal')">Cancel</button>
+      <button class="btn-save" id="tmSaveBtn" onclick="submitTripModal()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="songModal" onclick="closeIfOverlay(event,'songModal')">
+  <div class="modal">
+    <h3>♪ Change song of the trip</h3>
+    <div class="mfield"><label>Song title</label><input type="text" id="songEditTitle" placeholder="La Vie en Rose"/></div>
+    <div class="mfield"><label>Artist</label><input type="text" id="songEditArtist" placeholder="Louis Armstrong"/></div>
+    <div class="mfield">
+      <label>YouTube URL or video ID</label>
+      <input type="text" id="songEditUrl" placeholder="https://youtu.be/kFzViYkZAz4 or just kFzViYkZAz4"/>
+      <p style="font-family:system-ui,sans-serif;font-size:.7rem;color:var(--dusk);margin-top:6px">Paste a full YouTube link — the ID will be extracted automatically.</p>
+    </div>
+    <div class="mfield"><label>Tie to trip</label>
+      <select id="songEditTrip">
+        <option value="">Pick a trip (optional)</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('songModal')">Cancel</button>
+      <button class="btn-save" onclick="saveSong()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="reminderModal" onclick="closeIfOverlay(event,'reminderModal')">
+  <div class="modal">
+    <h3>⏰ Add a reminder</h3>
+    <div class="mfield"><label>What to remember</label><input type="text" id="remTitle" placeholder="Buy train tickets to Paris"/></div>
+    <div class="mfield"><label>Date</label><input type="date" id="remDate"/></div>
+    <div class="mfield"><label>Icon</label>
+      <div class="chip-group" id="remIconPick">
+        <span class="chip on" data-icon="🎫" onclick="pickRemIcon(this)">🎫 Tickets</span>
+        <span class="chip" data-icon="🏨" onclick="pickRemIcon(this)">🏨 Hotel</span>
+        <span class="chip" data-icon="🛂" onclick="pickRemIcon(this)">🛂 Visa/docs</span>
+        <span class="chip" data-icon="💉" onclick="pickRemIcon(this)">💉 Vaccine</span>
+        <span class="chip" data-icon="💱" onclick="pickRemIcon(this)">💱 Exchange</span>
+        <span class="chip" data-icon="🧳" onclick="pickRemIcon(this)">🧳 Pack</span>
+        <span class="chip" data-icon="📱" onclick="pickRemIcon(this)">📱 eSIM</span>
+        <span class="chip" data-icon="🔔" onclick="pickRemIcon(this)">🔔 Other</span>
+      </div>
+    </div>
+    <div class="mfield"><label>Tie to trip (optional)</label>
+      <select id="remTrip"><option value="">— None —</option></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('reminderModal')">Cancel</button>
+      <button class="btn-save" onclick="saveReminder()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="expModal" onclick="closeIfOverlay(event,'expModal')">
+  <div class="modal">
+    <h3>Add to Knowledge Base</h3>
+    <div class="mfield"><label>Title</label><input type="text" placeholder="Munich transit, How to reach..."/></div>
+    <div class="mfield"><label>Route / context</label><input type="text" placeholder="Prague → Munich → midnight bus"/></div>
+    <div class="mfield"><label>Situation (the question)</label><textarea placeholder="What was the problem or decision?"></textarea></div>
+    <div class="mfield"><label>Solution</label><textarea placeholder="What worked?"></textarea></div>
+    <div class="mfield"><label>Insight for next time</label><input type="text" placeholder="Key takeaway in one sentence"/></div>
+    <div class="mfield"><label>Tags</label><input type="text" placeholder="transit, Germany, no luggage, night"/></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('expModal')">Cancel</button>
+      <button class="btn-save" onclick="closeModal('expModal')">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════
+//  AUTH
+// ════════════════════════════════
+let currentUser = null;
+
+async function initApp() {
+  try {
+    const res = await fetch('/api/auth/me');
+    if (res.ok) {
+      currentUser = await res.json();
+      showApp();
+    } else {
+      showAuthOverlay();
+    }
+  } catch {
+    showAuthOverlay();
+  }
+}
+
+function showAuthOverlay() {
+  document.getElementById('authOverlay').style.display = 'flex';
+}
+
+function hideAuthOverlay() {
+  document.getElementById('authOverlay').style.display = 'none';
+}
+
+function showApp() {
+  hideAuthOverlay();
+  const g = document.getElementById('dashGreeting');
+  if (g) g.textContent = `Hello, ${currentUser.name} ✦`;
+  const wrap = document.getElementById('userMenuWrap');
+  if (wrap) { wrap.style.display = 'flex'; }
+  document.getElementById('userMenuName').textContent = currentUser.name;
+  loadTrips();
+}
+
+function switchAuth(mode) {
+  document.getElementById('authLogin').style.display    = mode === 'login'    ? '' : 'none';
+  document.getElementById('authRegister').style.display = mode === 'register' ? '' : 'none';
+  document.getElementById('loginError').style.display    = 'none';
+  document.getElementById('registerError').style.display = 'none';
+}
+
+async function submitLogin() {
+  const email    = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errEl    = document.getElementById('loginError');
+  errEl.style.display = 'none';
+
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; return; }
+  currentUser = { name: data.name };
+  showApp();
+}
+
+async function submitRegister() {
+  const name     = document.getElementById('regName').value.trim();
+  const email    = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+  const consent  = document.getElementById('regConsent').checked;
+  const errEl    = document.getElementById('registerError');
+  errEl.style.display = 'none';
+
+  if (!consent) { errEl.textContent = 'Необходимо принять политику конфиденциальности'; errEl.style.display = 'block'; return; }
+
+  const res = await fetch('/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password })
+  });
+  const data = await res.json();
+  if (!res.ok) { errEl.textContent = data.error; errEl.style.display = 'block'; return; }
+  currentUser = { name: data.name };
+  showApp();
+}
+
+async function logout() {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  currentUser = null;
+  trips = [];
+  toggleUserMenu(false);
+  showAuthOverlay();
+}
+
+async function exportData() {
+  window.open('/api/user/export', '_blank');
+  toggleUserMenu(false);
+}
+
+async function deleteAccount() {
+  if (!confirm('Удалить аккаунт и ВСЕ данные? Это необратимо.')) return;
+  await fetch('/api/user/account', { method: 'DELETE' });
+  currentUser = null; trips = [];
+  toggleUserMenu(false);
+  showAuthOverlay();
+}
+
+function toggleUserMenu(force) {
+  const d = document.getElementById('userDropdown');
+  const open = force !== undefined ? force : !d.classList.contains('open');
+  d.classList.toggle('open', open);
+}
+document.addEventListener('click', e => {
+  if (!document.getElementById('userMenuWrap')?.contains(e.target)) {
+    document.getElementById('userDropdown')?.classList.remove('open');
+  }
+});
+
+// ════════════════════════════════
+//  DATA (загружается с сервера)
+// ════════════════════════════════
+let trips = [];
+
+async function loadTrips() {
+  try {
+    const res = await fetch('/api/trips');
+    if (res.ok) {
+      const data = await res.json();
+      // Нормализуем формат под существующий код рендеринга
+      trips = data.map((t, idx) => ({
+        ...t,
+        id: idx,          // локальный индекс для openTripDetail
+        _serverId: t.id,  // реальный ID для API
+        info: (t.info || []).map(i => ({ l: i.label, v: i.value })),
+        song: t.song || { title: t.song_title, artist: t.song_artist, id: t.song_id }
+      }));
+    }
+  } catch (e) {
+    console.error('Ошибка загрузки путешествий:', e);
+  }
+  renderTripsList();
+  renderDashTripsList();
+  renderMiniCal();
+  renderSongOfTrip();
+  await loadReminders();
+}
+
+// ── Сохранение путешествия из модала ────────────────
+async function submitTripModal() {
+  const name = document.getElementById('tmDest').value.trim();
+  const errEl = document.getElementById('tripModalError');
+  errEl.style.display = 'none';
+
+  if (!name) { errEl.textContent = 'Введите название / город'; errEl.style.display = 'block'; return; }
+
+  const btn = document.getElementById('tmSaveBtn');
+  btn.textContent = '...'; btn.disabled = true;
+
+  const tripData = {
+    name,
+    emoji: document.getElementById('tmEmoji').value.trim() || '✈️',
+    sub:   document.getElementById('tmSub').value.trim(),
+    status: document.getElementById('tmStatus').value,
+    description: document.getElementById('tmDesc').value.trim()
+  };
+
+  const res = await fetch('/api/trips', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(tripData)
+  });
+
+  btn.textContent = 'Save'; btn.disabled = false;
+
+  if (res.ok) {
+    // Сбрасываем поля
+    ['tmDest','tmEmoji','tmSub','tmDesc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('tmStatus').value = 'plan';
+    closeModal('tripModal');
+    await loadTrips();
+  } else {
+    const data = await res.json();
+    errEl.textContent = data.error || 'Ошибка сохранения';
+    errEl.style.display = 'block';
+  }
+}
+
+// ── Сохранение заметки ───────────────────────────────
+let currentOpenTripServerId = null; // запоминаем при открытии карточки
+
+async function submitNote() {
+  const text = document.getElementById('tripNoteArea').value.trim();
+  if (!text) { alert('Напишите заметку'); return; }
+  if (!currentOpenTripServerId) { alert('Откройте карточку путешествия'); return; }
+
+  const btn = event.target;
+  btn.textContent = '...'; btn.disabled = true;
+
+  const res = await fetch(`/api/trips/${currentOpenTripServerId}/notes`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text })
+  });
+
+  btn.textContent = 'Save note'; btn.disabled = false;
+
+  if (res.ok) {
+    document.getElementById('tripNoteArea').value = '';
+    const msg = document.getElementById('noteSavedMsg');
+    msg.style.display = 'block';
+    setTimeout(() => { msg.style.display = 'none'; }, 2500);
+  } else {
+    alert('Ошибка сохранения заметки');
+  }
+}
+
+// ── Сохранение путешествия (из других мест кода) ─────
+async function saveTrip(tripData) {
+  const res = await fetch('/api/trips', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(tripData)
+  });
+  if (res.ok) await loadTrips();
+  return res.ok;
+}
+
+// ════════════════════════════════
+//  LEGACY TRIPS ARRAY (первый запуск без данных)
+// ════════════════════════════════
+// Пример данных для демонстрации (только до первой загрузки с сервера)
+const DEMO_TRIPS = [
+  {id:0, name:'Prague → Munich', emoji:'🏔️', sub:'28 May 2025 · overnight transit · no luggage', status:'soon', country:'DE', date:'2025-05-28',
+   song:{title:'99 Luftballons', artist:'Nena', id:'Fpu5a0Bl8eY'},
+   desc:'An intentional transit stop. Instead of taking a late bus from Prague, arrive early in Munich and spend the evening in the city before the midnight bus.',
+   info:[{l:'Duration',v:'~3 hours'},{l:'Transport',v:'Bus'},{l:'Country',v:'Germany'},{l:'Status',v:'Soon'}],
+   logistics:[
+     {time:'21:00', text:'Arrive in Munich from Prague', icon:'🚌'},
+     {time:'21:05', text:'ZOB and Hbf are 5 min walk apart (Arnulfstraße 21)', icon:'🗺️'},
+     {time:'21:15', text:'U-Bahn from Hbf to Marienplatz: ~10 min', icon:'🚇'},
+     {time:'21:30', text:'Hofbräuhaus — open until midnight, 15 min from ZOB', icon:'🍺'},
+     {time:'23:15', text:'Walk back to ZOB (leave a buffer)', icon:'⏰'},
+     {time:'00:00', text:'Bus departs from ZOB', icon:'🚌'}
+   ],
+   pack:['Passport','Bus tickets (printed or on phone)','Snacks','Portable charger','Offline maps downloaded']},
+  {id:1, name:'Paris', emoji:'🗼', sub:'10–15 June 2025 · 5 days', status:'planned', country:'FR', date:'2025-06-10',
+   song:{title:'La Vie en Rose', artist:'Louis Armstrong', id:'kFzViYkZAz4'},
+   desc:'First trip to Paris. Focus on slow exploration — one neighbourhood per day, French language practice, and finding journals to publish in.',
+   info:[{l:'Duration',v:'5 days'},{l:'Transport',v:'Flight'},{l:'Country',v:'France'},{l:'Status',v:'Planned'}],
+   logistics:[
+     {time:'08:30', text:'Leave for the airport — check terminal before leaving', icon:'✈️'},
+     {time:'12:15', text:'Land at CDG', icon:'🛬'},
+     {time:'13:00', text:'RER B from CDG to city centre: ~35 min', icon:'🚆'},
+     {time:'14:30', text:'Buy Navigo weekly card on arrival', icon:'🚇'},
+     {time:'16:00', text:'Walk one neighbourhood per day (Saint-Germain, Marais, Montmartre)', icon:'🗺️'},
+     {time:'19:00', text:'Research French travel journals to visit in person', icon:'📚'}
+   ],
+   pack:['Passport','Flight tickets','Travel insurance','Metro card','French phrasebook','Notebook','Camera']},
+  {id:2, name:'Seoul', emoji:'🇰🇷', sub:'Oct 2024 · 10 days', status:'done', country:'KR', date:'2024-10-01',
+   song:{title:'Through the Night', artist:'IU', id:'BzYnNdJhZQw'},
+   desc:'10 days in Seoul. Coffee shop mornings, slow walks through Hongdae, Bukchon, and Gyeongbokgung. Key observation: the city feels completely different depending on time of day.',
+   info:[{l:'Duration',v:'10 days'},{l:'Country',v:'South Korea'},{l:'Vibe',v:'Slow & curious'},{l:'Status',v:'Done'}],
+   logistics:[
+     {time:'07:30', text:'Best coffee — early morning, avoid tourist hours', icon:'☕'},
+     {time:'09:00', text:'Pick up T-money card at airport on arrival day', icon:'🚌'},
+     {time:'11:00', text:'Hongdae is quiet in the morning', icon:'📍'},
+     {time:'14:00', text:'Use Kakao Maps — it works better than Google in Korea', icon:'📱'},
+     {time:'20:00', text:'Hongdae in the evening — a different city entirely', icon:'🌃'}
+   ],
+   pack:['T-money card','Portable charger','Comfortable shoes','Rain jacket (October)','Offline Kakao Maps']},
+  {id:3, name:'Beijing · Great Wall', emoji:'🇨🇳', sub:'Jul 2023 · 7 days', status:'done', country:'CN', date:'2023-07-01',
+   song:{title:'Teresa Teng — The Moon Represents My Heart', artist:'Teresa Teng', id:'hQoRXH5bTmA'},
+   desc:'Seven days in Beijing with a day trip to Badaling section of the Great Wall. The return from the wall was the logistical challenge — exit route is not well-signposted.',
+   info:[{l:'Duration',v:'7 days'},{l:'Country',v:'China'},{l:'Highlight',v:'Great Wall'},{l:'Status',v:'Done'}],
+   logistics:[
+     {time:'07:00', text:'Set up Alipay/WeChat Pay and VPN before the trip', icon:'💳'},
+     {time:'09:00', text:'Airport Express from PEK to Dongzhimen (~25 CNY)', icon:'✈️'},
+     {time:'10:00', text:'Transfer to subway for city centre', icon:'🚇'},
+     {time:'12:00', text:'Great Wall (Badaling) — exit via south gate for return shuttle', icon:'🏔️'},
+     {time:'17:00', text:'VPN needed for Google Maps — Kakao/Baidu as backup', icon:'📱'}
+   ],
+   pack:[]},
+  {id:4, name:'Istanbul', emoji:'🇹🇷', sub:'Mar 2023 · 5 days', status:'done', country:'TR', date:'2023-03-01',
+   song:{title:'Istanbul (Not Constantinople)', artist:'They Might Be Giants', id:'vsZJMS442Ow'},
+   desc:'Five days in Istanbul. Grand Bazaar, Bosphorus ferry, early morning tea at the fish market. The rhythm of the city is completely its own.',
+   info:[{l:'Duration',v:'5 days'},{l:'Country',v:'Turkey'},{l:'Season',v:'March'},{l:'Status',v:'Done'}],
+   logistics:[
+     {time:'08:00', text:'Long Turkish breakfast — budget 1h for it', icon:'🍳'},
+     {time:'10:00', text:'Grand Bazaar — go early morning, it\'s quieter', icon:'🕌'},
+     {time:'13:00', text:'Ferry is the best way to cross the Bosphorus', icon:'⛴️'},
+     {time:'16:00', text:'Istanbulkart covers all public transport', icon:'🚌'}
+   ],
+   pack:[]},
+  {id:5, name:'Rome', emoji:'🇮🇹', sub:'2023', status:'done', country:'IT', date:'2023-05-01',
+   song:{title:'Arrivederci Roma', artist:'Renato Rascel', id:'4YKI4RMlxrE'},
+   desc:'A few days in Rome. The Colosseum at dusk, a random mass timing, a seagull caught in the last sunlight. The kind of trip where everything happened accidentally and perfectly.',
+   info:[{l:'Country',v:'Italy'},{l:'Season',v:'2023'},{l:'Style',v:'Wandering'},{l:'Status',v:'Done'}],
+   logistics:[
+     {time:'09:00', text:'Walk everything — Rome is a walking city', icon:'👟'},
+     {time:'12:00', text:'Metro A and B cover main sights for longer hops', icon:'🚇'},
+     {time:'19:00', text:'Book restaurants early — or arrive right when they open', icon:'🍝'},
+     {time:'20:30', text:'Colosseum at dusk — best atmosphere', icon:'🏛️'}
+   ],
+   pack:[]}
+];
+
+// ════════════════════════════════
+//  GOOGLE MAPS
+// ════════════════════════════════
+let googleMap = null;
+let mapMarkers = [];
+
+function initMap() {
+  const mapEl = document.getElementById('googleMap');
+  if (!mapEl || !window.google) return;
+
+  googleMap = new google.maps.Map(mapEl, {
+    zoom: 3,
+    center: { lat: 35, lng: 30 },
+    mapTypeControl: false,
+    streetViewControl: false,
+    styles: [
+      { featureType: 'all', elementType: 'geometry', stylers: [{ saturation: -20 }] },
+      { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#d9cfc2' }] }
+    ]
+  });
+
+  // Добавляем маркеры по путешествиям
+  renderMapMarkers();
+}
+
+async function renderMapMarkers() {
+  if (!googleMap || !window.google) return;
+
+  // Удаляем старые маркеры
+  mapMarkers.forEach(m => m.setMap(null));
+  mapMarkers = [];
+
+  const geocoder = new google.maps.Geocoder();
+
+  for (const trip of trips) {
+    const query = trip.name.split('→')[0].trim(); // берём первый город если транзит
+    geocoder.geocode({ address: query }, (results, status) => {
+      if (status === 'OK' && results[0]) {
+        const marker = new google.maps.Marker({
+          position: results[0].geometry.location,
+          map: googleMap,
+          title: trip.name,
+          label: { text: trip.emoji || '📍', fontSize: '18px' }
+        });
+
+        const infoWindow = new google.maps.InfoWindow({
+          content: `<div style="font-family:system-ui,sans-serif;padding:4px 2px">
+            <strong style="color:#5c4033">${trip.name}</strong><br>
+            <span style="font-size:.75rem;color:#8b7355">${trip.sub || ''}</span>
+          </div>`
+        });
+
+        marker.addListener('click', () => {
+          infoWindow.open(googleMap, marker);
+          openTripDetail(trip.id);
+        });
+
+        mapMarkers.push(marker);
+      }
+    });
+  }
+}
+
+// Загружаем Google Maps API динамически
+async function loadGoogleMapsScript() {
+  try {
+    const res = await fetch('/api/config');
+    const { googleMapsKey } = await res.json();
+    const script = document.createElement('script');
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${googleMapsKey}&callback=initMap&libraries=places`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  } catch(e) {
+    console.error('Ошибка загрузки Google Maps:', e);
+  }
+}
+
+// ════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════
+function showView(id, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('v-' + id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='calendar') { renderCalendar(); renderReminders(); }
+  if(id==='trips') renderTripsList();
+}
+
+// ════════════════════════════════
+//  TRIP DETAIL
+// ════════════════════════════════
+let prevView = 'dashboard';
+function openTripDetail(idx) {
+  // remember where we came from
+  const active = [...document.querySelectorAll('.view.active')].find(v => v.id !== 'v-trip-detail');
+  if(active) prevView = active.id.replace('v-','');
+  const t = trips[idx];
+  // Запоминаем server ID для сохранения заметок
+  currentOpenTripServerId = t._serverId || t.id;
+  // Сбрасываем поле заметки
+  const noteArea = document.getElementById('tripNoteArea');
+  if (noteArea) noteArea.value = '';
+  document.getElementById('tdTitle').textContent = t.name;
+  document.getElementById('tdSub').textContent = t.sub;
+  document.getElementById('tdDesc').textContent = t.desc;
+  // info grid
+  const ig = document.getElementById('tdInfoGrid');
+  ig.innerHTML = t.info.map(i=>`<div class="info-block"><div class="ib-label">${i.l}</div><div class="ib-val">${i.v}</div></div>`).join('');
+  // logistics — sort chronologically by time, show time badges
+  const ll = document.getElementById('tdLogistics');
+  const logs = (t.logistics||[]).slice();
+  // tolerate legacy string format
+  const normalized = logs.map((l,i)=> typeof l === 'string' ? {time:'', text:l, icon:(t.logIcons?.[i]||'·')} : l);
+  normalized.sort((a,b)=>{
+    const ta = (a.time||'99:99'), tb = (b.time||'99:99');
+    return ta.localeCompare(tb);
+  });
+  ll.innerHTML = normalized.map(l=>{
+    const timeDisp = l.time || '—:—';
+    const timeCls = l.time ? 'lg-time' : 'lg-time empty';
+    return `<li><span class="lg-icon">${l.icon||'·'}</span><span class="${timeCls}">${timeDisp}</span><span class="lg-text">${l.text}</span></li>`;
+  }).join('');
+  // pack
+  const pl = document.getElementById('tdPackList');
+  if(t.pack && t.pack.length){
+    pl.innerHTML = t.pack.map(p=>`<div style="display:flex;align-items:center;gap:10px;background:var(--warm);border:1px solid var(--mist);border-radius:9px;padding:10px 14px"><input type="checkbox" style="accent-color:var(--bark)"><span style="font-family:system-ui,sans-serif;font-size:.88rem">${p}</span></div>`).join('');
+  } else {
+    pl.innerHTML='<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">Go to the Pack tab to generate a full list for this trip.</p>';
+  }
+  // reset td tabs
+  openTdTab('overview', document.querySelector('.td-tab'));
+  // show
+  document.querySelectorAll('.view:not(#v-trip-detail)').forEach(v=>v.classList.remove('active'));
+  document.getElementById('v-trip-detail').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function closeTripDetail() {
+  document.getElementById('v-trip-detail').classList.remove('active');
+  const targetId = 'v-' + (prevView || 'dashboard');
+  const target = document.getElementById(targetId) || document.getElementById('v-dashboard');
+  target.classList.add('active');
+  // sync the tab highlight to where we returned to
+  const tabIdx = {dashboard:0, trips:1, plan:2, calendar:3, pack:4, kb:5, video:6, maps:7, about:8}[prevView] ?? 0;
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', i===tabIdx));
+  if(prevView === 'trips') renderTripsList();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function openTdTab(id, btn) {
+  document.querySelectorAll('.td-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.td-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tp-'+id).classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+// ════════════════════════════════
+//  CALENDAR
+// ════════════════════════════════
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let calPeriod = 'all'; // week | month | year | all
+const tripDates = {
+  '2025-05-28':'🏔️','2025-05-29':'🏔️',
+  '2025-06-10':'🗼','2025-06-11':'🗼','2025-06-12':'🗼','2025-06-13':'🗼','2025-06-14':'🗼','2025-06-15':'🗼',
+  '2024-10-01':'🇰🇷','2024-10-02':'🇰🇷','2024-10-03':'🇰🇷','2024-10-04':'🇰🇷','2024-10-05':'🇰🇷',
+  '2024-10-06':'🇰🇷','2024-10-07':'🇰🇷','2024-10-08':'🇰🇷','2024-10-09':'🇰🇷','2024-10-10':'🇰🇷',
+  '2023-07-01':'🇨🇳','2023-07-02':'🇨🇳','2023-07-03':'🇨🇳','2023-07-04':'🇨🇳','2023-07-05':'🇨🇳','2023-07-06':'🇨🇳','2023-07-07':'🇨🇳',
+  '2023-03-01':'🇹🇷','2023-03-02':'🇹🇷','2023-03-03':'🇹🇷','2023-03-04':'🇹🇷','2023-03-05':'🇹🇷',
+  '2023-05-10':'🇮🇹','2023-05-11':'🇮🇹','2023-05-12':'🇮🇹','2023-05-13':'🇮🇹'
+};
+function renderCalendar() {
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calMonthLabel').textContent = `${months[calMonth]} ${calYear}`;
+  const cells = document.getElementById('calCells');
+  cells.innerHTML = '';
+  const first = new Date(calYear, calMonth, 1);
+  let startDow = first.getDay(); // 0=Sun
+  startDow = startDow === 0 ? 6 : startDow - 1; // convert to Mon=0
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const prevDays = new Date(calYear, calMonth, 0).getDate();
+  const today = new Date();
+  // prev month padding
+  for(let i=startDow-1;i>=0;i--){
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell other-month';
+    cell.innerHTML = `<div class="cn">${prevDays-i}</div>`;
+    cells.appendChild(cell);
+  }
+  // current month
+  for(let d=1;d<=daysInMonth;d++){
+    const cell = document.createElement('div');
+    const dow = (startDow + d - 1) % 7;
+    const isWeekend = dow >= 5;
+    const isToday = (d===today.getDate() && calMonth===today.getMonth() && calYear===today.getFullYear());
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const tripFlag = tripDates[dateStr];
+    let cls = 'cal-cell';
+    if(isWeekend) cls+=' weekend';
+    if(isToday) cls+=' today';
+    if(tripFlag) {cls+=' has-trip';}
+    const hasRem = reminders.some(r => r.date === dateStr);
+    if(hasRem) cls+=' has-reminder';
+    cell.className = cls;
+    cell.innerHTML = `<div class="cn">${d}</div>${tripFlag?`<div class="trip-dot">${tripFlag}</div>`:''}`;
+    cells.appendChild(cell);
+  }
+  updatePeriodStats();
+}
+function changeMonth(dir) {
+  calMonth += dir;
+  if(calMonth > 11){calMonth=0;calYear++;}
+  if(calMonth < 0){calMonth=11;calYear--;}
+  renderCalendar();
+}
+
+function setPeriod(p, btn){
+  calPeriod = p;
+  document.querySelectorAll('.pfbtn').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  updatePeriodStats();
+}
+
+function getPeriodRange(){
+  const now = new Date();
+  if(calPeriod === 'week'){
+    const start = new Date(now); start.setDate(now.getDate()-6);
+    const end = new Date(now); end.setDate(now.getDate()+7);
+    return {start, end, label:'this week'};
+  }
+  if(calPeriod === 'month'){
+    const start = new Date(calYear, calMonth, 1);
+    const end = new Date(calYear, calMonth+1, 0, 23,59,59);
+    return {start, end, label:'this month'};
+  }
+  if(calPeriod === 'year'){
+    const start = new Date(calYear, 0, 1);
+    const end = new Date(calYear, 11, 31, 23,59,59);
+    return {start, end, label:`${calYear}`};
+  }
+  return {start:new Date(1970,0,1), end:new Date(2100,0,1), label:'all time'};
+}
+
+function updatePeriodStats(){
+  const {start, end, label} = getPeriodRange();
+  // count trip-days in the period
+  let tripDays = 0;
+  const countries = new Set();
+  const tripIds = new Set();
+  Object.entries(tripDates).forEach(([d, emoji])=>{
+    const dt = new Date(d+'T12:00:00');
+    if(dt >= start && dt <= end){
+      tripDays++;
+      countries.add(emoji);
+    }
+  });
+  trips.forEach(t=>{
+    if(!t.date) return;
+    const dt = new Date(t.date+'T12:00:00');
+    if(dt >= start && dt <= end){
+      tripIds.add(t.id);
+      countries.add(t.country);
+    }
+  });
+
+  document.getElementById('calTrips').textContent = tripIds.size || '0';
+  document.getElementById('calTripsLabel').textContent = tripIds.size === 1 ? 'trip' : 'trips';
+  document.getElementById('calDays').textContent = tripDays || '0';
+  document.getElementById('calCountries').textContent = countries.size || '0';
+
+  // rough budget signal — depends on countries
+  let budget = '—';
+  if(tripDays > 0){
+    if(countries.has('🇰🇷') || countries.has('KR')) budget = '~€65/day';
+    else if(countries.has('🇮🇹') || countries.has('IT') || countries.has('FR') || countries.has('🗼')) budget = '~€90/day';
+    else if(countries.has('🇨🇳') || countries.has('CN')) budget = '~€55/day';
+    else if(countries.has('🇹🇷') || countries.has('TR')) budget = '~€45/day';
+    else budget = '~€70/day';
+  }
+  document.getElementById('calBudget').textContent = budget;
+
+  // insights by period
+  document.getElementById('actHead').textContent = `Actionable insights · ${label}`;
+  const act = document.getElementById('actList');
+  const list = buildInsights(calPeriod, tripIds.size, tripDays, countries.size);
+  act.innerHTML = list.map(i=>`<div class="act-item"><span class="act-icon">${i.icon}</span><p>${i.text}</p></div>`).join('');
+}
+
+function buildInsights(period, tripsCount, days, countryCount){
+  if(period === 'week'){
+    return [
+      {icon:'📆', text:`You have <strong>${tripsCount}</strong> trip(s) touching this week. Pre-pack 2 days before to avoid last-minute stress.`},
+      {icon:'🧳', text:'Check the Pack tab — enable the "hand luggage only" mode if this week\'s trip is short.'},
+      {icon:'💡', text:'Add a Friday or Monday to your next weekend to stretch it into a 3-day trip cheaply.'}
+    ];
+  }
+  if(period === 'month'){
+    return [
+      {icon:'📅', text:`This month: <strong>${days}</strong> days on the road across <strong>${countryCount}</strong> countries.`},
+      {icon:'⏱', text:'Book transit stopovers (e.g. Munich en route) — free mini-trips with no extra cost.'},
+      {icon:'🗓', text:'Your travel clusters around weekends. Tuesday departures are 15–25% cheaper if flying.'}
+    ];
+  }
+  if(period === 'year'){
+    return [
+      {icon:'🌍', text:`In ${calYear}: <strong>${tripsCount}</strong> trips, <strong>${days}</strong> travel days, <strong>${countryCount}</strong> countries.`},
+      {icon:'✈️', text:'Average trip is 5–7 days — you prefer short, immersive experiences over long backpacking.'},
+      {icon:'💡', text:'Western Europe is underexplored in your history — Paris will be a good first anchor.'}
+    ];
+  }
+  return [
+    {icon:'📅', text:'You travel most on <strong>weekends and long weekends</strong> — consider adding a Friday or Monday to extend trips cheaply.'},
+    {icon:'⏱', text:'Your average trip is <strong>5–7 days</strong> — you prefer short, immersive experiences over long backpacking.'},
+    {icon:'✈️', text:'Most of your trips involve <strong>significant transit time</strong> — booking transit stopovers as mini-trips (like Munich) adds value for free.'},
+    {icon:'💡', text:`Across all your trips: <strong>${tripsCount}</strong> trips, <strong>${days}</strong> days, <strong>${countryCount}</strong> countries.`}
+  ];
+}
+
+// ════════════════════════════════
+//  PACKING LIST
+// ════════════════════════════════
+const packData = {
+  always: {
+    label:'Documents & Essentials', icon:'📄',
+    base:['Passport / ID','Tickets (saved offline)','Travel insurance','Emergency contacts written down']
+  },
+  clothing: {label:'Clothing', icon:'👗', base:[]},
+  electronics: {label:'Electronics', icon:'🔌', base:['Phone charger','Power bank']},
+  toiletries: {label:'Toiletries', icon:'🧴', base:['Toothbrush','Deodorant']},
+  snacks: {label:'Snacks & Food', icon:'🍫', base:['Favourite snacks','Reusable water bottle']},
+  misc: {label:'Other', icon:'🎒', base:['Keys', 'Notebook']}
+};
+function pickChip(el, group){
+  el.closest('.chip-group').querySelectorAll('.chip[data-'+group+']').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+function pickChipMulti(el){el.classList.toggle('on')}
+function getChip(group){
+  const el = document.querySelector(`.chip[data-${group}].on`);
+  return el ? el.getAttribute('data-'+group) : null;
+}
+function generatePack(){
+  const dur = getChip('dur'), tr = getChip('tr'), acc = getChip('acc'), cl = getChip('cl'), hl = getChip('hl');
+  const acts = [...document.querySelectorAll('.chip[data-act].on')].map(e=>e.getAttribute('data-act'));
+  // Build lists
+  const lists = {
+    always: [...packData.always.base],
+    clothing: [...packData.clothing.base],
+    electronics: [...packData.electronics.base],
+    toiletries: [...packData.toiletries.base],
+    snacks: [...packData.snacks.base],
+    misc: [...packData.misc.base]
+  };
+  if(tr==='flight'){lists.always.push('Boarding pass (offline)');lists.always.push('Euros / local currency')}
+  if(tr!=='car')lists.always.push('Transport card / change for metro');
+  if(cl==='hot'){lists.clothing.push('Sunscreen SPF50+','Sunglasses','Light fabrics × '+dur,'Hat');lists.toiletries.push('Lip balm')}
+  if(cl==='cold'){lists.clothing.push('Warm layers','Thermal base','Scarf & gloves','Waterproof jacket')}
+  if(cl==='mild'){lists.clothing.push('Light jacket / cardigan','Mix of layers')}
+  if(dur==='1-3'){lists.clothing.push('2 outfits + 1 spare','Pyjamas')}
+  else if(dur==='4-7'){lists.clothing.push('5 outfits','Pyjamas','Laundry bag')}
+  else if(dur==='1-2w'){lists.clothing.push('7+ outfits or plan laundry','Laundry bag','Travel laundry soap')}
+  else{lists.clothing.push('10+ outfits or plan laundry regularly','Laundry bag','Travel laundry soap')}
+  if(acts.includes('work')){lists.electronics.push('Laptop','Laptop charger','Notebook & pen','Noise-cancelling headphones')}
+  if(acts.includes('hiking')){lists.clothing.push('Hiking shoes','Moisture-wicking socks');lists.misc.push('Blister plasters','Small first aid kit')}
+  if(acts.includes('beach')){lists.clothing.push('Swimsuit','Beach towel or sarong');lists.toiletries.push('Waterproof sunscreen')}
+  if(hl==='yes'){lists.toiletries=lists.toiletries.map(t=>`${t} (travel size ≤100ml)`)}
+  if(acc==='hostel'){lists.misc.push('Padlock for locker','Flip flops for shower')}
+  lists.electronics.push('Universal adapter');
+  lists.misc.push('Reusable bag / tote');
+
+  const sections = document.getElementById('packSections');
+  sections.innerHTML = '';
+  const cats = [
+    {key:'always',...packData.always},
+    {key:'clothing',...packData.clothing},
+    {key:'electronics',...packData.electronics},
+    {key:'toiletries',...packData.toiletries},
+    {key:'snacks',...packData.snacks},
+    {key:'misc',...packData.misc}
+  ];
+  cats.forEach(cat=>{
+    const items = lists[cat.key];
+    if(!items.length) return;
+    const sec = document.createElement('div');
+    sec.className = 'pack-section';
+    sec.innerHTML = `<div class="ps-head">${cat.icon} ${cat.label}<span class="ps-count">${items.length}</span></div>
+      <div class="ps-items">${items.map((it,i)=>`<div class="check-item"><input type="checkbox" id="pi_${cat.key}_${i}" onchange="this.nextSibling.classList.toggle('checked',this.checked)"><label for="pi_${cat.key}_${i}">${it}</label></div>`).join('')}</div>
+      <div class="add-item-row"><input class="add-item-input" placeholder="Add item..." onkeydown="if(event.key==='Enter')addPackItem(this,'${cat.key}')"><button class="add-item-btn" onclick="addPackItem(this.previousSibling,'${cat.key}')">+</button></div>`;
+    sections.appendChild(sec);
+  });
+  document.getElementById('packResults').classList.add('show');
+
+  // Показываем кнопку «Сохранить в путешествие»
+  let saveBar = document.getElementById('packSaveBar');
+  if (!saveBar) {
+    saveBar = document.createElement('div');
+    saveBar.id = 'packSaveBar';
+    saveBar.style.cssText = 'margin-top:16px;display:flex;gap:12px;align-items:center;flex-wrap:wrap';
+    saveBar.innerHTML = `
+      <select id="packTripSel" style="flex:1;background:var(--cream);border:1.5px solid var(--mist);border-radius:9px;padding:9px 12px;font-family:system-ui,sans-serif;font-size:.85rem;color:var(--ink)">
+        <option value="">— Выбрать путешествие для сохранения —</option>
+      </select>
+      <button class="btn-primary" style="padding:9px 20px;font-size:.85rem" onclick="savePackToTrip()">Сохранить список</button>
+      <span id="packSavedMsg" style="display:none;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--moss)">✓ Сохранено</span>`;
+    document.getElementById('packResults').appendChild(saveBar);
+  }
+  // Заполняем список путешествий
+  const sel = document.getElementById('packTripSel');
+  sel.innerHTML = '<option value="">— Выбрать путешествие —</option>' +
+    trips.map(t => `<option value="${t._serverId || t.id}">${t.emoji} ${t.name}</option>`).join('');
+}
+
+async function savePackToTrip() {
+  const tripId = document.getElementById('packTripSel').value;
+  if (!tripId) { alert('Выберите путешествие'); return; }
+
+  // Собираем все чекбоксы
+  const items = [...document.querySelectorAll('#packSections .check-item')].map(el => ({
+    label: el.querySelector('label').textContent,
+    checked: el.querySelector('input[type=checkbox]').checked,
+    category: el.closest('.pack-section').querySelector('.ps-head')?.textContent?.trim()?.split(' ').slice(1).join(' ') || ''
+  }));
+
+  const res = await fetch(`/api/trips/${tripId}/pack`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items })
+  });
+
+  if (res.ok) {
+    const msg = document.getElementById('packSavedMsg');
+    msg.style.display = 'inline';
+    setTimeout(() => { msg.style.display = 'none'; }, 2500);
+  } else {
+    alert('Ошибка сохранения');
+  }
+}
+
+function addPackItem(input, cat){
+  const val = input.value.trim();
+  if(!val) return;
+  const list = input.closest('.pack-section').querySelector('.ps-items');
+  const id = 'custom_'+Date.now();
+  const div = document.createElement('div');
+  div.className='check-item';
+  div.innerHTML=`<input type="checkbox" id="${id}" onchange="this.nextSibling.classList.toggle('checked',this.checked)"><label for="${id}">${val}</label>`;
+  list.appendChild(div);
+  input.value='';
+}
+function sendReminder(){
+  const dest = document.getElementById('packDest').value || 'your trip';
+  window.location.href=`mailto:?subject=Reminder: buy snacks for ${dest}&body=Don't forget to buy snacks and essentials before leaving! Departing today.`;
+}
+
+// ════════════════════════════════
+//  KNOWLEDGE BASE FILTER (multi-select — toggle tags, match ANY)
+// ════════════════════════════════
+const kbActiveTags = new Set();
+let kbSearchQuery = '';
+function filterByTag(tag, el){
+  if(tag === 'all'){
+    kbActiveTags.clear();
+    document.querySelectorAll('.ftag').forEach(f=>f.classList.remove('on'));
+    el.classList.add('on');
+  } else {
+    // toggle individual tag; turn off the "All" pill
+    document.querySelector('.ftag[data-tag="all"]')?.classList.remove('on');
+    if(kbActiveTags.has(tag)){
+      kbActiveTags.delete(tag);
+      el.classList.remove('on');
+    } else {
+      kbActiveTags.add(tag);
+      el.classList.add('on');
+    }
+    // if nothing is selected, treat as "All"
+    if(kbActiveTags.size === 0){
+      document.querySelector('.ftag[data-tag="all"]')?.classList.add('on');
+    }
+  }
+  applyKbFilters();
+}
+function filterKb(q){
+  kbSearchQuery = q.toLowerCase();
+  applyKbFilters();
+}
+function applyKbFilters(){
+  document.querySelectorAll('.kb-card').forEach(card=>{
+    const tags = (card.getAttribute('data-tags')||'').toLowerCase();
+    const textMatch = !kbSearchQuery || card.textContent.toLowerCase().includes(kbSearchQuery);
+    const tagMatch = kbActiveTags.size === 0 || [...kbActiveTags].some(t => tags.includes(t.toLowerCase()));
+    card.style.display = (textMatch && tagMatch) ? '' : 'none';
+  });
+}
+
+// ════════════════════════════════
+//  SONG OF THE TRIP (Dashboard)
+// ════════════════════════════════
+let currentSong = null;       // {title, artist, id, tripId|null}
+let currentSongTripId = null; // which trip the current song belongs to
+
+function pickSongSourceTrip(){
+  const upcoming = trips.filter(t => t.status === 'soon' || t.status === 'planned');
+  upcoming.sort((a,b)=>{
+    const order = {soon:0, planned:1, idea:2};
+    return (order[a.status]??9) - (order[b.status]??9);
+  });
+  return upcoming[0] || trips[0];
+}
+function renderSongOfTrip(){
+  if(!currentSong){
+    const t = pickSongSourceTrip();
+    if(!t || !t.song) return;
+    currentSong = Object.assign({}, t.song);
+    currentSongTripId = t.id;
+  }
+  document.getElementById('songTitle').textContent = currentSong.title;
+  document.getElementById('songArtist').textContent = currentSong.artist;
+  const tripName = currentSongTripId !== null ? trips.find(t=>t.id===currentSongTripId)?.name : null;
+  document.getElementById('songTrip').textContent = tripName ? `for ${tripName}` : '';
+  // lazy — only set iframe src when player opens
+  const card = document.getElementById('songCard');
+  if(card.classList.contains('open')){
+    document.getElementById('songFrame').src = `https://www.youtube.com/embed/${currentSong.id}?rel=0&autoplay=1`;
+  }
+}
+function toggleSongPlayer(){
+  const card = document.getElementById('songCard');
+  const btn = document.getElementById('songPlayBtn');
+  const frame = document.getElementById('songFrame');
+  const isOpen = card.classList.toggle('open');
+  if(isOpen){
+    frame.src = `https://www.youtube.com/embed/${currentSong.id}?rel=0&autoplay=1`;
+    btn.innerHTML = '✕';
+    btn.title = 'Close';
+  } else {
+    frame.src = '';
+    btn.innerHTML = '▶';
+    btn.title = 'Play';
+  }
+}
+function openSongEditor(){
+  document.getElementById('songEditTitle').value = currentSong?.title || '';
+  document.getElementById('songEditArtist').value = currentSong?.artist || '';
+  document.getElementById('songEditUrl').value = currentSong?.id || '';
+  const sel = document.getElementById('songEditTrip');
+  sel.innerHTML = '<option value="">— standalone —</option>' + trips.map(t=>`<option value="${t.id}" ${t.id===currentSongTripId?'selected':''}>${t.emoji} ${t.name}</option>`).join('');
+  openModal('songModal');
+}
+function extractYouTubeId(input){
+  if(!input) return '';
+  input = input.trim();
+  // direct id (no spaces, 6-20 chars of alphanumerics/_-)
+  const idMatch = input.match(/^[A-Za-z0-9_-]{6,20}$/);
+  if(idMatch) return input;
+  // youtu.be/ID
+  let m = input.match(/youtu\.be\/([A-Za-z0-9_-]+)/);
+  if(m) return m[1];
+  // youtube.com/watch?v=ID
+  m = input.match(/[?&]v=([A-Za-z0-9_-]+)/);
+  if(m) return m[1];
+  // youtube.com/embed/ID
+  m = input.match(/\/embed\/([A-Za-z0-9_-]+)/);
+  if(m) return m[1];
+  return input; // last resort
+}
+function saveSong(){
+  const title = document.getElementById('songEditTitle').value.trim() || 'Untitled';
+  const artist = document.getElementById('songEditArtist').value.trim() || 'Unknown';
+  const id = extractYouTubeId(document.getElementById('songEditUrl').value);
+  const tripIdVal = document.getElementById('songEditTrip').value;
+  const tripId = tripIdVal === '' ? null : parseInt(tripIdVal, 10);
+  if(!id){ alert('Please enter a YouTube URL or video ID.'); return; }
+  currentSong = {title, artist, id};
+  currentSongTripId = tripId;
+  // also persist onto the trip so it survives re-render
+  if(tripId !== null){
+    const t = trips.find(x=>x.id===tripId);
+    if(t) t.song = {title, artist, id};
+  }
+  // close player if it was open — source changed
+  const card = document.getElementById('songCard');
+  card.classList.remove('open');
+  document.getElementById('songFrame').src = '';
+  document.getElementById('songPlayBtn').innerHTML = '▶';
+  closeModal('songModal');
+  renderSongOfTrip();
+}
+
+// ════════════════════════════════
+//  REMINDERS (Calendar)
+// ════════════════════════════════
+let reminders = [];
+let remIconChosen = '🎫';
+
+async function loadReminders() {
+  try {
+    const res = await fetch('/api/trips/reminders/all');
+    if (res.ok) reminders = await res.json();
+  } catch(e) { console.error('Reminders load error:', e); }
+  renderReminders();
+  renderCalendar();
+}
+
+function pickRemIcon(el){
+  document.querySelectorAll('#remIconPick .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  remIconChosen = el.dataset.icon;
+}
+
+function openReminderModal(){
+  // reset fields
+  document.getElementById('remTitle').value = '';
+  const today = new Date();
+  const iso = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  document.getElementById('remDate').value = iso;
+  document.querySelectorAll('#remIconPick .chip').forEach((c,i) => { c.classList.toggle('on', i===0); });
+  remIconChosen = '🎫';
+  // populate trip selector
+  const sel = document.getElementById('remTrip');
+  sel.innerHTML = '<option value="">— None —</option>' + trips.map(t => `<option value="${t.id}">${t.emoji} ${t.name}</option>`).join('');
+  openModal('reminderModal');
+}
+
+async function saveReminder(){
+  const title = document.getElementById('remTitle').value.trim();
+  const date  = document.getElementById('remDate').value;
+  const tripIdVal = document.getElementById('remTrip').value;
+  if(!title){ alert('Напишите, что нужно сделать.'); return; }
+  if(!date){  alert('Выберите дату.'); return; }
+
+  const btn = document.querySelector('#reminderModal .btn-save');
+  btn.textContent = '...'; btn.disabled = true;
+
+  const res = await fetch('/api/trips/reminders/add', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title,
+      date,
+      icon: remIconChosen,
+      trip_id: tripIdVal === '' ? null : parseInt(tripIdVal, 10)
+    })
+  });
+
+  btn.textContent = 'Save'; btn.disabled = false;
+
+  if(res.ok){
+    closeModal('reminderModal');
+    await loadReminders();
+  } else {
+    alert('Ошибка сохранения. Попробуйте ещё раз.');
+  }
+}
+
+async function deleteReminder(id){
+  await fetch(`/api/trips/reminders/${id}`, { method: 'DELETE' });
+  await loadReminders();
+}
+
+function renderReminders(){
+  const list = document.getElementById('remList');
+  if(!list) return;
+  if(reminders.length === 0){
+    list.innerHTML = `<div class="rem-empty">No reminders yet. Tap <b>+ Add reminder</b> to create one.</div>`;
+    return;
+  }
+  const today = new Date(); today.setHours(0,0,0,0);
+  const sorted = [...reminders].sort((a,b) => a.date.localeCompare(b.date));
+  list.innerHTML = sorted.map(r => {
+    const d = new Date(r.date);
+    const diffDays = Math.round((d - today) / (1000*60*60*24));
+    let countdown, cdCls = '';
+    if(diffDays < 0){ countdown = `${Math.abs(diffDays)}d overdue`; cdCls = 'overdue'; }
+    else if(diffDays === 0) countdown = 'today';
+    else if(diffDays === 1) countdown = 'tomorrow';
+    else if(diffDays < 30) countdown = `in ${diffDays}d`;
+    else countdown = `in ${Math.round(diffDays/30)}mo`;
+    // API возвращает trip_id (snake_case), старый код использовал tripId
+    const tripRef = r.trip_id ?? r.tripId ?? null;
+    const trip = tripRef !== null ? trips.find(t => (t._serverId || t.id) === tripRef) : null;
+    const tripTag = trip ? `<span style="font-family:system-ui,sans-serif;font-size:.7rem;color:var(--accent)">• ${trip.emoji} ${trip.name}</span>` : '';
+    const dateNice = d.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+    const icon = r.icon || '🔔';
+    return `<div class="rem-row">
+      <div class="rem-icon">${icon}</div>
+      <div class="rem-body">
+        <div class="rem-title">${r.title}</div>
+        <div class="rem-meta">${dateNice} ${tripTag}</div>
+      </div>
+      <div class="rem-countdown ${cdCls}">${countdown}</div>
+      <button class="rem-del" onclick="deleteReminder(${r.id})" title="Delete">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════
+//  DASHBOARD — trips list (chronological) + mini-calendar
+// ════════════════════════════════
+function renderDashTripsList(){
+  // only upcoming, sorted chronologically (soonest first)
+  const upcoming = trips.filter(t => t.status !== 'done').sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const cards = upcoming.map(t=>{
+    const badgeClass = t.status==='soon'?'b-soon':t.status==='planned'?'b-plan':'b-idea';
+    const badgeText = t.status==='soon'?'Soon':t.status==='planned'?'Planned':'Idea';
+    return `<div class="up-card" onclick="openTripDetail(${t.id})">
+      <div class="up-emoji">${t.emoji}</div>
+      <div class="up-info"><h3>${t.name}</h3><div class="ud">${t.sub}</div></div>
+      <span class="tc-badge ${badgeClass} up-badge">${badgeText}</span>
+      <span class="up-arrow">›</span>
+    </div>`;
+  }).join('');
+  const empty = upcoming.length === 0 ? `<div style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);padding:8px 0">No upcoming trips yet.</div>` : '';
+  const addCard = `<div class="add-empty" style="min-height:60px;flex-direction:row;gap:10px;padding:14px 18px" onclick="openModal('tripModal')"><span class="plus">+</span> Add new trip</div>`;
+  document.getElementById('dashTripsList').innerHTML = empty + cards + addCard;
+}
+
+function renderMiniCal(){
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const first = new Date(year, month, 1);
+  let startDow = first.getDay();
+  startDow = startDow === 0 ? 6 : startDow - 1;
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  let html = `<div class="mc-title">${monthNames[month]} ${year}</div><div class="mc-grid">`;
+  ['M','T','W','T','F','S','S'].forEach(d => html += `<div class="mc-dn">${d}</div>`);
+  for(let i=0;i<startDow;i++) html += '<div class="mc-cell other"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const trip = tripDates[dateStr];
+    const isToday = (d===now.getDate() && month===now.getMonth() && year===now.getFullYear());
+    const cls = ['mc-cell', isToday?'today':'', trip?'has-trip':''].filter(Boolean).join(' ');
+    html += `<div class="${cls}" ${trip?`title="Trip on ${dateStr}"`:''}>${d}${trip?`<span class="mc-dot">${trip}</span>`:''}</div>`;
+  }
+  html += '</div>';
+  document.getElementById('miniCal').innerHTML = html;
+}
+
+// ════════════════════════════════
+//  SECTION EDIT (Trip Detail)
+// ════════════════════════════════
+function toggleEdit(id, btn){
+  const el = document.getElementById(id);
+  if(!el) return;
+  // Logistics is special — edit each time / text span separately so they don't merge
+  if(id === 'tdLogistics'){
+    const editableSpans = el.querySelectorAll('.lg-time, .lg-text');
+    const isOn = el.dataset.editing === 'on';
+    if(isOn){
+      editableSpans.forEach(s => s.setAttribute('contenteditable','false'));
+      el.dataset.editing = 'off';
+      btn.innerHTML = '✎ Edit';
+      btn.classList.remove('on');
+    } else {
+      editableSpans.forEach(s => s.setAttribute('contenteditable','true'));
+      el.dataset.editing = 'on';
+      btn.innerHTML = '✓ Save';
+      btn.classList.add('on');
+      const first = el.querySelector('.lg-text');
+      if(first) first.focus();
+    }
+    return;
+  }
+  const isOn = el.getAttribute('contenteditable') === 'true';
+  if(isOn){
+    el.setAttribute('contenteditable','false');
+    btn.innerHTML = '✎ Edit';
+    btn.classList.remove('on');
+  } else {
+    el.setAttribute('contenteditable','true');
+    btn.innerHTML = '✓ Save';
+    btn.classList.add('on');
+    el.focus();
+  }
+}
+
+// ════════════════════════════════
+//  TRIPS LIST (Upcoming / Past)
+// ════════════════════════════════
+const tripGradients = ['linear-gradient(135deg,#f5e6c8,#e8c99a)','linear-gradient(135deg,#c8dde8,#a3c4d8)','linear-gradient(135deg,#e8d4c8,#c8a898)','linear-gradient(135deg,#c8d4e8,#a0b4cc)','linear-gradient(135deg,#e8dcc8,#d4c0a0)','linear-gradient(135deg,#e8c8c8,#d4a0a0)'];
+function statusBadge(s){
+  if(s==='soon') return '<span class="tc-badge b-soon">Soon</span>';
+  if(s==='planned') return '<span class="tc-badge b-plan">Planned</span>';
+  if(s==='idea') return '<span class="tc-badge b-idea">Idea</span>';
+  return '<span class="tc-badge b-done">Done</span>';
+}
+function tripCardHtml(t, gi){
+  const tags = (t.info||[]).slice(0,2).map(i=>`<span class="tag">${i.v}</span>`).join('');
+  const dateStr = t.sub.split('·')[0].trim();
+  return `<div class="trip-card" onclick="openTripDetail(${t.id})">
+    <div class="tc-top" style="background:${tripGradients[gi%tripGradients.length]}">${t.emoji}${statusBadge(t.status)}</div>
+    <div class="tc-body"><h3>${t.name}</h3><div class="tc-date">${dateStr}</div><div class="tc-tags">${tags}</div></div>
+  </div>`;
+}
+function renderTripsList(){
+  const upcoming = trips.filter(t => t.status==='soon' || t.status==='planned' || t.status==='idea');
+  const past = trips.filter(t => t.status==='done');
+  // sort upcoming by date asc, past by date desc
+  upcoming.sort((a,b)=> (a.date||'').localeCompare(b.date||''));
+  past.sort((a,b)=> (b.date||'').localeCompare(a.date||''));
+  const upEl = document.getElementById('tripsUpcoming');
+  const pastEl = document.getElementById('tripsPast');
+  const addCard = `<div class="add-empty" style="min-height:180px" onclick="openModal('tripModal')"><div class="plus">+</div>Add trip</div>`;
+  upEl.innerHTML = (upcoming.length ? upcoming.map((t,i)=>tripCardHtml(t,i)).join('') : `<div class="trips-empty">No upcoming trips yet.</div>`) + addCard;
+  pastEl.innerHTML = past.length ? past.map((t,i)=>tripCardHtml(t,i+2)).join('') : `<div class="trips-empty">No past trips yet.</div>`;
+  document.getElementById('tripsUpCount').textContent = upcoming.length ? `· ${upcoming.length}` : '';
+  document.getElementById('tripsPastCount').textContent = past.length ? `· ${past.length}` : '';
+}
+
+// ════════════════════════════════
+//  PLAN (AI-powered trip planner — mock)
+// ════════════════════════════════
+const planDb = {
+  paris: [
+    {cat:'coffee', icon:'☕', name:'Café de Flore', addr:'172 Bd Saint-Germain, 6e', walk:8, price:'€€', note:'Classic literary café — best on weekday mornings.'},
+    {cat:'coffee', icon:'☕', name:'Télescope', addr:'5 Rue Villedo, 1er', walk:14, price:'€', note:'Tiny third-wave spot, minimal seating, strong single origin.'},
+    {cat:'coffee', icon:'☕', name:'Boot Café', addr:'19 Rue du Pont aux Choux, 3e', walk:22, price:'€', note:'Photogenic hole-in-the-wall in Marais.'},
+    {cat:'books', icon:'📚', name:'Shakespeare and Company', addr:'37 Rue de la Bûcherie, 5e', walk:11, price:'free', note:'Go upstairs — fewer tourists, more soul.'},
+    {cat:'books', icon:'📚', name:'Librairie Galignani', addr:'224 Rue de Rivoli, 1er', walk:18, price:'free', note:'Oldest English-language bookshop on the continent.'},
+    {cat:'quiet', icon:'🌙', name:'Place des Vosges', addr:'4e arrondissement', walk:25, price:'free', note:'Sit under the arcades early morning — nobody\'s there yet.'},
+    {cat:'quiet', icon:'🌙', name:'Square du Vert-Galant', addr:'Île de la Cité', walk:12, price:'free', note:'Tiny triangular park at the tip of the island. Good for an hour of nothing.'},
+    {cat:'art', icon:'🎨', name:'Musée de l\'Orangerie', addr:'Jardin des Tuileries, 1er', walk:20, price:'€12', note:'Monet\'s Water Lilies room — go first thing at opening.'},
+    {cat:'art', icon:'🎨', name:'Musée Rodin', addr:'77 Rue de Varenne, 7e', walk:32, price:'€14', note:'Garden alone is worth the entry. Skip the queue with advance ticket.'},
+    {cat:'food', icon:'🍽', name:'Breizh Café', addr:'109 Rue Vieille du Temple, 3e', walk:21, price:'€€', note:'Best buckwheat galettes in Paris — book ahead.'},
+    {cat:'food', icon:'🍽', name:'Le Comptoir du Relais', addr:'9 Carrefour de l\'Odéon, 6e', walk:9, price:'€€€', note:'Classic bistro; lunch is easier than dinner.'},
+    {cat:'viewpoints', icon:'🌄', name:'Sacré-Cœur steps', addr:'Montmartre, 18e', walk:45, price:'free', note:'Sunset view — arrive 30 min early for a spot on the steps.'},
+    {cat:'history', icon:'🏛', name:'Sainte-Chapelle', addr:'10 Bd du Palais, 1er', walk:15, price:'€11', note:'Upper chapel — stained glass on a sunny late afternoon.'},
+    {cat:'music', icon:'🎵', name:'Le Caveau de la Huchette', addr:'5 Rue de la Huchette, 5e', walk:13, price:'€14', note:'Underground jazz club since 1946 — late sets are best.'},
+    {cat:'nature', icon:'🌿', name:'Jardin du Luxembourg', addr:'6e arrondissement', walk:10, price:'free', note:'Grab a chair, face the pond, do nothing for an hour.'},
+    {cat:'architecture', icon:'🏛', name:'Passage des Panoramas', addr:'11 Bd Montmartre, 2e', walk:26, price:'free', note:'Oldest covered passage in Paris — small restaurants inside.'}
+  ],
+  lisbon: [
+    {cat:'coffee', icon:'☕', name:'Fábrica Coffee Roasters', addr:'R. das Portas de Santo Antão 136', walk:7, price:'€', note:'Third-wave with great pastries.'},
+    {cat:'viewpoints', icon:'🌄', name:'Miradouro da Graça', addr:'Graça', walk:22, price:'free', note:'Sunset with a glass of wine from the kiosk.'},
+    {cat:'books', icon:'📚', name:'Livraria Bertrand', addr:'R. Garrett 73', walk:10, price:'free', note:'Oldest operating bookshop in the world.'},
+    {cat:'food', icon:'🍽', name:'Time Out Market', addr:'Av. 24 de Julho 49', walk:15, price:'€€', note:'Good for tasting many things fast.'}
+  ]
+};
+async function runPlan(){
+  const dest = (document.getElementById('planDest').value||'').trim();
+  const origin = (document.getElementById('planOrigin').value||'').trim();
+  const interests = [...document.querySelectorAll('#planInterests .chip.on')].map(e=>e.getAttribute('data-int'));
+  const pace = document.querySelector('.chip[data-pace].on')?.getAttribute('data-pace') || 'slow';
+  const resEl = document.getElementById('planResults');
+  const emptyEl = document.getElementById('planEmpty');
+
+  if (!dest) { alert('Введите город'); return; }
+
+  emptyEl.style.display = 'none';
+  resEl.classList.add('show');
+  resEl.innerHTML = `<div class="plan-spinner"><span>AI составляет маршрут для ${dest}</span><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>`;
+
+  try {
+    const res = await fetch('/api/plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ destination: dest, origin, interests, pace })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      resEl.innerHTML = `<div style="padding:24px;text-align:center;font-family:system-ui,sans-serif;font-size:.88rem;color:#c04030">${err.error || 'Ошибка AI. Попробуйте ещё раз.'}</div>`;
+      return;
+    }
+
+    const plan = await res.json();
+    const places = plan.places || [];
+
+    if (!places.length) {
+      resEl.innerHTML = `<div class="plan-empty">AI не вернул мест. Попробуйте другой город или интересы.</div>`;
+      return;
+    }
+
+    const catLabel = {coffee:'Coffee',food:'Food',art:'Art',history:'History',books:'Books',nature:'Nature',architecture:'Architecture',music:'Music',viewpoints:'Viewpoints',quiet:'Quiet spots'};
+
+    // Группируем по категориям
+    const groups = {};
+    places.forEach(p => { (groups[p.category] = groups[p.category]||[]).push(p); });
+
+    let html = `<p style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);margin-bottom:20px">${places.length} мест в <strong>${dest}</strong>, отсортированных по маршруту.</p>`;
+
+    Object.entries(groups).forEach(([cat, arr]) => {
+      html += `<div class="plan-section"><div class="plan-section-head"><span class="emoji">${arr[0].icon||'📍'}</span>${catLabel[cat]||cat} <span style="color:var(--dusk);font-weight:400;font-size:.72rem;letter-spacing:0;text-transform:none;margin-left:auto">${arr.length} мест</span></div>`;
+      arr.forEach(p => {
+        html += `<div class="place-card"><div>
+          <h4>${p.name}</h4>
+          <div class="pc-addr">${p.address||''}</div>
+          <div class="pc-meta"><span>🚶 ${p.walk||'?'} мин</span><span>${p.price||'€€'}</span></div>
+          <div class="pc-note">${p.note||''}</div>
+        </div><div class="pc-right">${p.walk||'?'}<br>мин</div></div>`;
+      });
+      html += `</div>`;
+    });
+
+    resEl.innerHTML = html;
+
+  } catch(e) {
+    resEl.innerHTML = `<div style="padding:24px;text-align:center;font-family:system-ui,sans-serif;font-size:.88rem;color:#c04030">Ошибка сети. Проверьте соединение и попробуйте снова.</div>`;
+  }
+}
+
+// ════════════════════════════════
+//  REFLECTION
+// ════════════════════════════════
+const quickQs = [
+  "One moment from this trip you want to hold onto?",
+  "What feeling defined it?",
+  "Something small that made you smile?"
+];
+const deepQs = [
+  "What's one moment you want to hold onto — a person, a light, a sound?",
+  "Did anything catch your eye unexpectedly? What was happening around you?",
+  "What did you notice about how people lived, moved, or used the space around them?",
+  "What feeling kept coming back — not what you did, but what you felt?",
+  "Was there a moment where you almost held back — and then didn't? What happened?",
+  "What surprised you about yourself in this trip?",
+  "If you could send a postcard of one moment from this trip, what image would be on it?"
+];
+let rqCurrent = 0;
+let rqList = [];
+let mediaRec = null;
+let audioChunks = [];
+let isRecording = false;
+
+function pickMood(mood, btn){
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('modeChoice').classList.add('show');
+}
+function startReflect(mode){
+  rqList = mode==='quick' ? quickQs : deepQs;
+  rqCurrent = 0;
+  document.getElementById('rc-mood').style.display = 'none';
+  document.getElementById('rc-questions').classList.add('show');
+  renderRq();
+}
+function renderRq(){
+  const prog = document.getElementById('rqProgress');
+  prog.innerHTML = rqList.map((_,i)=>`<div class="rq-dot${i<rqCurrent?' done':i===rqCurrent?' active':''}"></div>`).join('');
+  document.getElementById('rqLabel').textContent = `Question ${rqCurrent+1} of ${rqList.length}`;
+  document.getElementById('rqText').textContent = rqList[rqCurrent];
+  document.getElementById('rqInput').value = '';
+}
+let rqAnswers = [];
+function nextRq(){
+  const answer = document.getElementById('rqInput').value.trim();
+  rqAnswers.push(answer);
+  rqCurrent++;
+  if(rqCurrent >= rqList.length){
+    document.getElementById('rc-questions').classList.remove('show');
+    document.getElementById('rc-summary').classList.add('show');
+    // Сохраняем рефлексию на сервере
+    const mood = document.querySelector('.mood-btn.on span')?.textContent || '';
+    const mode = rqList.length <= 3 ? 'quick' : 'deep';
+    fetch('/api/reflections', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mood, mode, answers: rqAnswers })
+    }).catch(console.error);
+    rqAnswers = [];
+    return;
+  }
+  renderRq();
+}
+function resetReflect(){
+  rqCurrent = 0; rqList = [];
+  document.getElementById('rc-mood').style.display = '';
+  document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('modeChoice').classList.remove('show');
+  document.getElementById('rc-questions').classList.remove('show');
+  document.getElementById('rc-summary').classList.remove('show');
+}
+// Voice recording
+function toggleVoice(){
+  const btn = document.getElementById('voiceBtn');
+  if(!isRecording){
+    navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+      mediaRec = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRec.ondataavailable = e => audioChunks.push(e.data);
+      mediaRec.onstop = () => {
+        const blob = new Blob(audioChunks,{type:'audio/webm'});
+        const url = URL.createObjectURL(blob);
+        const player = document.getElementById('audioPlayer');
+        player.innerHTML = `<audio controls src="${url}" style="width:100%;height:32px"></audio>`;
+        player.style.display='block';
+        stream.getTracks().forEach(t=>t.stop());
+      };
+      mediaRec.start();
+      isRecording = true;
+      btn.textContent = '⏹ Stop recording';
+      btn.classList.add('recording');
+    }).catch(()=>alert('Microphone access needed for voice notes.'));
+  } else {
+    mediaRec.stop();
+    isRecording = false;
+    btn.textContent = '🎙 Record voice';
+    btn.classList.remove('recording');
+  }
+}
+
+// ════════════════════════════════
+//  MODALS
+// ════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function closeIfOverlay(e,id){if(e.target===document.getElementById(id))closeModal(id)}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('open'))});
+function previewPhoto(input,targetId){
+  const f=input.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{const img=document.getElementById(targetId);img.src=e.target.result;img.style.display='block'};
+  r.readAsDataURL(f);
+}
+function previewTripPhoto(input){
+  const f=input.files[0]; if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    const d=document.getElementById('tripPhotoPreview');
+    d.innerHTML=`<img src="${e.target.result}" style="width:100%;max-height:200px;object-fit:cover;border-radius:10px"/>`;
+  };
+  r.readAsDataURL(f);
+}
+
+// ════════════════════════════════
+//  MISC INTERACTIONS
+// ════════════════════════════════
+document.querySelectorAll('.cfbtn').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.cfbtn').forEach(c=>c.classList.remove('on'));b.classList.add('on')}));
+document.querySelectorAll('.mchip').forEach(c=>c.addEventListener('click',()=>{document.querySelectorAll('.mchip').forEach(m=>m.classList.remove('on'));c.classList.add('on')}));
+function pickSopt(el){document.querySelectorAll('.sopt').forEach(s=>s.classList.remove('on'));el.classList.add('on')}
+
+// Date display
+(function(){
+  const d=new Date();
+  const s=d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const el=document.getElementById('dashDate');
+  if(el)el.textContent=s;
+})();
+
+// Запуск приложения
+initApp();
+loadGoogleMapsScript();
+</script>
+</body>
+</html>

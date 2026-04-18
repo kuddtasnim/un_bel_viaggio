@@ -1,0 +1,75 @@
+{
+  "nav": {
+    "plan": "Plan",
+    "explore": "Explore",
+    "map": "Map",
+    "notes": "Notes",
+    "reflect": "Reflect",
+    "profile": "Profile"
+  },
+  "home": {
+    "tagline": "Travel with intention",
+    "subtitle": "For those who want to not just visit, but truly understand",
+    "cta": "Start your journey",
+    "features": {
+      "plan": { "title": "AI Planning", "desc": "Routes tailored to your pace and interests" },
+      "reflect": { "title": "Reflection", "desc": "Process your trip, preserve impressions" },
+      "inspire": { "title": "Inspiration", "desc": "Discover new destinations" }
+    }
+  },
+  "plan": {
+    "title": "Plan a trip",
+    "destination": "Where are you going?",
+    "destinationPlaceholder": "City or country",
+    "pace": "Travel pace",
+    "slow": "Slow",
+    "moderate": "Moderate",
+    "fast": "Active",
+    "interests": "What matters?",
+    "generate": "Build itinerary",
+    "save": "Save trip"
+  },
+  "reflect": {
+    "title": "Trip reflection",
+    "subtitle": "A few questions to preserve what matters most",
+    "questions": {
+      "filled": "What filled you most during this trip?",
+      "alive": "Was there a moment when you felt truly alive?",
+      "surprised": "What surprised you? What disappointed you?",
+      "style": "What kind of traveler were you this time?",
+      "next": "What do you want to take with you into your next trip?"
+    },
+    "save": "Save reflection",
+    "generating": "Generating summary..."
+  },
+  "notes": {
+    "title": "My notes",
+    "add": "New note",
+    "placeholder": "Write a thought, impression, moment...",
+    "save": "Save"
+  },
+  "explore": {
+    "title": "Inspiration",
+    "filter": "Travel type",
+    "all": "All",
+    "reflective": "Reflective",
+    "adventure": "Adventure",
+    "cultural": "Cultural",
+    "gastronomic": "Gastronomic"
+  },
+  "profile": {
+    "title": "Traveler profile",
+    "travelerType": "Traveler type",
+    "visits": "Countries visited",
+    "pace": "My pace",
+    "trips": "My trips"
+  },
+  "auth": {
+    "login": "Log in",
+    "signup": "Sign up",
+    "logout": "Log out",
+    "email": "Email",
+    "password": "Password",
+    "loginWithGoogle": "Continue with Google"
+  }
+}
