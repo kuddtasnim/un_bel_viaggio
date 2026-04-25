@@ -531,7 +531,10 @@ nav{
       <button class="tab" onclick="showView('plan',this)">Plan</button>
       <button class="tab" onclick="showView('calendar',this)">Calendar</button>
       <button class="tab" onclick="showView('pack',this)">Pack</button>
+      <button class="tab" onclick="showView('reflection',this)">Reflection</button>
+      <button class="tab" onclick="showView('templates',this)">Templates</button>
       <button class="tab" onclick="showView('kb',this)">Knowledge Base</button>
+      <button class="tab" onclick="showView('video',this)">Video</button>
       <button class="tab" onclick="showView('maps',this)">Maps</button>
       <button class="tab" onclick="showView('about',this)">About</button>
     </div>
@@ -540,45 +543,45 @@ nav{
         <span id="userMenuName">—</span> ▾
       </button>
       <div class="user-dropdown" id="userDropdown">
-        <div class="ud-item" onclick="exportData()">📥 Скачать мои данные</div>
+        <div class="ud-item" onclick="exportData()">📥 Download my data</div>
         <div class="ud-sep"></div>
-        <div class="ud-item danger" onclick="deleteAccount()">🗑 Удалить аккаунт</div>
+        <div class="ud-item danger" onclick="deleteAccount()">🗑 Delete account</div>
         <div class="ud-sep"></div>
-        <div class="ud-item" onclick="logout()">← Выйти</div>
+        <div class="ud-item" onclick="logout()">← Sign out</div>
       </div>
     </div>
   </div>
 </nav>
 
 <!-- ═══════════════════ AUTH MODAL ═══════════════════ -->
-<div class="auth-overlay" id="authOverlay" style="display:none">
+<div class="auth-overlay" id="authOverlay">
   <div class="auth-box">
     <div class="auth-logo">Un Bel Viaggio</div>
-    <div class="auth-sub">твой личный дневник путешествий</div>
+    <div class="auth-sub">your personal travel journal</div>
 
     <!-- LOGIN FORM -->
     <div id="authLogin">
-      <h2>Войти</h2>
+      <h2>Sign in</h2>
       <div class="auth-error" id="loginError"></div>
       <div class="auth-field"><label>Email</label><input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email"/></div>
-      <div class="auth-field"><label>Пароль</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/></div>
-      <button class="auth-btn" onclick="submitLogin()">Войти →</button>
-      <div class="auth-switch">Нет аккаунта? <a onclick="switchAuth('register')">Зарегистрироваться</a></div>
+      <div class="auth-field"><label>Password</label><input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/></div>
+      <button class="auth-btn" onclick="submitLogin()">Sign in →</button>
+      <div class="auth-switch">No account? <a onclick="switchAuth('register')">Create one</a></div>
     </div>
 
     <!-- REGISTER FORM -->
     <div id="authRegister" style="display:none">
-      <h2>Создать аккаунт</h2>
+      <h2>Create account</h2>
       <div class="auth-error" id="registerError"></div>
-      <div class="auth-field"><label>Имя</label><input type="text" id="regName" placeholder="Tasnim" autocomplete="given-name"/></div>
+      <div class="auth-field"><label>Name</label><input type="text" id="regName" placeholder="Tasnim" autocomplete="given-name"/></div>
       <div class="auth-field"><label>Email</label><input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email"/></div>
-      <div class="auth-field"><label>Пароль (минимум 8 символов)</label><input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password"/></div>
+      <div class="auth-field"><label>Password (minimum 8 characters)</label><input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password"/></div>
       <label class="auth-consent">
         <input type="checkbox" id="regConsent"/>
-        <span>Я принимаю <a href="/privacy.html" target="_blank">политику конфиденциальности</a> и соглашаюсь на хранение моих данных путешествий на сервере.</span>
+        <span>I accept the <a href="/privacy.html" target="_blank">privacy policy</a> and agree to store my travel data on the server.</span>
       </label>
-      <button class="auth-btn" onclick="submitRegister()">Создать аккаунт →</button>
-      <div class="auth-switch">Уже есть аккаунт? <a onclick="switchAuth('login')">Войти</a></div>
+      <button class="auth-btn" onclick="submitRegister()">Create account →</button>
+      <div class="auth-switch">Already have an account? <a onclick="switchAuth('login')">Sign in</a></div>
     </div>
   </div>
 </div>
@@ -631,25 +634,20 @@ nav{
           <span>Capture what you felt, not just what you saw</span>
         </div>
         <div class="rc-body" id="reflectCard">
-          <!-- Step 1: Mood -->
+          <!-- Step 1: Mood — UI: 6 moods, each triggers its own question set -->
           <div id="rc-mood">
-            <div style="margin-bottom:14px">
-              <label style="font-family:system-ui,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);display:block;margin-bottom:6px">Tie to trip (optional)</label>
-              <select id="reflectTripSel" style="width:100%;border:1.5px solid var(--mist);border-radius:9px;padding:8px 12px;font-family:system-ui,sans-serif;font-size:.83rem;background:var(--cream);color:var(--ink)">
-                <option value="">— no specific trip —</option>
-              </select>
-            </div>
-            <p class="mood-label" style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);margin-bottom:10px">How are you feeling right now?</p>
+            <p class="mood-label" style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);margin-bottom:10px">How did this trip feel?</p>
             <div class="mood-row">
-              <button class="mood-btn" onclick="pickMood('tired',this)">😴<span>Tired</span></button>
+              <button class="mood-btn" onclick="pickMood('excited',this)">🤩<span>Excited</span></button>
               <button class="mood-btn" onclick="pickMood('calm',this)">😌<span>Calm</span></button>
-              <button class="mood-btn" onclick="pickMood('energized',this)">✨<span>Energized</span></button>
-              <button class="mood-btn" onclick="pickMood('emotional',this)">🌊<span>Emotional</span></button>
-              <button class="mood-btn" onclick="pickMood('thoughtful',this)">🤔<span>Reflective</span></button>
+              <button class="mood-btn" onclick="pickMood('tired',this)">😴<span>Tired</span></button>
+              <button class="mood-btn" onclick="pickMood('stressed',this)">😰<span>Stressed</span></button>
+              <button class="mood-btn" onclick="pickMood('inspired',this)">✨<span>Inspired</span></button>
+              <button class="mood-btn" onclick="pickMood('neutral',this)">😐<span>Neutral</span></button>
             </div>
             <div class="mode-choice" id="modeChoice">
-              <p style="font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);width:100%;margin-bottom:6px">Choose your reflection mode:</p>
-              <button class="mode-pill" onclick="startReflect('quick')">Quick · 3 questions</button>
+              <p style="font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);width:100%;margin-bottom:6px">How deep do you want to go?</p>
+              <button class="mode-pill" onclick="startReflect('mood')">Mood-based · 3 questions</button>
               <button class="mode-pill" onclick="startReflect('deep')">Deep · 7 questions</button>
             </div>
           </div>
@@ -672,14 +670,13 @@ nav{
           <div class="rq-summary" id="rc-summary">
             <div class="sum-icon">✦</div>
             <h3 style="color:var(--bark);margin-bottom:8px">Reflection saved</h3>
-            <p style="font-family:system-ui,sans-serif;font-size:.88rem;color:var(--dusk);max-width:340px;margin:0 auto 14px">Your impressions have been captured. Your traveller profile has been updated.</p>
-            <div class="sum-tags">
-              <span class="sum-tag">Observer</span>
-              <span class="sum-tag">Slow pace</span>
-              <span class="sum-tag">Curious</span>
-              <span class="sum-tag">Connected</span>
+            <p style="font-family:system-ui,sans-serif;font-size:.88rem;color:var(--dusk);max-width:340px;margin:0 auto 14px">Your impressions have been captured. It will appear in your Reflection Library.</p>
+            <div class="sum-tags" id="sumTags"></div>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
+              <button class="btn-ghost" style="font-size:.82rem" onclick="resetReflect()">Reflect again</button>
+              <button class="btn-accent" style="font-size:.82rem;padding:9px 18px" onclick="saveCurrentReflectionAsTemplate()">Save as template</button>
+              <button class="btn-ghost" style="font-size:.82rem" onclick="showView('reflection',document.querySelectorAll('.tab')[5])">View library →</button>
             </div>
-            <button class="btn-ghost" style="font-size:.82rem" onclick="resetReflect()">Reflect again</button>
           </div>
         </div>
       </div>
@@ -696,31 +693,7 @@ nav{
         <h2>Recent Insights</h2>
         <a onclick="showView('kb',document.querySelectorAll('.tab')[5])">all →</a>
       </div>
-      <div class="insights-scroll">
-        <div class="ins-tile">
-          <div class="it-loc">Germany</div>
-          <div class="it-t">Munich Transit</div>
-          <div class="it-b">ZOB & Hbf 5 min apart. No luggage = go to the city.</div>
-        </div>
-        <div class="ins-tile">
-          <div class="it-loc">China</div>
-          <div class="it-t">Great Wall exit</div>
-          <div class="it-b">Express route not obvious — check map on the spot.</div>
-        </div>
-        <div class="ins-tile">
-          <div class="it-loc">Korea · Seoul</div>
-          <div class="it-t">Hongdae timing</div>
-          <div class="it-b">Morning = quiet. Evening = different city entirely.</div>
-        </div>
-        <div class="ins-tile">
-          <div class="it-loc">Italy · Rome</div>
-          <div class="it-t">Arriving at mass hour</div>
-          <div class="it-b">Timing the Colosseum right — all the "awkwardness" was just in my head.</div>
-        </div>
-        <div class="ins-tile" style="border:2px dashed var(--mist);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center" onclick="openModal('expModal')">
-          <span style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk)">+ Add insight</span>
-        </div>
-      </div>
+      <div id="insightsContainer"></div>
     </div>
 
     <!-- RIGHT SIDEBAR: chronological trips + mini-cal -->
@@ -872,7 +845,7 @@ nav{
       <div style="margin-top:10px;display:flex;gap:10px;align-items:center">
         <button class="btn-primary" style="padding:9px 20px;font-size:.82rem" onclick="submitNote()">Save note</button>
       </div>
-      <div id="noteSavedMsg" style="display:none;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--moss);margin-top:8px">✓ Заметка сохранена</div>
+      <div id="noteSavedMsg" style="display:none;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--moss);margin-top:8px">✓ Note saved</div>
 
       <!-- Photo Gallery -->
       <div style="margin-top:24px">
@@ -963,6 +936,29 @@ nav{
     <div class="act-head" id="actHead">Actionable insights for next trips</div>
     <div class="act-list" id="actList"></div>
   </div>
+
+  <!-- BLOCK 6: Calendar mood analytics -->
+  <div style="margin-top:24px;background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);overflow:hidden">
+    <div style="background:var(--sand);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-family:system-ui,sans-serif;font-size:.8rem;font-weight:600;color:var(--bark);text-transform:uppercase;letter-spacing:.06em">Mood during trips</div>
+        <div style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);margin-top:2px">Based on your reflection entries</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap" id="moodFilterBtns">
+        <button class="cfbtn on" data-mood="all" onclick="filterCalByMood('all',this)">All moods</button>
+        <button class="cfbtn" data-mood="excited" onclick="filterCalByMood('excited',this)">🤩 Excited</button>
+        <button class="cfbtn" data-mood="calm" onclick="filterCalByMood('calm',this)">😌 Calm</button>
+        <button class="cfbtn" data-mood="tired" onclick="filterCalByMood('tired',this)">😴 Tired</button>
+        <button class="cfbtn" data-mood="stressed" onclick="filterCalByMood('stressed',this)">😰 Stressed</button>
+        <button class="cfbtn" data-mood="inspired" onclick="filterCalByMood('inspired',this)">✨ Inspired</button>
+        <button class="cfbtn" data-mood="neutral" onclick="filterCalByMood('neutral',this)">😐 Neutral</button>
+      </div>
+    </div>
+    <div style="padding:16px 20px">
+      <div id="moodChartArea" style="margin-bottom:16px"></div>
+      <div id="moodInsightsList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+  </div>
 </div>
 
 <!-- ═══════════════════ PACKING LIST ═══════════════════ -->
@@ -1035,6 +1031,11 @@ nav{
 
     <!-- Results -->
     <div class="pack-results" id="packResults">
+      <!-- INTEGRATION: Pack suggestions from reflections -->
+      <div id="packSuggestions" style="display:none;background:linear-gradient(135deg,#fde8d3,#f5e6c8);border:1px solid #f0c8a0;border-radius:var(--r);padding:18px 20px;margin-bottom:16px">
+        <div style="font-family:system-ui,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--clay);margin-bottom:10px">💡 Suggestions from your reflections</div>
+        <div id="packSuggestionsList" style="display:flex;flex-direction:column;gap:8px"></div>
+      </div>
       <div id="packSections"></div>
       <div class="email-reminder" onclick="sendReminder()">
         <div class="er-icon">📩</div>
@@ -1044,6 +1045,122 @@ nav{
         </div>
         <div class="er-arrow">→</div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ REFLECTION LIBRARY ═══════════════════ -->
+<div class="view" id="v-reflection">
+  <div class="page-header">
+    <h1>Reflection Library</h1>
+    <p>All your travel reflections — filter by mood or tag</p>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px">
+    <input class="kb-search" id="reflSearch" placeholder="🔍  Search reflections..." type="text" oninput="filterReflections()" style="flex:1;min-width:200px"/>
+    <button class="btn-accent" style="padding:8px 18px;font-size:.82rem" onclick="openReflectModal()">+ New reflection</button>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="reflMoodFilter">
+    <span class="ftag on" data-mood="all" onclick="setReflMoodFilter('all',this)">All moods</span>
+    <span class="ftag" data-mood="excited" onclick="setReflMoodFilter('excited',this)">🤩 Excited</span>
+    <span class="ftag" data-mood="calm" onclick="setReflMoodFilter('calm',this)">😌 Calm</span>
+    <span class="ftag" data-mood="tired" onclick="setReflMoodFilter('tired',this)">😴 Tired</span>
+    <span class="ftag" data-mood="stressed" onclick="setReflMoodFilter('stressed',this)">😰 Stressed</span>
+    <span class="ftag" data-mood="inspired" onclick="setReflMoodFilter('inspired',this)">✨ Inspired</span>
+    <span class="ftag" data-mood="neutral" onclick="setReflMoodFilter('neutral',this)">😐 Neutral</span>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px" id="reflTagFilter"></div>
+  <div id="reflectionsList"></div>
+</div>
+
+<!-- ═══════════════════ TEMPLATES ═══════════════════ -->
+<div class="view" id="v-templates">
+  <div class="page-header">
+    <h1>Templates</h1>
+    <p>Reusable templates for reflections and packing lists</p>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px">
+    <input class="kb-search" id="tmplSearch" placeholder="🔍  Search templates..." type="text" oninput="filterTemplates()" style="flex:1;min-width:200px"/>
+    <button class="btn-accent" style="padding:8px 18px;font-size:.82rem" onclick="openCreateTemplateModal()">+ New template</button>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">
+    <span class="ftag on" data-tmpl-type="all" onclick="setTmplFilter('type','all',this)">All</span>
+    <span class="ftag" data-tmpl-type="reflection" onclick="setTmplFilter('type','reflection',this)">📝 Reflection</span>
+    <span class="ftag" data-tmpl-type="pack" onclick="setTmplFilter('type','pack',this)">🧳 Pack</span>
+    <span style="margin-left:auto;font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);align-self:center">Sort by:</span>
+    <span class="ftag on" data-tmpl-sort="usage" onclick="setTmplFilter('sort','usage',this)">Most used</span>
+    <span class="ftag" data-tmpl-sort="newest" onclick="setTmplFilter('sort','newest',this)">Newest</span>
+    <span class="ftag" data-tmpl-sort="name" onclick="setTmplFilter('sort','name',this)">Name</span>
+  </div>
+  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px" id="tmplMoodFilter">
+    <span class="ftag on" data-tmpl-mood="all" onclick="setTmplFilter('mood','all',this)">All moods</span>
+    <span class="ftag" data-tmpl-mood="excited" onclick="setTmplFilter('mood','excited',this)">🤩 Excited</span>
+    <span class="ftag" data-tmpl-mood="calm" onclick="setTmplFilter('mood','calm',this)">😌 Calm</span>
+    <span class="ftag" data-tmpl-mood="tired" onclick="setTmplFilter('mood','tired',this)">😴 Tired</span>
+    <span class="ftag" data-tmpl-mood="stressed" onclick="setTmplFilter('mood','stressed',this)">😰 Stressed</span>
+    <span class="ftag" data-tmpl-mood="inspired" onclick="setTmplFilter('mood','inspired',this)">✨ Inspired</span>
+    <span class="ftag" data-tmpl-mood="neutral" onclick="setTmplFilter('mood','neutral',this)">😐 Neutral</span>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px" id="templatesGrid"></div>
+</div>
+
+<!-- Template create/edit modal -->
+<div class="modal-overlay" id="templateModal" onclick="closeIfOverlay(event,'templateModal')">
+  <div class="modal" style="max-width:540px">
+    <h3 id="tmplModalTitle">Create template</h3>
+    <div class="mfield"><label>Template name</label><input type="text" id="tmplName" placeholder="Post-long-flight reflection"/></div>
+    <div class="mfield"><label>Type</label>
+      <select id="tmplType" onchange="updateTemplateModalFields()">
+        <option value="reflection">📝 Reflection</option>
+        <option value="pack">🧳 Pack list</option>
+      </select>
+    </div>
+    <div id="tmplReflFields">
+      <div class="mfield"><label>Mood (for reflection templates)</label>
+        <select id="tmplMood">
+          <option value="excited">🤩 Excited</option>
+          <option value="calm">😌 Calm</option>
+          <option value="tired">😴 Tired</option>
+          <option value="stressed">😰 Stressed</option>
+          <option value="inspired">✨ Inspired</option>
+          <option value="neutral">😐 Neutral</option>
+        </select>
+      </div>
+      <div class="mfield"><label>Custom questions (one per line)</label>
+        <textarea id="tmplQuestions" style="min-height:90px" placeholder="What made this moment special?&#10;What would you do differently?&#10;What surprised you?"></textarea>
+      </div>
+    </div>
+    <div id="tmplPackFields" style="display:none">
+      <div class="mfield"><label>Pack items (one per line)</label>
+        <textarea id="tmplPackItems" style="min-height:90px" placeholder="Travel insurance&#10;Power bank&#10;Neck pillow"></textarea>
+      </div>
+    </div>
+    <div class="mfield"><label>Tags (comma-separated)</label><input type="text" id="tmplTags" placeholder="long-haul, business-trip, backpacking"/></div>
+    <div class="mfield" style="display:flex;align-items:center;gap:10px">
+      <input type="checkbox" id="tmplPublic" style="accent-color:var(--bark)"/>
+      <label style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);text-transform:none;letter-spacing:0">Make this template public (shareable)</label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('templateModal')">Cancel</button>
+      <button class="btn-save" onclick="saveTemplate()">Save template</button>
+    </div>
+  </div>
+</div>
+
+<!-- Use template confirmation modal -->
+<div class="modal-overlay" id="useTemplateModal" onclick="closeIfOverlay(event,'useTemplateModal')">
+  <div class="modal">
+    <h3 id="useTmplTitle">Use template</h3>
+    <p id="useTmplDesc" style="font-family:system-ui,sans-serif;font-size:.88rem;color:var(--dusk);margin-bottom:18px"></p>
+    <div id="useTmplPackConfirm" style="display:none">
+      <p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--bark);margin-bottom:12px">Add these items to your pack?</p>
+      <div id="useTmplItems" style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px"></div>
+      <div class="mfield"><label>Select trip</label>
+        <select id="useTmplTrip" style="width:100%;background:var(--cream);border:1.5px solid var(--mist);border-radius:9px;padding:9px 12px;font-family:system-ui,sans-serif;font-size:.88rem"></select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal('useTemplateModal')">Cancel</button>
+      <button class="btn-save" onclick="confirmUseTemplate()">Apply template</button>
     </div>
   </div>
 </div>
@@ -1328,6 +1445,56 @@ nav{
     </div>
   </div>
 </div>
+
+<!-- Toast notifications -->
+<div id="toastContainer" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none"></div>
+
+<style>
+/* ── REFLECTION LIBRARY ── */
+.refl-card{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:18px 20px;margin-bottom:14px;transition:.2s}
+.refl-card:hover{box-shadow:var(--sh)}
+.refl-card-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.refl-mood-badge{font-family:system-ui,sans-serif;font-size:.72rem;padding:4px 12px;border-radius:50px;font-weight:600}
+.mood-excited{background:#fff0cc;color:#a07000}
+.mood-calm{background:#d8eedd;color:#2d6a4f}
+.mood-tired{background:#e8e0f8;color:#5a3d8a}
+.mood-stressed{background:#fde0d8;color:#a03020}
+.mood-inspired{background:#fde8d3;color:#8a4000}
+.mood-neutral{background:var(--mist);color:var(--dusk)}
+.refl-date{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk)}
+.refl-trip{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--accent);font-style:italic}
+.refl-content{font-size:.9rem;color:#5a4a3a;line-height:1.6;margin-bottom:10px}
+.refl-tags{display:flex;flex-wrap:wrap;gap:5px}
+.refl-tag{background:var(--sand);border:1px solid var(--mist);padding:3px 10px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.68rem;color:var(--dusk);cursor:pointer;transition:.15s}
+.refl-tag:hover{background:var(--bark);color:#fff;border-color:var(--bark)}
+.refl-empty{background:var(--warm);border:2px dashed var(--mist);border-radius:var(--r);padding:48px 24px;text-align:center}
+.refl-empty p{font-family:system-ui,sans-serif;font-size:.9rem;color:var(--dusk);margin-bottom:6px}
+.refl-empty .hint{font-size:.8rem;color:var(--dusk);opacity:.7}
+
+/* ── TEMPLATES ── */
+.tmpl-card{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:18px 20px;display:flex;flex-direction:column;gap:10px;transition:.2s}
+.tmpl-card:hover{box-shadow:var(--sh)}
+.tmpl-card-head{display:flex;align-items:flex-start;gap:10px}
+.tmpl-type-badge{font-family:system-ui,sans-serif;font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;padding:3px 9px;border-radius:50px;flex-shrink:0;margin-top:2px}
+.tmpl-reflection{background:#fde8d3;color:var(--clay)}
+.tmpl-pack{background:#d8e8d3;color:var(--moss)}
+.tmpl-card h4{font-family:system-ui,sans-serif;font-size:.92rem;color:var(--bark);margin-bottom:2px}
+.tmpl-preview{font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);line-height:1.5}
+.tmpl-footer{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:4px}
+.tmpl-usage{font-family:system-ui,sans-serif;font-size:.68rem;color:var(--dusk)}
+.tmpl-actions{display:flex;gap:6px;margin-top:8px}
+
+/* ── MOOD CHART ── */
+.mood-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.mood-bar-label{font-family:system-ui,sans-serif;font-size:.75rem;color:var(--dusk);width:70px;flex-shrink:0}
+.mood-bar-track{flex:1;background:var(--mist);border-radius:4px;height:12px;overflow:hidden}
+.mood-bar-fill{height:100%;border-radius:4px;transition:.4s}
+.mood-bar-count{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);width:24px;text-align:right;flex-shrink:0}
+
+/* ── TOAST ── */
+.toast{background:var(--bark);color:#fff;padding:12px 20px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.85rem;box-shadow:0 4px 20px rgba(44,35,24,.25);pointer-events:auto;animation:toastIn .3s ease;max-width:420px;text-align:center}
+@keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+</style>
 
 <script>
 // ════════════════════════════════
@@ -2966,6 +3133,299 @@ function pickSopt(el){document.querySelectorAll('.sopt').forEach(s=>s.classList.
   const el=document.getElementById('dashDate');
   if(el)el.textContent=s;
 })();
+
+// ════════════════════════════════
+//  MOOD QUESTIONS MAP (6 moods)
+// ════════════════════════════════
+const moodQuestionsMap = {
+  excited: ["What made you feel excited?","What would you do again?","What surprised you the most?"],
+  stressed: ["What caused the most stress?","What would you do differently?","What could have been better prepared?"],
+  tired: ["Was the pace too intense?","What would you skip next time?","How many hours of rest did you get?"],
+  calm: ["What contributed to the calmness?","Which moment was the most peaceful?","Would you recommend this destination for relaxation?"],
+  inspired: ["What inspired you the most?","What will you bring to your daily life?","Any creative ideas from this trip?"],
+  neutral: ["How was the overall experience?","What was average or expected?","Any small improvement ideas?"]
+};
+const deepQs = [
+  "What's one moment you want to hold onto — a person, a light, a sound?",
+  "Did anything catch your eye unexpectedly? What was happening around you?",
+  "What did you notice about how people lived, moved, or used the space?",
+  "What feeling kept coming back — not what you did, but what you felt?",
+  "Was there a moment where you almost held back — and then didn't?",
+  "What surprised you about yourself on this trip?",
+  "If you could send a postcard of one moment from this trip, what image would be on it?"
+];
+
+// ════════════════════════════════
+//  REFLECTIONS — LOCAL + LIBRARY
+// ════════════════════════════════
+let reflections = [];
+function saveReflectionLocally(r){
+  reflections.unshift(r);
+  try { localStorage.setItem('ub_reflections', JSON.stringify(reflections.slice(0,200))); } catch(e){}
+  renderReflectionLibrary();
+  renderInsights();
+}
+function loadReflectionsFromStorage(){
+  try { const raw = localStorage.getItem('ub_reflections'); if(raw) reflections = JSON.parse(raw); } catch(e){}
+}
+let reflMoodFilter = 'all', reflTagFilter = '', reflSearchQuery = '';
+function setReflMoodFilter(mood, el){
+  reflMoodFilter = mood;
+  document.querySelectorAll('#reflMoodFilter .ftag').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  renderReflectionLibrary();
+}
+function filterReflections(){
+  reflSearchQuery = document.getElementById('reflSearch').value.toLowerCase();
+  renderReflectionLibrary();
+}
+function renderReflectionLibrary(){
+  const el = document.getElementById('reflectionsList'); if(!el) return;
+  let list = [...reflections];
+  if(reflMoodFilter !== 'all') list = list.filter(r=>r.mood===reflMoodFilter);
+  if(reflTagFilter) list = list.filter(r=>r.tags?.some(t=>t.toLowerCase()===reflTagFilter));
+  if(reflSearchQuery) list = list.filter(r=>r.content?.toLowerCase().includes(reflSearchQuery)||r.tags?.some(t=>t.toLowerCase().includes(reflSearchQuery)));
+  const allTags = [...new Set(reflections.flatMap(r=>r.tags||[]))];
+  const tagFilterEl = document.getElementById('reflTagFilter');
+  if(tagFilterEl) tagFilterEl.innerHTML = allTags.length ? ['<span class="ftag'+(reflTagFilter===''?' on':'')+'" onclick="setReflTagFilter(\'\',this)">All tags</span>',...allTags.map(t=>`<span class="ftag${reflTagFilter===t?' on':''}" onclick="setReflTagFilter('${t}',this)">#${t}</span>`)].join('') : '';
+  if(list.length===0){ el.innerHTML=`<div class="refl-empty"><p>${reflections.length===0?'No reflections yet.':'No reflections match your filters.'}</p><p class="hint">${reflections.length===0?'Complete a post-trip reflection on the Dashboard to see your entries here.':'Try clearing the filters.'}</p></div>`; return; }
+  el.innerHTML = list.map(r=>{
+    const moodEmoji={excited:'🤩',calm:'😌',tired:'😴',stressed:'😰',inspired:'✨',neutral:'😐'}[r.mood]||'🙂';
+    const moodLabel=r.mood?(r.mood.charAt(0).toUpperCase()+r.mood.slice(1)):'';
+    const date=r.createdAt?new Date(r.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'';
+    const tripName=r.tripId!==null?trips.find(t=>(t._serverId||t.id)===r.tripId)?.name:null;
+    const preview=r.content?r.content.slice(0,180)+(r.content.length>180?'…':''):'(No content)';
+    const tags=(r.tags||[]).map(t=>`<span class="refl-tag" onclick="setReflTagFilter('${t}',this)">#${t}</span>`).join('');
+    return `<div class="refl-card"><div class="refl-card-head"><span class="refl-mood-badge mood-${r.mood}">${moodEmoji} ${moodLabel}</span><span class="refl-date">${date}</span>${tripName?`<span class="refl-trip">• ${tripName}</span>`:''}</div><div class="refl-content">${preview}</div><div class="refl-tags">${tags}</div></div>`;
+  }).join('');
+}
+function setReflTagFilter(tag, el){ reflTagFilter=tag; renderReflectionLibrary(); }
+function openReflectModal(){ showView('dashboard',document.querySelectorAll('.tab')[0]); document.getElementById('reflectCard').scrollIntoView({behavior:'smooth',block:'center'}); }
+
+// ════════════════════════════════
+//  INSIGHTS — dynamic empty state
+// ════════════════════════════════
+let insights = [];
+function renderInsights(){
+  const container = document.getElementById('insightsContainer'); if(!container) return;
+  if(insights.length===0 && reflections.length===0){
+    container.innerHTML=`<div style="background:var(--warm);border:2px dashed var(--mist);border-radius:var(--r);padding:28px 20px;text-align:center"><p style="font-family:system-ui,sans-serif;font-size:.88rem;color:var(--bark);margin-bottom:4px">No insights yet.</p><p style="font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk)">Complete a post-trip survey to see patterns.</p></div>`;
+    return;
+  }
+  const generatedInsights = buildInsightsFromReflections();
+  const allInsights = [...insights, ...generatedInsights];
+  if(allInsights.length===0){ container.innerHTML=`<div style="background:var(--warm);border:2px dashed var(--mist);border-radius:var(--r);padding:28px 20px;text-align:center"><p style="font-family:system-ui,sans-serif;font-size:.88rem;color:var(--bark);margin-bottom:4px">Take a survey after your next trip.</p><p style="font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk)">Your reflections will appear here once you add them.</p></div>`; return; }
+  const tiles = allInsights.slice(0,8).map(ins=>`<div class="ins-tile"><div class="it-loc">${ins.label||''}</div><div class="it-t">${ins.title}</div><div class="it-b">${ins.value}</div></div>`).join('');
+  const addTile=`<div class="ins-tile" style="border:2px dashed var(--mist);background:none;cursor:pointer;display:flex;align-items:center;justify-content:center" onclick="openModal('expModal')"><span style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk)">+ Add insight</span></div>`;
+  container.innerHTML=`<div class="insights-scroll">${tiles}${addTile}</div>`;
+}
+function buildInsightsFromReflections(){
+  if(!reflections.length) return [];
+  const out=[];
+  const moodCounts={};
+  reflections.forEach(r=>{ if(r.mood) moodCounts[r.mood]=(moodCounts[r.mood]||0)+1; });
+  const topMood=Object.entries(moodCounts).sort((a,b)=>b[1]-a[1])[0];
+  if(topMood) out.push({label:'Mood pattern',title:'Most common mood',value:`"${topMood[0]}" — in ${topMood[1]} of ${reflections.length} reflection${reflections.length>1?'s':''}`});
+  const tagCounts={};
+  reflections.forEach(r=>(r.tags||[]).forEach(t=>{ tagCounts[t]=(tagCounts[t]||0)+1; }));
+  const topTag=Object.entries(tagCounts).sort((a,b)=>b[1]-a[1])[0];
+  if(topTag&&topTag[1]>1) out.push({label:'Frequent theme',title:`#${topTag[0]}`,value:`Appeared in ${topTag[1]} trips`});
+  const last=reflections[0];
+  if(last){ const tripName=last.tripId?trips.find(t=>(t._serverId||t.id)===last.tripId)?.name:null; out.push({label:tripName||'Latest reflection',title:last.mood?`Felt ${last.mood}`:'Reflection',value:last.content?.slice(0,60)+'…'||''}); }
+  return out;
+}
+
+// ════════════════════════════════
+//  PACK SUGGESTIONS FROM REFLECTION
+// ════════════════════════════════
+const moodPackingSuggestions = {
+  stressed:{suggest:['Travel insurance','Printed documents','Power bank','Snacks']},
+  tired:{suggest:['Neck pillow','Eye mask','Comfortable shoes']},
+  excited:{suggest:['Camera','Journal','Local SIM card']},
+  inspired:{suggest:['Notebook','Sketchbook','Camera']},
+  calm:{suggest:['Book','Journal','Herbal tea sachets']},
+  neutral:{suggest:['Reusable water bottle','Portable charger']}
+};
+function showMoodPackSuggestions(mood){
+  const suggestions=moodPackingSuggestions[mood]; if(!suggestions) return;
+  const items=suggestions.suggest.slice(0,2).join(', ');
+  showToast(`Based on your ${mood} reflection: consider adding ${items} to your next pack.`,5000);
+  renderPackSuggestionsBlock(mood,suggestions.suggest);
+}
+function renderPackSuggestionsBlock(mood,items){
+  const block=document.getElementById('packSuggestions'); const list=document.getElementById('packSuggestionsList'); if(!block||!list) return;
+  list.innerHTML=items.map(item=>`<div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.6);border-radius:9px;padding:10px 14px"><span style="font-family:system-ui,sans-serif;font-size:.88rem;color:var(--bark);flex:1">${item}</span><button onclick="applySuggestion('${item}')" style="background:var(--bark);color:#fff;border:none;border-radius:50px;padding:5px 13px;font-family:system-ui,sans-serif;font-size:.75rem;cursor:pointer">Add to pack</button></div>`).join('');
+  block.style.display='block';
+}
+function applySuggestion(itemName){
+  const results=document.getElementById('packResults');
+  if(results&&results.classList.contains('show')){ const miscSection=document.querySelector('.pack-section'); if(miscSection){ const list=miscSection.querySelector('.ps-items'); const id='sug_'+Date.now(); const div=document.createElement('div'); div.className='check-item'; div.innerHTML=`<input type="checkbox" id="${id}" onchange="this.nextSibling.classList.toggle('checked',this.checked)"><label for="${id}">${itemName} <span style="color:var(--accent);font-size:.72rem">(from reflection)</span></label>`; list.appendChild(div); showToast(`Added "${itemName}" to your packing list.`); return; } }
+  showToast(`"${itemName}" noted — open Pack to add it to a trip.`);
+}
+
+// ════════════════════════════════
+//  TOAST UTILITY
+// ════════════════════════════════
+function showToast(msg,duration=3500){
+  const container=document.getElementById('toastContainer'); const el=document.createElement('div'); el.className='toast'; el.textContent=msg; container.appendChild(el);
+  setTimeout(()=>{ el.style.transition='.3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),350); },duration);
+}
+
+// ════════════════════════════════
+//  REFLECTION — mood → questions
+// ════════════════════════════════
+let rqAnswers=[];
+function buildReflectionTags(mood,answers){
+  const moodTag={excited:'Exciting',calm:'Calm',tired:'Low energy',stressed:'Challenging',inspired:'Inspiring',neutral:'Reflective'}[mood]||mood;
+  const tags=[moodTag]; const combined=answers.join(' ').toLowerCase();
+  if(combined.includes('food')||combined.includes('restaurant')) tags.push('Food');
+  if(combined.includes('walk')||combined.includes('city')) tags.push('City walk');
+  if(combined.includes('people')||combined.includes('met')) tags.push('People');
+  if(combined.includes('museum')||combined.includes('art')) tags.push('Culture');
+  if(combined.includes('transport')||combined.includes('airport')) tags.push('Transit');
+  return tags.slice(0,5);
+}
+
+// ════════════════════════════════
+//  BLOCK 5: TEMPLATES SYSTEM
+// ════════════════════════════════
+let templates=[], tmplFilters={type:'all',sort:'usage',mood:'all'}, pendingTemplateId=null;
+function loadTemplatesFromStorage(){ try { const raw=localStorage.getItem('ub_templates'); if(raw) templates=JSON.parse(raw); } catch(e){} }
+function saveTemplatesToStorage(){ try { localStorage.setItem('ub_templates',JSON.stringify(templates)); } catch(e){} }
+function openCreateTemplateModal(){
+  pendingTemplateId=null;
+  document.getElementById('tmplModalTitle').textContent='Create template';
+  ['tmplName','tmplQuestions','tmplPackItems','tmplTags'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('tmplType').value='reflection';
+  document.getElementById('tmplMood').value='neutral';
+  document.getElementById('tmplPublic').checked=false;
+  updateTemplateModalFields(); openModal('templateModal');
+}
+function updateTemplateModalFields(){
+  const type=document.getElementById('tmplType').value;
+  document.getElementById('tmplReflFields').style.display=type==='reflection'?'':'none';
+  document.getElementById('tmplPackFields').style.display=type==='pack'?'':'none';
+}
+function saveTemplate(){
+  const name=document.getElementById('tmplName').value.trim(); if(!name){ alert('Please enter a template name.'); return; }
+  const type=document.getElementById('tmplType').value;
+  const tags=document.getElementById('tmplTags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const tmpl={templateId:pendingTemplateId||'tmpl_'+Date.now(),type,name,tags,usageCount:pendingTemplateId?(templates.find(t=>t.templateId===pendingTemplateId)?.usageCount||0):0,createdAt:new Date().toISOString(),isPublic:document.getElementById('tmplPublic').checked};
+  if(type==='reflection'){ tmpl.mood=document.getElementById('tmplMood').value; tmpl.questions=document.getElementById('tmplQuestions').value.split('\n').map(q=>q.trim()).filter(Boolean); if(!tmpl.questions.length) tmpl.questions=moodQuestionsMap[tmpl.mood]||[]; }
+  else { tmpl.packItems=document.getElementById('tmplPackItems').value.split('\n').map(i=>i.trim()).filter(Boolean); }
+  const idx=templates.findIndex(t=>t.templateId===tmpl.templateId);
+  if(idx>=0) templates[idx]=tmpl; else templates.unshift(tmpl);
+  saveTemplatesToStorage(); closeModal('templateModal'); renderTemplatesGrid(); showToast('Template saved.');
+}
+function saveCurrentReflectionAsTemplate(){
+  pendingTemplateId=null;
+  document.getElementById('tmplModalTitle').textContent='Save as template';
+  document.getElementById('tmplName').value=`${currentMood?currentMood.charAt(0).toUpperCase()+currentMood.slice(1)+' ':''}reflection template`;
+  document.getElementById('tmplType').value='reflection';
+  document.getElementById('tmplMood').value=currentMood||'neutral';
+  document.getElementById('tmplQuestions').value=(moodQuestionsMap[currentMood]||[]).join('\n');
+  document.getElementById('tmplTags').value=currentMood||'';
+  document.getElementById('tmplPublic').checked=false;
+  updateTemplateModalFields(); openModal('templateModal');
+}
+function setTmplFilter(key,value,el){
+  tmplFilters[key]=value;
+  const attr=key==='type'?'data-tmpl-type':key==='sort'?'data-tmpl-sort':'data-tmpl-mood';
+  document.querySelectorAll(`[${attr}]`).forEach(b=>b.classList.remove('on')); el.classList.add('on'); renderTemplatesGrid();
+}
+function filterTemplates(){ renderTemplatesGrid(); }
+function renderTemplatesGrid(){
+  const el=document.getElementById('templatesGrid'); if(!el) return;
+  const q=(document.getElementById('tmplSearch')?.value||'').toLowerCase();
+  let list=[...templates];
+  if(tmplFilters.type!=='all') list=list.filter(t=>t.type===tmplFilters.type);
+  if(tmplFilters.mood!=='all') list=list.filter(t=>t.type!=='reflection'||t.mood===tmplFilters.mood);
+  if(q) list=list.filter(t=>t.name.toLowerCase().includes(q)||t.tags?.some(tg=>tg.toLowerCase().includes(q)));
+  if(tmplFilters.sort==='usage') list.sort((a,b)=>b.usageCount-a.usageCount);
+  else if(tmplFilters.sort==='newest') list.sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
+  else list.sort((a,b)=>a.name.localeCompare(b.name));
+  if(list.length===0){ el.innerHTML=`<div style="grid-column:1/-1;background:var(--warm);border:2px dashed var(--mist);border-radius:var(--r);padding:48px 24px;text-align:center;font-family:system-ui,sans-serif;color:var(--dusk);font-size:.88rem">${templates.length===0?'No templates yet. Create one from any reflection or pack list.':'No templates match your filters.'}</div>`; return; }
+  el.innerHTML=list.map(t=>{
+    const badgeClass=t.type==='reflection'?'tmpl-reflection':'tmpl-pack';
+    const badgeLabel=t.type==='reflection'?'📝 Reflection':'🧳 Pack';
+    const moodBadge=t.mood?`<span class="refl-mood-badge mood-${t.mood}" style="font-size:.62rem">${t.mood}</span>`:'';
+    const preview=t.type==='reflection'?(t.questions||[]).slice(0,2).map(q=>`• ${q}`).join('<br>'):(t.packItems||[]).slice(0,3).join(', ')+(t.packItems?.length>3?'…':'');
+    const tags=(t.tags||[]).map(tg=>`<span class="kb-tag">${tg}</span>`).join('');
+    return `<div class="tmpl-card"><div class="tmpl-card-head"><span class="tmpl-type-badge ${badgeClass}">${badgeLabel}</span><div style="flex:1;min-width:0"><h4>${t.name}</h4>${moodBadge}</div></div><div class="tmpl-preview">${preview||'(No preview)'}</div><div style="display:flex;flex-wrap:wrap;gap:4px">${tags}</div><div class="tmpl-footer"><span class="tmpl-usage">Used ${t.usageCount} time${t.usageCount!==1?'s':''}</span>${t.isPublic?'<span style="font-family:system-ui,sans-serif;font-size:.65rem;color:var(--moss)">🌐 Public</span>':''}</div><div class="tmpl-actions"><button class="btn-primary" style="padding:7px 16px;font-size:.78rem" onclick="openUseTemplate('${t.templateId}')">Use template</button><button class="btn-ghost" style="padding:7px 14px;font-size:.78rem" onclick="editTemplate('${t.templateId}')">Edit</button><button style="background:none;border:none;color:var(--dusk);cursor:pointer;font-size:.82rem;padding:7px 8px" onclick="deleteTemplate('${t.templateId}')" title="Delete">✕</button></div></div>`;
+  }).join('');
+}
+function editTemplate(id){
+  const t=templates.find(x=>x.templateId===id); if(!t) return;
+  pendingTemplateId=id;
+  document.getElementById('tmplModalTitle').textContent='Edit template';
+  document.getElementById('tmplName').value=t.name;
+  document.getElementById('tmplType').value=t.type;
+  if(t.mood) document.getElementById('tmplMood').value=t.mood;
+  document.getElementById('tmplQuestions').value=(t.questions||[]).join('\n');
+  document.getElementById('tmplPackItems').value=(t.packItems||[]).join('\n');
+  document.getElementById('tmplTags').value=(t.tags||[]).join(', ');
+  document.getElementById('tmplPublic').checked=!!t.isPublic;
+  updateTemplateModalFields(); openModal('templateModal');
+}
+function deleteTemplate(id){ if(!confirm('Delete this template?')) return; templates=templates.filter(t=>t.templateId!==id); saveTemplatesToStorage(); renderTemplatesGrid(); }
+function openUseTemplate(id){
+  const t=templates.find(x=>x.templateId===id); if(!t) return;
+  pendingTemplateId=id;
+  document.getElementById('useTmplTitle').textContent=`Use: ${t.name}`;
+  if(t.type==='reflection'){ document.getElementById('useTmplDesc').textContent=`This will open a reflection with ${t.questions?.length||3} questions tailored for "${t.mood||'neutral'}" mood.`; document.getElementById('useTmplPackConfirm').style.display='none'; }
+  else { document.getElementById('useTmplDesc').textContent='Add these items to a trip\'s packing list:'; document.getElementById('useTmplPackConfirm').style.display=''; document.getElementById('useTmplItems').innerHTML=(t.packItems||[]).map(i=>`<div style="font-family:system-ui,sans-serif;font-size:.85rem;padding:4px 0;color:var(--bark)">• ${i}</div>`).join(''); const sel=document.getElementById('useTmplTrip'); sel.innerHTML='<option value="">— Select trip —</option>'+trips.map(tr=>`<option value="${tr._serverId||tr.id}">${tr.emoji} ${tr.name}</option>`).join(''); }
+  openModal('useTemplateModal');
+}
+function confirmUseTemplate(){
+  const t=templates.find(x=>x.templateId===pendingTemplateId); if(!t){ closeModal('useTemplateModal'); return; }
+  t.usageCount=(t.usageCount||0)+1; saveTemplatesToStorage(); renderTemplatesGrid();
+  if(t.type==='reflection'){ closeModal('useTemplateModal'); showView('dashboard',document.querySelectorAll('.tab')[0]); currentMood=t.mood||'neutral'; rqList=t.questions?.length?t.questions:(moodQuestionsMap[currentMood]||[]); rqCurrent=0; document.getElementById('rc-mood').style.display='none'; document.getElementById('rc-questions').classList.add('show'); renderRq(); showToast(`Reflection template "${t.name}" loaded.`); }
+  else { const tripId=document.getElementById('useTmplTrip').value; closeModal('useTemplateModal'); if(tripId&&t.packItems?.length) showToast(`${t.packItems.length} items from "${t.name}" ready. Go to Pack tab to use them.`); }
+}
+
+// ════════════════════════════════
+//  BLOCK 6: CALENDAR MOOD ANALYTICS
+// ════════════════════════════════
+let calMoodFilter='all';
+function filterCalByMood(mood,el){
+  calMoodFilter=mood;
+  document.querySelectorAll('#moodFilterBtns .cfbtn').forEach(b=>b.classList.remove('on')); el.classList.add('on');
+  renderMoodChart();
+}
+function renderMoodChart(){
+  const chartEl=document.getElementById('moodChartArea'); const insEl=document.getElementById('moodInsightsList'); if(!chartEl||!insEl) return;
+  if(reflections.length===0){ chartEl.innerHTML=`<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk);text-align:center;padding:20px 0">No reflection data yet. Add reflections after your trips to see mood patterns here.</p>`; insEl.innerHTML=''; return; }
+  const moods=['excited','calm','tired','stressed','inspired','neutral'];
+  const moodColors={excited:'#f0c040',calm:'#5cb87a',tired:'#a08cbf',stressed:'#e07060',inspired:'#e8a060',neutral:'#b0a090'};
+  const moodEmoji={excited:'🤩',calm:'😌',tired:'😴',stressed:'😰',inspired:'✨',neutral:'😐'};
+  const counts={}; let filtered=reflections;
+  if(calMoodFilter!=='all') filtered=reflections.filter(r=>r.mood===calMoodFilter);
+  moods.forEach(m=>{ counts[m]=reflections.filter(r=>r.mood===m).length; });
+  const maxCount=Math.max(...Object.values(counts),1);
+  chartEl.innerHTML=`<div style="margin-bottom:16px">${moods.map(m=>{ const count=counts[m]; const pct=Math.round((count/maxCount)*100); return `<div class="mood-bar-row"><span class="mood-bar-label">${moodEmoji[m]} ${m}</span><div class="mood-bar-track"><div class="mood-bar-fill" style="width:${pct}%;background:${moodColors[m]}"></div></div><span class="mood-bar-count">${count}</span></div>`; }).join('')}</div>`;
+  const topMood=moods.reduce((a,b)=>counts[a]>=counts[b]?a:b);
+  const stressCount=counts['stressed']||0; const calInsights=[];
+  if(reflections.length>=2) calInsights.push({icon:'🎭',text:`Your most common travel mood: <strong>${topMood}</strong> (${counts[topMood]} trips)`});
+  if(stressCount>0) calInsights.push({icon:'😰',text:`Stressed on <strong>${stressCount}</strong> trip${stressCount>1?'s':''}. Check the Pack tab — adding buffer items helps.`});
+  if((counts['inspired']||0)>0) calInsights.push({icon:'✨',text:`Felt inspired <strong>${counts['inspired']}</strong> time${counts['inspired']>1?'s':''}. Those trips often fuel the best notes.`});
+  if(calMoodFilter!=='all') calInsights.push({icon:'🔍',text:`Showing <strong>${filtered.length}</strong> reflection${filtered.length!==1?'s':''} with mood: ${calMoodFilter}`});
+  insEl.innerHTML=calInsights.length?calInsights.map(i=>`<div class="act-item"><span class="act-icon">${i.icon}</span><p>${i.text}</p></div>`).join(''):`<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">Add more reflections to see mood correlation insights.</p>`;
+}
+
+// Hook showView for new tabs
+const _origShowView = showView;
+function showView(id, btn){
+  _origShowView(id, btn);
+  if(id==='calendar') renderMoodChart();
+  if(id==='reflection') renderReflectionLibrary();
+  if(id==='templates') renderTemplatesGrid();
+  if(id==='dashboard') renderInsights();
+}
+
+// INIT new features
+loadReflectionsFromStorage();
+loadTemplatesFromStorage();
+renderInsights();
 
 // Запуск приложения
 initApp();
