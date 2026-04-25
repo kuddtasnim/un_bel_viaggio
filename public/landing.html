@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Un Bel Viaggio — Your Personal Travel Journal</title>
+<style>
+:root {
+  --sand:#f5f0e8;--cream:#faf7f2;--bark:#5c4033;--clay:#a0522d;
+  --moss:#5a6e50;--dusk:#8b7355;--ink:#2c2318;--mist:#d9cfc2;
+  --warm:#fffdf9;--accent:#c9854a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Georgia',serif;background:var(--cream);color:var(--ink);line-height:1.7;overflow-x:hidden}
+
+/* ── NAV ── */
+nav {
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;height:60px;
+  background:rgba(250,247,242,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--mist);
+}
+.nav-logo {
+  font-family:'Georgia',serif;font-size:1.1rem;color:var(--bark);
+  letter-spacing:.04em;text-decoration:none;
+}
+.nav-logo span{color:var(--accent)}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk);text-decoration:none;transition:.2s}
+.nav-links a:hover{color:var(--bark)}
+.nav-cta{background:var(--bark);color:#fff;padding:9px 22px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.85rem;text-decoration:none;transition:.2s}
+.nav-cta:hover{background:var(--clay);color:#fff}
+
+/* ── HERO ── */
+.hero {
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:80px 40px 60px;text-align:center;
+  background:linear-gradient(160deg,var(--cream) 0%,var(--sand) 60%,#ede5d8 100%);
+  position:relative;overflow:hidden;
+}
+.hero::before {
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(201,133,74,.08) 0%,transparent 70%);
+  pointer-events:none;
+}
+.hero-badge {
+  display:inline-block;font-family:system-ui,sans-serif;font-size:.72rem;
+  text-transform:uppercase;letter-spacing:.12em;color:var(--accent);
+  background:rgba(201,133,74,.12);border:1px solid rgba(201,133,74,.25);
+  padding:5px 16px;border-radius:50px;margin-bottom:28px;
+}
+.hero h1 {
+  font-size:clamp(2.4rem,6vw,4rem);font-weight:400;color:var(--ink);
+  line-height:1.18;margin-bottom:22px;max-width:740px;
+}
+.hero h1 em{color:var(--accent);font-style:italic}
+.hero p {
+  font-family:system-ui,sans-serif;font-size:1.05rem;color:var(--dusk);
+  max-width:520px;margin:0 auto 40px;line-height:1.7;
+}
+.hero-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn-hero{
+  background:var(--bark);color:#fff;padding:14px 32px;border-radius:50px;
+  font-family:system-ui,sans-serif;font-size:.95rem;text-decoration:none;
+  transition:.2s;box-shadow:0 8px 24px rgba(92,64,51,.22);
+}
+.btn-hero:hover{background:var(--clay);transform:translateY(-1px);box-shadow:0 12px 32px rgba(92,64,51,.28)}
+.btn-hero-ghost{
+  border:1.5px solid var(--bark);color:var(--bark);padding:13px 28px;border-radius:50px;
+  font-family:system-ui,sans-serif;font-size:.95rem;text-decoration:none;
+  transition:.2s;background:transparent;
+}
+.btn-hero-ghost:hover{background:var(--bark);color:#fff}
+
+/* ── SOCIAL PROOF ── */
+.proof {
+  padding:20px 40px 60px;text-align:center;
+  background:linear-gradient(160deg,#ede5d8,var(--cream));
+}
+.proof-inner{display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap}
+.proof-stat{text-align:center}
+.proof-num{font-size:1.6rem;color:var(--bark);margin-bottom:2px}
+.proof-label{font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);text-transform:uppercase;letter-spacing:.07em}
+.proof-divider{width:1px;height:40px;background:var(--mist)}
+
+/* ── PROBLEM ── */
+.problem {
+  padding:80px 40px;background:var(--bark);color:#fff;text-align:center;
+}
+.problem h2{font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:400;margin-bottom:16px;line-height:1.3}
+.problem p{font-family:system-ui,sans-serif;font-size:.95rem;opacity:.8;max-width:560px;margin:0 auto}
+
+/* ── FEATURES ── */
+.features{padding:100px 40px;background:var(--cream)}
+.features-header{text-align:center;margin-bottom:64px}
+.features-label{
+  font-family:system-ui,sans-serif;font-size:.72rem;text-transform:uppercase;
+  letter-spacing:.12em;color:var(--accent);margin-bottom:12px;
+}
+.features-header h2{font-size:clamp(1.7rem,3.5vw,2.3rem);font-weight:400;color:var(--ink);max-width:520px;margin:0 auto}
+.features-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:28px;max-width:1080px;margin:0 auto;
+}
+.feat-card{
+  background:var(--warm);border:1px solid var(--mist);border-radius:18px;
+  padding:32px;transition:.2s;
+}
+.feat-card:hover{transform:translateY(-3px);box-shadow:0 12px 36px rgba(92,64,51,.10)}
+.feat-icon{font-size:2rem;margin-bottom:16px;display:block}
+.feat-card h3{font-size:1.05rem;color:var(--bark);margin-bottom:10px;font-weight:400}
+.feat-card p{font-family:system-ui,sans-serif;font-size:.875rem;color:var(--dusk);line-height:1.65}
+.feat-tag{
+  display:inline-block;margin-top:14px;font-family:system-ui,sans-serif;
+  font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--accent);background:rgba(201,133,74,.1);
+  padding:3px 10px;border-radius:50px;
+}
+
+/* ── HOW IT WORKS ── */
+.how{padding:100px 40px;background:var(--sand)}
+.how-header{text-align:center;margin-bottom:64px}
+.how-header h2{font-size:clamp(1.7rem,3.5vw,2.3rem);font-weight:400;color:var(--ink)}
+.steps{display:flex;gap:0;max-width:860px;margin:0 auto;position:relative;flex-wrap:wrap;justify-content:center}
+.steps::before{
+  content:'';position:absolute;top:36px;left:calc(16.5% + 36px);
+  right:calc(16.5% + 36px);height:1.5px;background:var(--mist);
+  display:block;
+}
+.step{flex:1;min-width:200px;text-align:center;padding:0 20px;position:relative;z-index:1}
+.step-num{
+  width:72px;height:72px;border-radius:50%;
+  background:var(--bark);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:system-ui,sans-serif;font-size:1.4rem;
+  margin:0 auto 20px;box-shadow:0 6px 20px rgba(92,64,51,.2);
+}
+.step h3{font-size:.95rem;color:var(--bark);margin-bottom:8px;font-weight:400}
+.step p{font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);line-height:1.6}
+
+/* ── MOOD SYSTEM ── */
+.moods{padding:80px 40px;background:var(--warm);text-align:center}
+.moods h2{font-size:clamp(1.6rem,3vw,2rem);font-weight:400;color:var(--ink);margin-bottom:12px}
+.moods > p{font-family:system-ui,sans-serif;font-size:.9rem;color:var(--dusk);margin-bottom:48px}
+.mood-pills{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;max-width:700px;margin:0 auto}
+.mood-pill{
+  display:flex;align-items:center;gap:8px;
+  background:var(--cream);border:1.5px solid var(--mist);
+  border-radius:50px;padding:10px 22px;
+  font-family:system-ui,sans-serif;font-size:.88rem;color:var(--bark);
+  cursor:default;transition:.2s;
+}
+.mood-pill:hover{border-color:var(--accent);background:rgba(201,133,74,.06);transform:translateY(-1px)}
+
+/* ── CTA BOTTOM ── */
+.cta-bottom{
+  padding:100px 40px;text-align:center;
+  background:linear-gradient(135deg,var(--bark) 0%,var(--clay) 100%);
+  color:#fff;
+}
+.cta-bottom h2{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:400;margin-bottom:16px;line-height:1.25}
+.cta-bottom p{font-family:system-ui,sans-serif;font-size:.95rem;opacity:.8;margin-bottom:40px;max-width:480px;margin-left:auto;margin-right:auto;margin-bottom:40px}
+.btn-cta-white{
+  background:#fff;color:var(--bark);padding:14px 36px;border-radius:50px;
+  font-family:system-ui,sans-serif;font-size:.95rem;text-decoration:none;
+  transition:.2s;box-shadow:0 8px 24px rgba(0,0,0,.15);display:inline-block;
+}
+.btn-cta-white:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(0,0,0,.2)}
+
+/* ── FOOTER ── */
+footer{
+  padding:32px 40px;background:var(--ink);color:rgba(255,255,255,.5);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+.footer-logo{font-family:'Georgia',serif;font-size:.95rem;color:rgba(255,255,255,.7)}
+.footer-copy{font-family:system-ui,sans-serif;font-size:.78rem}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-family:system-ui,sans-serif;font-size:.78rem;color:rgba(255,255,255,.4);text-decoration:none;transition:.2s}
+.footer-links a:hover{color:rgba(255,255,255,.7)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  nav{padding:0 20px}
+  .nav-links{display:none}
+  .hero{padding:100px 24px 60px}
+  .features,.how,.moods,.cta-bottom{padding:64px 24px}
+  .problem{padding:60px 24px}
+  .proof{padding:20px 24px 48px}
+  .proof-divider{display:none}
+  .steps::before{display:none}
+  footer{padding:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="/">Un Bel <span>Viaggio</span></a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="/app" class="nav-cta">Sign in →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div>
+    <div class="hero-badge">✦ Your personal travel companion</div>
+    <h1>Every trip deserves to<br>be <em>remembered well</em></h1>
+    <p>Un Bel Viaggio is a private journal for travellers who want to plan intentionally, reflect honestly, and remember everything that mattered.</p>
+    <div class="hero-actions">
+      <a href="/app" class="btn-hero">Start for free →</a>
+      <a href="#features" class="btn-hero-ghost">See what's inside</a>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section class="proof">
+  <div class="proof-inner">
+    <div class="proof-stat">
+      <div class="proof-num">6</div>
+      <div class="proof-label">Mood modes</div>
+    </div>
+    <div class="proof-divider"></div>
+    <div class="proof-stat">
+      <div class="proof-num">11</div>
+      <div class="proof-label">Planning tabs</div>
+    </div>
+    <div class="proof-divider"></div>
+    <div class="proof-stat">
+      <div class="proof-num">100%</div>
+      <div class="proof-label">Your data, private</div>
+    </div>
+    <div class="proof-divider"></div>
+    <div class="proof-stat">
+      <div class="proof-num">∞</div>
+      <div class="proof-label">Trips & reflections</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem">
+  <h2>You come home from a trip.<br>Three weeks later — it's gone.</h2>
+  <p>The feeling, the small details, what packed well and what didn't, how you actually felt. Most travel apps help you book. Almost none help you <em>keep</em> what you experienced.</p>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="features-header">
+    <div class="features-label">Everything you need</div>
+    <h2>Built for the whole journey — before, during, and after</h2>
+  </div>
+  <div class="features-grid">
+
+    <div class="feat-card">
+      <span class="feat-icon">✈️</span>
+      <h3>Trip Planning</h3>
+      <p>Create trip cards with logistics, timelines, and notes. Everything in one place — no more scattered docs and screenshot folders.</p>
+      <span class="feat-tag">Trips tab</span>
+    </div>
+
+    <div class="feat-card">
+      <span class="feat-icon">🎒</span>
+      <h3>Smart Pack Lists</h3>
+      <p>Build packing lists by category. After you reflect on a trip, the app suggests what to add based on how that trip felt — stressed? It'll suggest buffer items.</p>
+      <span class="feat-tag">Pack tab</span>
+    </div>
+
+    <div class="feat-card">
+      <span class="feat-icon">📓</span>
+      <h3>Reflection Journal</h3>
+      <p>Six mood modes, each with tailored questions. Choose a quick 3-question check-in or a deep 7-question debrief. Then save and search your library.</p>
+      <span class="feat-tag">Reflection tab</span>
+    </div>
+
+    <div class="feat-card">
+      <span class="feat-icon">📅</span>
+      <h3>Mood Calendar</h3>
+      <p>See your travel moods mapped across time. Spot patterns — which destinations energise you, which drain you — and plan smarter next time.</p>
+      <span class="feat-tag">Calendar tab</span>
+    </div>
+
+    <div class="feat-card">
+      <span class="feat-icon">📋</span>
+      <h3>Templates</h3>
+      <p>Save your best reflection formats and packing lists as reusable templates. One click to start a new trip the way you already know works.</p>
+      <span class="feat-tag">Templates tab</span>
+    </div>
+
+    <div class="feat-card">
+      <span class="feat-icon">💡</span>
+      <h3>Personal Insights</h3>
+      <p>Your dashboard learns from your reflections — surfacing mood trends, frequent tags, and patterns across all your trips over time.</p>
+      <span class="feat-tag">Dashboard</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-header">
+    <h2>Three steps, one loop</h2>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>Plan your trip</h3>
+      <p>Add logistics, build your pack list, set reminders. Everything lives in one card.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Travel freely</h3>
+      <p>Go. The app waits. No tracking, no notifications, no interruptions.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Reflect & grow</h3>
+      <p>Come home and write a reflection. Your insights update. Your next trip gets better.</p>
+    </div>
+  </div>
+</section>
+
+<!-- MOOD SYSTEM -->
+<section class="moods">
+  <h2>Six moods. Honest questions.</h2>
+  <p>Pick how your trip felt — and get questions written for exactly that state.</p>
+  <div class="mood-pills">
+    <div class="mood-pill">🤩 Excited</div>
+    <div class="mood-pill">😌 Calm</div>
+    <div class="mood-pill">😴 Tired</div>
+    <div class="mood-pill">😰 Stressed</div>
+    <div class="mood-pill">✨ Inspired</div>
+    <div class="mood-pill">😐 Neutral</div>
+  </div>
+</section>
+
+<!-- CTA BOTTOM -->
+<section class="cta-bottom">
+  <h2>Your next trip<br>deserves a record.</h2>
+  <p>Free to use. Private by design. No ads, no tracking — just your journeys, kept well.</p>
+  <a href="/app" class="btn-cta-white">Create your account →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Un Bel Viaggio</div>
+  <div class="footer-copy">© 2026 — A travel journal, built with care.</div>
+  <div class="footer-links">
+    <a href="/app">Sign in</a>
+  </div>
+</footer>
+
+</body>
+</html>

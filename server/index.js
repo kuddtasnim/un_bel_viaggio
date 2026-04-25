@@ -35,7 +35,17 @@ app.get('/api/config', (req, res) => {
   res.json({ googleMapsKey: process.env.GOOGLE_MAPS_KEY });
 });
 
-// ── Все остальные запросы → index.html (SPA) ───────
+// ── Лендинг (главная страница) ─────────────────────
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'landing.html'));
+});
+
+// ── Приложение ──────────────────────────────────────
+app.get('/app', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+});
+
+// ── Все остальные запросы → приложение (SPA) ───────
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });

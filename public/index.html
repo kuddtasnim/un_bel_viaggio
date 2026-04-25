@@ -3148,15 +3148,7 @@ const moodQuestionsMap = {
   inspired: ["What inspired you the most?","What will you bring to your daily life?","Any creative ideas from this trip?"],
   neutral: ["How was the overall experience?","What was average or expected?","Any small improvement ideas?"]
 };
-const deepQs = [
-  "What's one moment you want to hold onto — a person, a light, a sound?",
-  "Did anything catch your eye unexpectedly? What was happening around you?",
-  "What did you notice about how people lived, moved, or used the space?",
-  "What feeling kept coming back — not what you did, but what you felt?",
-  "Was there a moment where you almost held back — and then didn't?",
-  "What surprised you about yourself on this trip?",
-  "If you could send a postcard of one moment from this trip, what image would be on it?"
-];
+// deepQs already declared above — no duplicate needed
 
 // ════════════════════════════════
 //  REFLECTIONS — LOCAL + LIBRARY
@@ -3277,7 +3269,7 @@ function showToast(msg,duration=3500){
 // ════════════════════════════════
 //  REFLECTION — mood → questions
 // ════════════════════════════════
-let rqAnswers=[];
+// rqAnswers already declared above
 function buildReflectionTags(mood,answers){
   const moodTag={excited:'Exciting',calm:'Calm',tired:'Low energy',stressed:'Challenging',inspired:'Inspiring',neutral:'Reflective'}[mood]||mood;
   const tags=[moodTag]; const combined=answers.join(' ').toLowerCase();
