@@ -2028,8 +2028,11 @@ function showView(id, btn) {
   document.getElementById('v-' + id).classList.add('active');
   if(btn) btn.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
-  if(id==='calendar') { renderCalendar(); renderReminders(); }
+  if(id==='calendar') { renderCalendar(); renderReminders(); renderMoodChart(); }
   if(id==='trips') renderTripsList();
+  if(id==='reflection') renderReflectionLibrary();
+  if(id==='templates') renderTemplatesGrid();
+  if(id==='dashboard') renderInsights();
 }
 
 // ════════════════════════════════
@@ -3410,16 +3413,6 @@ function renderMoodChart(){
   if((counts['inspired']||0)>0) calInsights.push({icon:'✨',text:`Felt inspired <strong>${counts['inspired']}</strong> time${counts['inspired']>1?'s':''}. Those trips often fuel the best notes.`});
   if(calMoodFilter!=='all') calInsights.push({icon:'🔍',text:`Showing <strong>${filtered.length}</strong> reflection${filtered.length!==1?'s':''} with mood: ${calMoodFilter}`});
   insEl.innerHTML=calInsights.length?calInsights.map(i=>`<div class="act-item"><span class="act-icon">${i.icon}</span><p>${i.text}</p></div>`).join(''):`<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">Add more reflections to see mood correlation insights.</p>`;
-}
-
-// Hook showView for new tabs
-const _origShowView = showView;
-function showView(id, btn){
-  _origShowView(id, btn);
-  if(id==='calendar') renderMoodChart();
-  if(id==='reflection') renderReflectionLibrary();
-  if(id==='templates') renderTemplatesGrid();
-  if(id==='dashboard') renderInsights();
 }
 
 // INIT new features
