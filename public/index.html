@@ -675,7 +675,7 @@ nav{
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
               <button class="btn-ghost" style="font-size:.82rem" onclick="resetReflect()">Reflect again</button>
               <button class="btn-accent" style="font-size:.82rem;padding:9px 18px" onclick="saveCurrentReflectionAsTemplate()">Save as template</button>
-              <button class="btn-ghost" style="font-size:.82rem" onclick="showView('reflection',document.querySelectorAll('.tab')[5])">View library →</button>
+              <button class="btn-ghost" style="font-size:.82rem" onclick="showView('reflection',document.querySelectorAll('.tab')[4])">View library →</button>
             </div>
           </div>
         </div>
@@ -694,6 +694,9 @@ nav{
         <a onclick="showView('kb',document.querySelectorAll('.tab')[5])">all →</a>
       </div>
       <div id="insightsContainer"></div>
+
+      <!-- LAST TRIP SURVEY -->
+      <div id="tripSurveyBlock" style="display:none;margin-top:20px;background:var(--warm);border:1.5px solid var(--mist);border-radius:var(--r);padding:20px"></div>
     </div>
 
     <!-- RIGHT SIDEBAR: chronological trips + mini-cal -->
@@ -803,27 +806,87 @@ nav{
 
     <!-- Overview -->
     <div class="td-panel active" id="tp-overview">
-      <div class="section-header-row">
-        <p class="label-sm" style="margin-bottom:0">Details</p>
-        <button class="section-edit" onclick="toggleEdit('tdInfoGrid',this)">✎ Edit</button>
-      </div>
-      <div class="info-grid" id="tdInfoGrid"></div>
-      <div style="background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:20px;margin-bottom:16px">
-        <div class="section-header-row">
-          <p class="label-sm" style="margin-bottom:0">Description</p>
-          <button class="section-edit" onclick="toggleEdit('tdDesc',this)">✎ Edit</button>
+      <!-- Meta bar: dates + status -->
+      <div id="ovMetaBar" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px"></div>
+
+      <!-- About section: view / edit toggle -->
+      <div class="ov-card" id="ovAboutCard">
+        <div class="section-header-row" style="margin-bottom:12px">
+          <p class="label-sm" style="margin-bottom:0">About this trip</p>
+          <button class="section-edit" id="ovEditBtn" onclick="toggleOvEdit()">✎ Edit</button>
         </div>
-        <p id="tdDesc" style="font-size:.92rem;color:#5a4a3a;line-height:1.65"></p>
+        <!-- View mode -->
+        <div id="ovViewMode">
+          <div class="ov-field-display" id="ovDescDisp"></div>
+          <div class="ov-field-display" id="ovPurposeDisp"></div>
+          <div class="ov-field-display" id="ovAccomDisp"></div>
+          <div class="ov-field-display" id="ovPlacesDisp"></div>
+        </div>
+        <!-- Edit mode -->
+        <div id="ovEditMode" style="display:none">
+          <div class="ov-edit-grid">
+            <div class="ov-ef"><label>Start date</label><input type="date" id="ovStartDate"/></div>
+            <div class="ov-ef"><label>End date</label><input type="date" id="ovEndDate"/></div>
+            <div class="ov-ef"><label>Status</label>
+              <select id="ovStatus">
+                <option value="plan">Planned</option>
+                <option value="soon">Soon</option>
+                <option value="idea">Idea</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
+          </div>
+          <div class="ov-ef"><label>Brief description</label><textarea id="ovDesc" rows="2" placeholder="A few words about this trip..."></textarea></div>
+          <div class="ov-ef"><label>Purpose</label><input type="text" id="ovPurpose" placeholder="Leisure, work, family visit, conference..."/></div>
+          <div class="ov-ef"><label>Accommodation</label><input type="text" id="ovAccom" placeholder="Hotel name, Airbnb, hostel address..."/></div>
+          <div class="ov-ef"><label>Places to visit</label><textarea id="ovPlaces" rows="2" placeholder="Museums, restaurants, neighbourhoods — one per line"></textarea></div>
+          <button class="btn-primary" style="margin-top:12px;font-size:.85rem" onclick="saveOvEdit()">✓ Save</button>
+        </div>
+      </div>
+
+      <!-- Flights section -->
+      <div class="ov-card" style="margin-top:14px" id="ovFlightCard">
+        <div class="section-header-row" style="margin-bottom:12px">
+          <p class="label-sm" style="margin-bottom:0">Flights</p>
+          <button class="section-edit" id="flEditBtn" onclick="toggleFlightEdit()">✎ Edit</button>
+        </div>
+        <!-- View mode: boarding pass cards -->
+        <div id="flViewMode"></div>
+        <!-- Edit mode -->
+        <div id="flEditMode" style="display:none">
+          <div style="margin-bottom:14px">
+            <div class="fl-edit-label">✈ Outbound</div>
+            <div class="fl-edit-grid">
+              <input id="flOutNo" type="text" placeholder="Flight no. e.g. FR3421"/>
+              <input id="flOutDep" type="text" placeholder="From e.g. Rome FCO"/>
+              <input id="flOutDepTime" type="time"/>
+              <input id="flOutArr" type="text" placeholder="To e.g. London LHR"/>
+              <input id="flOutArrTime" type="time"/>
+            </div>
+          </div>
+          <div>
+            <div class="fl-edit-label">✈ Return</div>
+            <div class="fl-edit-grid">
+              <input id="flRetNo" type="text" placeholder="Flight no."/>
+              <input id="flRetDep" type="text" placeholder="From"/>
+              <input id="flRetDepTime" type="time"/>
+              <input id="flRetArr" type="text" placeholder="To"/>
+              <input id="flRetArrTime" type="time"/>
+            </div>
+          </div>
+          <button class="btn-primary" style="margin-top:12px;font-size:.85rem" onclick="saveFlightEdit()">✓ Save flights</button>
+        </div>
       </div>
     </div>
 
     <!-- Logistics -->
     <div class="td-panel" id="tp-logistics">
-      <div class="section-header-row">
+      <div class="section-header-row" style="margin-bottom:14px">
         <p class="label-sm" style="margin-bottom:0">Key Logistics</p>
-        <button class="section-edit" onclick="toggleEdit('tdLogistics',this)">✎ Edit</button>
+        <button class="btn-ghost" style="padding:6px 14px;font-size:.78rem;border-radius:50px" onclick="addLogEntry()">+ Add</button>
       </div>
-      <ul class="logistics-list" id="tdLogistics"></ul>
+      <div id="logEntries" style="display:flex;flex-direction:column;gap:12px"></div>
+      <p id="logEmpty" style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk);padding:16px 0">No logistics yet. Add your first leg — transport, transfers, check-ins.</p>
     </div>
 
     <!-- Packing (embedded) -->
@@ -888,7 +951,12 @@ nav{
 
 <!-- ═══════════════════ CALENDAR ═══════════════════ -->
 <div class="view" id="v-calendar">
-  <div class="page-header"><h1>Calendar</h1><p>Your travel timeline and stats</p></div>
+  <div class="page-header">
+    <h1>Calendar & Stats</h1>
+    <p id="calTodayLabel" style="font-size:.95rem;color:var(--bark)"></p>
+  </div>
+
+  <!-- Calendar grid -->
   <div class="cal-nav">
     <button class="cal-arrow" onclick="changeMonth(-1)">← Prev</button>
     <h2 id="calMonthLabel"></h2>
@@ -896,48 +964,71 @@ nav{
   </div>
   <div class="cal-grid">
     <div class="cal-days-header">
-      <div class="cal-day-name">Mon</div>
-      <div class="cal-day-name">Tue</div>
-      <div class="cal-day-name">Wed</div>
-      <div class="cal-day-name">Thu</div>
-      <div class="cal-day-name">Fri</div>
-      <div class="cal-day-name weekend">Sat</div>
-      <div class="cal-day-name weekend">Sun</div>
+      <div class="cal-day-name">Mon</div><div class="cal-day-name">Tue</div><div class="cal-day-name">Wed</div>
+      <div class="cal-day-name">Thu</div><div class="cal-day-name">Fri</div>
+      <div class="cal-day-name weekend">Sat</div><div class="cal-day-name weekend">Sun</div>
     </div>
     <div class="cal-cells" id="calCells"></div>
   </div>
 
+  <!-- Reminders -->
   <div class="reminders-section">
     <div class="rem-head">
       <div>
-        <h3 style="margin:0;font-family:'Fraunces',serif;font-size:1.1rem;color:var(--bark)">Reminders</h3>
-        <div style="font-family:system-ui,sans-serif;font-size:.75rem;color:var(--ink-light);margin-top:2px">Never forget to buy tickets or book a hotel</div>
+        <h3 style="margin:0;font-family:'Georgia',serif;font-size:1.1rem;color:var(--bark)">Reminders</h3>
+        <div style="font-family:system-ui,sans-serif;font-size:.75rem;color:var(--dusk);margin-top:2px">Never miss a booking deadline</div>
       </div>
       <button class="btn-primary" style="padding:8px 18px;font-size:.8rem" onclick="openReminderModal()">+ Add reminder</button>
     </div>
     <div class="rem-list" id="remList"></div>
   </div>
 
-  <div class="period-filter" id="periodFilter">
-    <button class="pfbtn" data-period="week" onclick="setPeriod('week',this)">Week</button>
-    <button class="pfbtn" data-period="month" onclick="setPeriod('month',this)">Month</button>
-    <button class="pfbtn" data-period="year" onclick="setPeriod('year',this)">Year</button>
-    <button class="pfbtn active" data-period="all" onclick="setPeriod('all',this)">All time</button>
+  <!-- ── TRAVEL STATS DASHBOARD ── -->
+  <div style="margin-top:28px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+      <div>
+        <div class="label-sm" style="margin-bottom:2px">Travel statistics</div>
+        <div style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk)">Insights to help you plan smarter</div>
+      </div>
+      <!-- Period filter -->
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="cfbtn on" onclick="setStatPeriod('all',this)">All time</button>
+        <button class="cfbtn" onclick="setStatPeriod('year',this)">This year</button>
+        <button class="cfbtn" onclick="setStatPeriod('6m',this)">6 months</button>
+        <button class="cfbtn" onclick="setStatPeriod('3m',this)">3 months</button>
+      </div>
+    </div>
+
+    <!-- Stat cards row -->
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <!-- Last trip summary -->
+    <div id="lastTripBanner" style="display:none;margin-top:16px;background:linear-gradient(135deg,var(--bark),var(--clay));border-radius:var(--r);padding:20px 24px;color:#fff">
+      <div style="font-family:system-ui,sans-serif;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;opacity:.7;margin-bottom:6px">Last trip</div>
+      <div id="lastTripName" style="font-size:1.15rem;margin-bottom:4px"></div>
+      <div id="lastTripMeta" style="font-family:system-ui,sans-serif;font-size:.82rem;opacity:.8"></div>
+    </div>
+
+    <!-- Spend breakdown -->
+    <div id="spendBlock" style="display:none;margin-top:16px">
+      <div class="label-sm" style="margin-bottom:10px">Average spend breakdown</div>
+      <div id="spendBars" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <!-- Transport time insights -->
+    <div id="transitBlock" style="display:none;margin-top:16px">
+      <div class="label-sm" style="margin-bottom:10px">Your transit times by city</div>
+      <div id="transitList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
+
+    <!-- Trip list filtered -->
+    <div style="margin-top:20px">
+      <div class="label-sm" style="margin-bottom:10px">Trips in period</div>
+      <div id="calTripList" style="display:flex;flex-direction:column;gap:8px"></div>
+    </div>
   </div>
 
-  <div class="cal-stats mb-8">
-    <div class="cs-card"><div class="csv" id="calTrips">0</div><div class="csl" id="calTripsLabel">trips</div></div>
-    <div class="cs-card"><div class="csv" id="calDays">0</div><div class="csl">days travelling</div></div>
-    <div class="cs-card"><div class="csv" id="calCountries">0</div><div class="csl">countries</div></div>
-    <div class="cs-card"><div class="csv" id="calBudget">—</div><div class="csl">avg daily budget</div></div>
-  </div>
-
-  <div class="actionable">
-    <div class="act-head" id="actHead">Actionable insights for next trips</div>
-    <div class="act-list" id="actList"></div>
-  </div>
-
-  <!-- BLOCK 6: Calendar mood analytics -->
+  <!-- ── MOOD ANALYTICS ── -->
   <div style="margin-top:24px;background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);overflow:hidden">
     <div style="background:var(--sand);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
       <div>
@@ -959,11 +1050,19 @@ nav{
       <div id="moodInsightsList" style="display:flex;flex-direction:column;gap:8px"></div>
     </div>
   </div>
+
+  <!-- ── ACTIONABLE INSIGHTS (kept) ── -->
+  <div class="actionable" style="margin-top:24px">
+    <div class="act-head" id="actHead">Actionable insights</div>
+    <div class="act-list" id="actList"></div>
+  </div>
 </div>
 
 <!-- ═══════════════════ PACKING LIST ═══════════════════ -->
 <div class="view" id="v-pack">
   <div class="page-header"><h1>Pack</h1><p>Smart packing list built around your trip</p></div>
+  <!-- Pack templates strip -->
+  <div id="packTemplatesStrip" style="margin-bottom:20px"></div>
   <div class="pack-layout">
     <!-- Form -->
     <div class="pack-form-card">
@@ -1494,6 +1593,65 @@ nav{
 /* ── TOAST ── */
 .toast{background:var(--bark);color:#fff;padding:12px 20px;border-radius:50px;font-family:system-ui,sans-serif;font-size:.85rem;box-shadow:0 4px 20px rgba(44,35,24,.25);pointer-events:auto;animation:toastIn .3s ease;max-width:420px;text-align:center}
 @keyframes toastIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TRIP DETAIL OVERVIEW ── */
+.ov-card{background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:20px;margin-bottom:14px}
+.ov-edit-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px}
+@media(max-width:560px){.ov-edit-grid{grid-template-columns:1fr 1fr}}
+.ov-ef{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.ov-ef label{font-family:system-ui,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent)}
+.ov-ef input,.ov-ef textarea,.ov-ef select{font-family:system-ui,sans-serif;font-size:.88rem;padding:9px 12px;border:1.5px solid var(--mist);border-radius:10px;background:var(--cream);color:var(--ink);transition:.15s}
+.ov-ef input:focus,.ov-ef textarea:focus,.ov-ef select:focus{outline:none;border-color:var(--accent)}
+.ov-ef textarea{resize:vertical;min-height:60px}
+.ov-field-display{font-family:system-ui,sans-serif;font-size:.88rem;color:var(--ink);margin-bottom:10px;line-height:1.55}
+.ov-field-display strong{color:var(--bark);font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:2px}
+.ov-meta-pill{display:inline-flex;align-items:center;gap:6px;background:var(--sand);border:1px solid var(--mist);border-radius:50px;padding:6px 14px;font-family:system-ui,sans-serif;font-size:.8rem;color:var(--bark)}
+/* boarding pass */
+.boarding-pass{background:var(--cream);border:1.5px solid var(--mist);border-radius:14px;padding:16px 20px;margin-bottom:10px;position:relative;overflow:hidden}
+.boarding-pass::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--bark),var(--accent))}
+.bp-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bp-airport{font-size:1.3rem;font-weight:600;color:var(--bark);letter-spacing:.03em}
+.bp-arrow{font-size:.9rem;color:var(--dusk);flex:1;text-align:center}
+.bp-time{font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk)}
+.bp-flno{font-family:system-ui,sans-serif;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:8px}
+.bp-label{font-family:system-ui,sans-serif;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dusk)}
+.fl-edit-grid{display:grid;grid-template-columns:1fr 1fr 80px 1fr 80px;gap:8px;margin-top:8px}
+@media(max-width:560px){.fl-edit-grid{grid-template-columns:1fr 1fr}}
+.fl-edit-label{font-family:system-ui,sans-serif;font-size:.75rem;font-weight:600;color:var(--bark);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
+.fl-edit-grid input{font-family:system-ui,sans-serif;font-size:.83rem;padding:8px 10px;border:1.5px solid var(--mist);border-radius:9px;background:var(--cream);color:var(--ink)}
+/* logistics cards */
+.log-card{background:var(--warm);border:1px solid var(--mist);border-radius:14px;padding:16px;position:relative}
+.log-card-row{display:grid;grid-template-columns:80px 1fr 1fr 1fr;gap:8px;align-items:start}
+@media(max-width:560px){.log-card-row{grid-template-columns:1fr 1fr}}
+.log-input{font-family:system-ui,sans-serif;font-size:.85rem;padding:7px 10px;border:1.5px solid var(--mist);border-radius:9px;background:var(--cream);color:var(--ink);width:100%}
+.log-input:focus{outline:none;border-color:var(--accent)}
+.log-field-label{font-family:system-ui,sans-serif;font-size:.67rem;text-transform:uppercase;letter-spacing:.07em;color:var(--accent);margin-bottom:3px}
+.log-delete{position:absolute;top:10px;right:10px;background:none;border:none;font-size:.85rem;cursor:pointer;color:var(--dusk);opacity:.6}
+.log-delete:hover{opacity:1;color:#c0392b}
+/* stats grid */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:0}
+@media(max-width:560px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+.stat-card{background:var(--warm);border:1px solid var(--mist);border-radius:14px;padding:16px;text-align:center}
+.stat-num{font-size:1.6rem;color:var(--bark);line-height:1.1;margin-bottom:4px}
+.stat-label{font-family:system-ui,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dusk)}
+.cal-trip-row{background:var(--warm);border:1px solid var(--mist);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:12px;font-family:system-ui,sans-serif;font-size:.85rem}
+.cal-trip-row .ctr-emoji{font-size:1.2rem}
+.cal-trip-row .ctr-name{flex:1;font-weight:500;color:var(--bark)}
+.cal-trip-row .ctr-date{font-size:.78rem;color:var(--dusk)}
+/* spend bar */
+.spend-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.spend-label{font-family:system-ui,sans-serif;font-size:.82rem;color:var(--bark);width:100px;flex-shrink:0}
+.spend-bar-track{flex:1;height:10px;background:var(--mist);border-radius:10px;overflow:hidden}
+.spend-bar-fill{height:100%;background:var(--accent);border-radius:10px;transition:width .5s}
+.spend-val{font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);width:60px;text-align:right}
+/* survey */
+.survey-q{margin-bottom:14px}
+.survey-q label{font-family:system-ui,sans-serif;font-size:.8rem;font-weight:600;color:var(--bark);display:block;margin-bottom:5px}
+.survey-q input,.survey-q select{font-family:system-ui,sans-serif;font-size:.88rem;padding:8px 12px;border:1.5px solid var(--mist);border-radius:10px;background:var(--cream);color:var(--ink);width:100%}
+.survey-q input:focus,.survey-q select:focus{outline:none;border-color:var(--accent)}
+/* pack templates strip */
+.pack-tmpl-card{display:inline-flex;align-items:center;gap:8px;background:var(--warm);border:1.5px solid var(--mist);border-radius:50px;padding:8px 18px;font-family:system-ui,sans-serif;font-size:.83rem;color:var(--bark);cursor:pointer;transition:.2s;white-space:nowrap}
+.pack-tmpl-card:hover{border-color:var(--accent);background:rgba(201,133,74,.07);transform:translateY(-1px)}
 </style>
 
 <script>
@@ -1641,8 +1799,7 @@ async function logout() {
   await fetch('/api/auth/logout', { method: 'POST' });
   currentUser = null;
   trips = [];
-  toggleUserMenu(false);
-  showAuthOverlay();
+  window.location.href = '/';
 }
 
 async function exportData() {
@@ -2786,7 +2943,7 @@ function toggleEdit(id, btn){
 const tripGradients = ['linear-gradient(135deg,#f5e6c8,#e8c99a)','linear-gradient(135deg,#c8dde8,#a3c4d8)','linear-gradient(135deg,#e8d4c8,#c8a898)','linear-gradient(135deg,#c8d4e8,#a0b4cc)','linear-gradient(135deg,#e8dcc8,#d4c0a0)','linear-gradient(135deg,#e8c8c8,#d4a0a0)'];
 function statusBadge(s){
   if(s==='soon') return '<span class="tc-badge b-soon">Soon</span>';
-  if(s==='planned') return '<span class="tc-badge b-plan">Planned</span>';
+  if(s==='planned'||s==='plan') return '<span class="tc-badge b-plan">Planned</span>';
   if(s==='idea') return '<span class="tc-badge b-idea">Idea</span>';
   return '<span class="tc-badge b-done">Done</span>';
 }
@@ -2799,7 +2956,7 @@ function tripCardHtml(t, gi){
   </div>`;
 }
 function renderTripsList(){
-  const upcoming = trips.filter(t => t.status==='soon' || t.status==='planned' || t.status==='idea');
+  const upcoming = trips.filter(t => t.status==='soon' || t.status==='planned' || t.status==='plan' || t.status==='idea');
   const past = trips.filter(t => t.status==='done');
   // sort upcoming by date asc, past by date desc
   upcoming.sort((a,b)=> (a.date||'').localeCompare(b.date||''));
@@ -3410,6 +3567,537 @@ function renderMoodChart(){
 // INIT new features
 loadReflectionsFromStorage();
 loadTemplatesFromStorage();
+renderInsights();
+
+// ════════════════════════════════════════════════════════
+//  TRIP DETAIL — OVERVIEW & LOGISTICS (new structured UI)
+// ════════════════════════════════════════════════════════
+
+let _ovEditServerId = null;
+
+function loadTripExtraData(serverId) {
+  try { return JSON.parse(localStorage.getItem('ub_trip_extra_' + serverId) || '{}'); } catch(e){ return {}; }
+}
+function saveTripExtraData(serverId, data) {
+  try { localStorage.setItem('ub_trip_extra_' + serverId, JSON.stringify(data)); } catch(e){}
+}
+
+function renderOvMetaBar(t, extra) {
+  const bar = document.getElementById('ovMetaBar'); if(!bar) return;
+  const pills = [];
+  if(t.start_date || extra.start_date) {
+    const sd = extra.start_date || t.start_date;
+    const ed = extra.end_date || t.end_date;
+    const fmt = d => new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    pills.push(`<span class="ov-meta-pill">📅 ${fmt(sd)}${ed?' – '+fmt(ed):''}</span>`);
+    if(sd && ed) {
+      const days = Math.round((new Date(ed)-new Date(sd))/86400000)+1;
+      pills.push(`<span class="ov-meta-pill">🕐 ${days} day${days!==1?'s':''}</span>`);
+    }
+  }
+  const statusLabel = {plan:'Planned',soon:'Soon',idea:'Idea',done:'Done',planned:'Planned'}[t.status]||t.status;
+  const statusColor = {soon:'#f0c040',plan:'#5cb87a',planned:'#5cb87a',idea:'#b0a090',done:'var(--mist)'}[t.status]||'var(--mist)';
+  pills.push(`<span class="ov-meta-pill" style="background:${statusColor};border-color:${statusColor};color:#fff">${statusLabel}</span>`);
+  bar.innerHTML = pills.join('');
+}
+
+function renderOvViewMode(t, extra) {
+  const fields = [
+    {id:'ovDescDisp', label:'Description', val: extra.desc || t.desc || t.description || ''},
+    {id:'ovPurposeDisp', label:'Purpose', val: extra.purpose || ''},
+    {id:'ovAccomDisp', label:'Accommodation', val: extra.accom || ''},
+    {id:'ovPlacesDisp', label:'Places to visit', val: extra.places || ''}
+  ];
+  fields.forEach(f => {
+    const el = document.getElementById(f.id); if(!el) return;
+    el.style.display = f.val ? '' : 'none';
+    el.innerHTML = f.val ? `<strong>${f.label}</strong>${f.val.replace(/\n/g,'<br>')}` : '';
+  });
+  const anyContent = fields.some(f => f.val);
+  if(!anyContent) {
+    document.getElementById('ovDescDisp').style.display='';
+    document.getElementById('ovDescDisp').innerHTML='<span style="color:var(--dusk);font-size:.85rem">No details yet — click ✎ Edit to add information about this trip.</span>';
+  }
+}
+
+function renderFlightViewMode(extra) {
+  const el = document.getElementById('flViewMode'); if(!el) return;
+  const out = extra.flOut || {};
+  const ret = extra.flRet || {};
+  const hasOut = out.dep || out.arr;
+  const hasRet = ret.dep || ret.arr;
+  if(!hasOut && !hasRet) {
+    el.innerHTML = '<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">No flight info yet — click ✎ Edit to add your flights.</p>';
+    return;
+  }
+  const bp = (f, label) => {
+    if(!f.dep && !f.arr) return '';
+    return `<div class="boarding-pass">
+      <div class="bp-flno">${label}${f.no ? ' · ' + f.no : ''}</div>
+      <div class="bp-row">
+        <div><div class="bp-airport">${f.dep||'—'}</div><div class="bp-time">${f.depTime||''}</div></div>
+        <div class="bp-arrow">——✈——</div>
+        <div style="text-align:right"><div class="bp-airport">${f.arr||'—'}</div><div class="bp-time">${f.arrTime||''}</div></div>
+      </div>
+    </div>`;
+  };
+  el.innerHTML = bp(out,'Outbound') + bp(ret,'Return');
+}
+
+function populateOvEditMode(t, extra) {
+  const v = k => document.getElementById(k);
+  if(v('ovStartDate')) v('ovStartDate').value = extra.start_date || t.start_date || '';
+  if(v('ovEndDate')) v('ovEndDate').value = extra.end_date || t.end_date || '';
+  if(v('ovStatus')) v('ovStatus').value = t.status || 'plan';
+  if(v('ovDesc')) v('ovDesc').value = extra.desc || t.desc || t.description || '';
+  if(v('ovPurpose')) v('ovPurpose').value = extra.purpose || '';
+  if(v('ovAccom')) v('ovAccom').value = extra.accom || '';
+  if(v('ovPlaces')) v('ovPlaces').value = extra.places || '';
+}
+
+function toggleOvEdit() {
+  const view = document.getElementById('ovViewMode');
+  const edit = document.getElementById('ovEditMode');
+  const btn = document.getElementById('ovEditBtn');
+  const isEdit = edit.style.display !== 'none';
+  if(isEdit) {
+    edit.style.display = 'none';
+    view.style.display = '';
+    btn.innerHTML = '✎ Edit';
+    btn.classList.remove('on');
+  } else {
+    const t = trips.find(x => (x._serverId||x.id) === _ovEditServerId) || {};
+    const extra = loadTripExtraData(_ovEditServerId);
+    populateOvEditMode(t, extra);
+    edit.style.display = '';
+    view.style.display = 'none';
+    btn.innerHTML = '✕ Cancel';
+    btn.classList.add('on');
+  }
+}
+
+function saveOvEdit() {
+  const extra = loadTripExtraData(_ovEditServerId);
+  const v = k => document.getElementById(k);
+  extra.start_date = v('ovStartDate').value;
+  extra.end_date = v('ovEndDate').value;
+  extra.desc = v('ovDesc').value.trim();
+  extra.purpose = v('ovPurpose').value.trim();
+  extra.accom = v('ovAccom').value.trim();
+  extra.places = v('ovPlaces').value.trim();
+  const newStatus = v('ovStatus').value;
+  saveTripExtraData(_ovEditServerId, extra);
+  // patch local trip status
+  const t = trips.find(x => (x._serverId||x.id) === _ovEditServerId);
+  if(t) {
+    t.status = newStatus;
+    // also persist via API
+    fetch(`/api/trips/${_ovEditServerId}`, {
+      method:'PUT', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ name:t.name, emoji:t.emoji, status:newStatus,
+        start_date: extra.start_date||null, end_date: extra.end_date||null,
+        description: extra.desc })
+    }).catch(()=>{});
+  }
+  document.getElementById('ovEditMode').style.display = 'none';
+  document.getElementById('ovViewMode').style.display = '';
+  document.getElementById('ovEditBtn').innerHTML = '✎ Edit';
+  document.getElementById('ovEditBtn').classList.remove('on');
+  renderOvMetaBar(t||{}, extra);
+  renderOvViewMode(t||{}, extra);
+  showToast('Details saved');
+}
+
+function toggleFlightEdit() {
+  const view = document.getElementById('flViewMode');
+  const edit = document.getElementById('flEditMode');
+  const btn = document.getElementById('flEditBtn');
+  const isEdit = edit.style.display !== 'none';
+  if(isEdit) {
+    edit.style.display = 'none'; view.style.display = '';
+    btn.innerHTML = '✎ Edit'; btn.classList.remove('on');
+  } else {
+    const extra = loadTripExtraData(_ovEditServerId);
+    const f = k => document.getElementById(k);
+    const o = extra.flOut||{}, r = extra.flRet||{};
+    f('flOutNo').value=o.no||''; f('flOutDep').value=o.dep||'';
+    f('flOutDepTime').value=o.depTime||''; f('flOutArr').value=o.arr||'';
+    f('flOutArrTime').value=o.arrTime||'';
+    f('flRetNo').value=r.no||''; f('flRetDep').value=r.dep||'';
+    f('flRetDepTime').value=r.depTime||''; f('flRetArr').value=r.arr||'';
+    f('flRetArrTime').value=r.arrTime||'';
+    edit.style.display = ''; view.style.display = 'none';
+    btn.innerHTML = '✕ Cancel'; btn.classList.add('on');
+  }
+}
+
+function saveFlightEdit() {
+  const extra = loadTripExtraData(_ovEditServerId);
+  const f = k => document.getElementById(k).value.trim();
+  extra.flOut = { no:f('flOutNo'), dep:f('flOutDep'), depTime:f('flOutDepTime'), arr:f('flOutArr'), arrTime:f('flOutArrTime') };
+  extra.flRet = { no:f('flRetNo'), dep:f('flRetDep'), depTime:f('flRetDepTime'), arr:f('flRetArr'), arrTime:f('flRetArrTime') };
+  saveTripExtraData(_ovEditServerId, extra);
+  document.getElementById('flEditMode').style.display = 'none';
+  document.getElementById('flViewMode').style.display = '';
+  document.getElementById('flEditBtn').innerHTML = '✎ Edit';
+  document.getElementById('flEditBtn').classList.remove('on');
+  renderFlightViewMode(extra);
+  showToast('Flights saved');
+}
+
+// ── LOGISTICS ──
+function loadLogEntries(serverId) {
+  try { return JSON.parse(localStorage.getItem('ub_logistics_' + serverId) || '[]'); } catch(e){ return []; }
+}
+function saveLogEntries(serverId, entries) {
+  try { localStorage.setItem('ub_logistics_' + serverId, JSON.stringify(entries)); } catch(e){}
+}
+
+const transportIcons = { flight:'✈️', train:'🚆', bus:'🚌', car:'🚗', taxi:'🚕', metro:'🚇', walk:'🚶', ferry:'⛴️', other:'📍' };
+
+function renderLogEntries() {
+  const container = document.getElementById('logEntries');
+  const emptyEl = document.getElementById('logEmpty');
+  if(!container) return;
+  const entries = loadLogEntries(_ovEditServerId);
+  if(entries.length === 0) {
+    container.innerHTML = '';
+    if(emptyEl) emptyEl.style.display = '';
+    return;
+  }
+  if(emptyEl) emptyEl.style.display = 'none';
+  container.innerHTML = entries.map((e, i) => `
+    <div class="log-card">
+      <button class="log-delete" onclick="deleteLogEntry(${i})" title="Remove">✕</button>
+      <div class="log-card-row">
+        <div>
+          <div class="log-field-label">Time</div>
+          <input class="log-input" type="time" value="${e.time||''}" onchange="updateLogField(${i},'time',this.value)"/>
+        </div>
+        <div>
+          <div class="log-field-label">Transport</div>
+          <select class="log-input" onchange="updateLogField(${i},'type',this.value)">
+            ${Object.keys(transportIcons).map(k=>`<option value="${k}"${e.type===k?' selected':''}>${transportIcons[k]} ${k.charAt(0).toUpperCase()+k.slice(1)}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <div class="log-field-label">From → detail</div>
+          <input class="log-input" type="text" value="${e.from||''}" placeholder="e.g. Rome" onchange="updateLogField(${i},'from',this.value)" style="margin-bottom:4px"/>
+          <input class="log-input" type="text" value="${e.fromDetail||''}" placeholder="e.g. Roma Termini" onchange="updateLogField(${i},'fromDetail',this.value)"/>
+        </div>
+        <div>
+          <div class="log-field-label">To → detail</div>
+          <input class="log-input" type="text" value="${e.to||''}" placeholder="e.g. Bologna" onchange="updateLogField(${i},'to',this.value)" style="margin-bottom:4px"/>
+          <input class="log-input" type="text" value="${e.toDetail||''}" placeholder="e.g. Bologna Centrale" onchange="updateLogField(${i},'toDetail',this.value)"/>
+        </div>
+      </div>
+      <div style="margin-top:8px">
+        <div class="log-field-label">Notes</div>
+        <input class="log-input" type="text" value="${e.notes||''}" placeholder="Platform, booking ref, anything useful..." onchange="updateLogField(${i},'notes',this.value)"/>
+      </div>
+    </div>`).join('');
+}
+
+function addLogEntry() {
+  const entries = loadLogEntries(_ovEditServerId);
+  entries.push({ time:'', type:'train', from:'', fromDetail:'', to:'', toDetail:'', notes:'' });
+  saveLogEntries(_ovEditServerId, entries);
+  renderLogEntries();
+}
+
+function deleteLogEntry(i) {
+  const entries = loadLogEntries(_ovEditServerId);
+  entries.splice(i, 1);
+  saveLogEntries(_ovEditServerId, entries);
+  renderLogEntries();
+}
+
+function updateLogField(i, field, value) {
+  const entries = loadLogEntries(_ovEditServerId);
+  if(entries[i]) { entries[i][field] = value; saveLogEntries(_ovEditServerId, entries); }
+}
+
+// Patch openTripDetail to populate new UI
+const _origOpenTripDetail = openTripDetail;
+openTripDetail = function(idx) {
+  _origOpenTripDetail(idx);
+  const t = trips[idx];
+  _ovEditServerId = t._serverId || t.id;
+  const extra = loadTripExtraData(_ovEditServerId);
+  renderOvMetaBar(t, extra);
+  renderOvViewMode(t, extra);
+  renderFlightViewMode(extra);
+  renderLogEntries();
+  // reset edit modes
+  ['ovEditMode','flEditMode'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
+  ['ovViewMode','flViewMode'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display=''; });
+  const b1=document.getElementById('ovEditBtn'), b2=document.getElementById('flEditBtn');
+  if(b1){b1.innerHTML='✎ Edit';b1.classList.remove('on');}
+  if(b2){b2.innerHTML='✎ Edit';b2.classList.remove('on');}
+};
+
+// ════════════════════════════════════════════════════════
+//  CALENDAR STATS DASHBOARD
+// ════════════════════════════════════════════════════════
+
+let statPeriod = 'all';
+let tripSurveys = [];
+
+function loadTripSurveys() {
+  try { tripSurveys = JSON.parse(localStorage.getItem('ub_trip_surveys')||'[]'); } catch(e){ tripSurveys=[]; }
+}
+function saveTripSurveys() {
+  try { localStorage.setItem('ub_trip_surveys', JSON.stringify(tripSurveys)); } catch(e){}
+}
+
+function setStatPeriod(period, btn) {
+  statPeriod = period;
+  document.querySelectorAll('#v-calendar .cfbtn[onclick*="setStatPeriod"]').forEach(b => b.classList.remove('on'));
+  if(btn) btn.classList.add('on');
+  renderCalStats();
+}
+
+function getFilteredTrips() {
+  const now = new Date();
+  return trips.filter(t => {
+    const d = t.start_date || t.end_date || t.date;
+    if(!d) return statPeriod === 'all';
+    const td = new Date(d);
+    if(statPeriod === 'all') return true;
+    if(statPeriod === 'year') return td.getFullYear() === now.getFullYear();
+    if(statPeriod === '6m') return (now - td) <= 183*86400000;
+    if(statPeriod === '3m') return (now - td) <= 92*86400000;
+    return true;
+  });
+}
+
+function renderCalStats() {
+  // Today label
+  const todayLbl = document.getElementById('calTodayLabel');
+  if(todayLbl) {
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const now = new Date();
+    todayLbl.textContent = `${days[now.getDay()]}, ${now.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`;
+  }
+
+  const filtered = getFilteredTrips();
+  const past = filtered.filter(t => t.status==='done');
+  const upcoming = filtered.filter(t => t.status!=='done');
+
+  // Stat cards
+  const grid = document.getElementById('statsGrid');
+  if(grid) {
+    let totalDays = 0;
+    past.forEach(t => {
+      if(t.start_date && t.end_date) totalDays += Math.max(1, Math.round((new Date(t.end_date)-new Date(t.start_date))/86400000)+1);
+      else totalDays += 1;
+    });
+    const countries = new Set(past.map(t => (t.country||'').toUpperCase()).filter(Boolean)).size;
+    const surveys = tripSurveys.filter(s => {
+      if(statPeriod==='all') return true;
+      const d = new Date(s.date||0);
+      if(statPeriod==='year') return d.getFullYear()===new Date().getFullYear();
+      if(statPeriod==='6m') return (Date.now()-d)<=183*86400000;
+      if(statPeriod==='3m') return (Date.now()-d)<=92*86400000;
+      return true;
+    });
+    const totalSpend = surveys.reduce((a,s)=>(a+(s.tickets||0)+(s.onsite||0)),0);
+    const avgSpend = surveys.length ? Math.round(totalSpend/surveys.length) : null;
+
+    grid.innerHTML = [
+      {num: past.length, label: 'trips completed'},
+      {num: upcoming.length, label: 'upcoming'},
+      {num: totalDays || '—', label: 'days travelling'},
+      {num: avgSpend != null ? '€'+avgSpend : '—', label: 'avg trip spend'}
+    ].map(c=>`<div class="stat-card"><div class="stat-num">${c.num}</div><div class="stat-label">${c.label}</div></div>`).join('');
+  }
+
+  // Last trip banner
+  const lastTrip = trips.filter(t=>t.status==='done').sort((a,b)=>(b.start_date||b.date||'').localeCompare(a.start_date||a.date||''))[0];
+  const banner = document.getElementById('lastTripBanner');
+  if(banner) {
+    if(lastTrip) {
+      banner.style.display='';
+      document.getElementById('lastTripName').textContent = `${lastTrip.emoji||'✈️'} ${lastTrip.name}`;
+      const d = lastTrip.start_date ? new Date(lastTrip.start_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '';
+      document.getElementById('lastTripMeta').textContent = d || lastTrip.sub || '';
+    } else {
+      banner.style.display='none';
+    }
+  }
+
+  // Spend breakdown
+  const spendBlock = document.getElementById('spendBlock');
+  const spendBars = document.getElementById('spendBars');
+  const surveys = tripSurveys;
+  if(spendBlock && spendBars && surveys.length > 0) {
+    spendBlock.style.display = '';
+    const avgTickets = Math.round(surveys.reduce((a,s)=>a+(s.tickets||0),0)/surveys.length);
+    const avgOnsite = Math.round(surveys.reduce((a,s)=>a+(s.onsite||0),0)/surveys.length);
+    const maxVal = Math.max(avgTickets, avgOnsite, 1);
+    spendBars.innerHTML = [
+      {label:'Tickets', val:avgTickets},
+      {label:'On location', val:avgOnsite}
+    ].map(r=>`<div class="spend-row">
+      <span class="spend-label">${r.label}</span>
+      <div class="spend-bar-track"><div class="spend-bar-fill" style="width:${Math.round(r.val/maxVal*100)}%"></div></div>
+      <span class="spend-val">€${r.val}</span>
+    </div>`).join('');
+  } else if(spendBlock) {
+    spendBlock.style.display = 'none';
+  }
+
+  // Transit times
+  const transitBlock = document.getElementById('transitBlock');
+  const transitList = document.getElementById('transitList');
+  if(transitBlock && transitList) {
+    const byCity = {};
+    surveys.filter(s=>s.city&&s.transitMin).forEach(s=>{
+      if(!byCity[s.city]) byCity[s.city]=[];
+      byCity[s.city].push(s.transitMin);
+    });
+    const cities = Object.keys(byCity);
+    if(cities.length > 0) {
+      transitBlock.style.display = '';
+      transitList.innerHTML = cities.map(city=>{
+        const avg = Math.round(byCity[city].reduce((a,v)=>a+v,0)/byCity[city].length);
+        return `<div class="cal-trip-row"><span class="ctr-emoji">🚉</span><span class="ctr-name">${city}</span><span class="ctr-date">~${avg} min to station/airport</span></div>`;
+      }).join('');
+    } else {
+      transitBlock.style.display = 'none';
+    }
+  }
+
+  // Trip list
+  const listEl = document.getElementById('calTripList');
+  if(listEl) {
+    if(filtered.length === 0) {
+      listEl.innerHTML = '<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">No trips in this period.</p>';
+    } else {
+      listEl.innerHTML = filtered
+        .sort((a,b)=>(b.start_date||b.date||'').localeCompare(a.start_date||a.date||''))
+        .map(t=>{
+          const d = (t.start_date||t.date) ? new Date(t.start_date||t.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+          return `<div class="cal-trip-row" onclick="openTripDetail(${t.id})" style="cursor:pointer">
+            <span class="ctr-emoji">${t.emoji||'✈️'}</span>
+            <span class="ctr-name">${t.name}</span>
+            <span class="ctr-date">${d} · ${statusBadge(t.status).replace(/<[^>]+>/g,'')}</span>
+          </div>`;
+        }).join('');
+    }
+  }
+}
+
+// ── DASHBOARD SURVEY (last trip debrief) ──
+function renderTripSurvey() {
+  const block = document.getElementById('tripSurveyBlock');
+  if(!block) return;
+  const lastTrip = trips.filter(t=>t.status==='done')
+    .sort((a,b)=>(b.start_date||b.date||'').localeCompare(a.start_date||a.date||''))[0];
+  if(!lastTrip) { block.style.display='none'; return; }
+  const sid = lastTrip._serverId || lastTrip.id;
+  const alreadyDone = tripSurveys.some(s => s.tripId == sid);
+  if(alreadyDone) { block.style.display='none'; return; }
+  block.style.display = '';
+  block.innerHTML = `
+    <div style="font-family:system-ui,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:8px">Quick debrief</div>
+    <div style="font-size:1rem;color:var(--bark);margin-bottom:16px">How was <strong>${lastTrip.emoji||'✈️'} ${lastTrip.name}</strong>?</div>
+    <div class="survey-q">
+      <label>Ticket / transport cost (€)</label>
+      <input type="number" id="sqTickets" placeholder="e.g. 120" min="0"/>
+    </div>
+    <div class="survey-q">
+      <label>On-location spend (€, total)</label>
+      <input type="number" id="sqOnsite" placeholder="e.g. 350" min="0"/>
+    </div>
+    <div class="survey-q">
+      <label>How did you get there?</label>
+      <select id="sqTransport">
+        <option value="">— select —</option>
+        <option value="flight">✈️ Flight</option>
+        <option value="train">🚆 Train</option>
+        <option value="bus">🚌 Bus</option>
+        <option value="car">🚗 Car</option>
+        <option value="ferry">⛴️ Ferry</option>
+        <option value="mixed">🔀 Mixed</option>
+      </select>
+    </div>
+    <div class="survey-q">
+      <label>City / departure point</label>
+      <input type="text" id="sqCity" placeholder="e.g. Rome, Paris..."/>
+    </div>
+    <div class="survey-q">
+      <label>Minutes to reach the station / airport from home</label>
+      <input type="number" id="sqTransit" placeholder="e.g. 45" min="0"/>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn-primary" style="font-size:.85rem;padding:9px 20px" onclick="submitTripSurvey(${sid})">Save debrief</button>
+      <button class="btn-ghost" style="font-size:.85rem;padding:9px 16px" onclick="document.getElementById('tripSurveyBlock').style.display='none'">Skip</button>
+    </div>`;
+}
+
+function submitTripSurvey(tripId) {
+  const v = k => { const el=document.getElementById(k); return el?el.value:''; };
+  tripSurveys.push({
+    tripId, date: new Date().toISOString(),
+    tickets: parseFloat(v('sqTickets'))||0,
+    onsite: parseFloat(v('sqOnsite'))||0,
+    transport: v('sqTransport'),
+    city: v('sqCity').trim(),
+    transitMin: parseInt(v('sqTransit'))||0
+  });
+  saveTripSurveys();
+  document.getElementById('tripSurveyBlock').style.display='none';
+  showToast('Debrief saved — check Calendar for updated stats');
+}
+
+// ── PACK TEMPLATES STRIP ──
+function renderPackTemplatesStrip() {
+  const strip = document.getElementById('packTemplatesStrip');
+  if(!strip) return;
+  const packTmpls = (templates||[]).filter(t=>t.type==='pack');
+  if(packTmpls.length === 0) { strip.innerHTML=''; return; }
+  strip.innerHTML = `<div style="font-family:system-ui,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:8px">📋 Your pack templates</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      ${packTmpls.map(t=>`<div class="pack-tmpl-card" onclick="applyPackTemplate('${t.templateId}')">
+        <span>📦</span><span>${t.name}</span>
+        <span style="font-size:.72rem;color:var(--dusk)">${(t.packItems||[]).length} items</span>
+      </div>`).join('')}
+    </div>`;
+}
+
+function applyPackTemplate(templateId) {
+  const t = (templates||[]).find(x=>x.templateId===templateId);
+  if(!t||!t.packItems||!t.packItems.length) return;
+  const sections = document.getElementById('packSections');
+  if(!sections) return;
+  const html = `<div class="pack-section" style="margin-bottom:16px">
+    <div class="ps-head"><span>${t.name}</span></div>
+    <div class="ps-items">${t.packItems.map(item=>`
+      <div class="check-item">
+        <input type="checkbox" class="ci-check"/>
+        <span class="ci-label">${item}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
+  sections.innerHTML = (sections.innerHTML||'') + html;
+  sections.style.display = '';
+  showToast(`"${t.name}" template applied`);
+}
+
+// Hook showView: also render stats and survey on calendar/dashboard
+const _origShowView2 = showView;
+showView = function(id, btn) {
+  _origShowView2(id, btn);
+  if(id==='calendar') renderCalStats();
+  if(id==='pack') renderPackTemplatesStrip();
+  if(id==='dashboard') { renderTripSurvey(); }
+};
+
+// INIT new features
+loadReflectionsFromStorage();
+loadTemplatesFromStorage();
+loadTripSurveys();
 renderInsights();
 
 // Запуск приложения
