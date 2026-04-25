@@ -532,9 +532,7 @@ nav{
       <button class="tab" onclick="showView('calendar',this)">Calendar</button>
       <button class="tab" onclick="showView('pack',this)">Pack</button>
       <button class="tab" onclick="showView('reflection',this)">Reflection</button>
-      <button class="tab" onclick="showView('templates',this)">Templates</button>
       <button class="tab" onclick="showView('kb',this)">Knowledge Base</button>
-      <button class="tab" onclick="showView('video',this)">Video</button>
       <button class="tab" onclick="showView('maps',this)">Maps</button>
       <button class="tab" onclick="showView('about',this)">About</button>
     </div>
@@ -624,6 +622,33 @@ nav{
     </div>
   </div>
 
+  <!-- POST-TRIP SURVEY — shown when last trip has no debrief -->
+  <div id="tripSurveyBanner" style="display:none;margin-bottom:20px;background:linear-gradient(135deg,var(--bark),var(--clay));border-radius:var(--r);padding:20px 24px;color:#fff">
+    <div style="font-family:system-ui,sans-serif;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;opacity:.7;margin-bottom:6px">✦ Quick debrief</div>
+    <div id="surveyBannerTitle" style="font-size:1rem;margin-bottom:14px">How was your last trip?</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div><div style="font-family:system-ui,sans-serif;font-size:.72rem;opacity:.7;margin-bottom:4px">Ticket cost (€)</div>
+        <input type="number" id="sqTickets" placeholder="e.g. 120" min="0" style="width:100%;padding:8px 10px;border-radius:9px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;font-family:system-ui,sans-serif;font-size:.88rem"/></div>
+      <div><div style="font-family:system-ui,sans-serif;font-size:.72rem;opacity:.7;margin-bottom:4px">On-location spend (€)</div>
+        <input type="number" id="sqOnsite" placeholder="e.g. 350" min="0" style="width:100%;padding:8px 10px;border-radius:9px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;font-family:system-ui,sans-serif;font-size:.88rem"/></div>
+      <div><div style="font-family:system-ui,sans-serif;font-size:.72rem;opacity:.7;margin-bottom:4px">How did you get there?</div>
+        <select id="sqTransport" style="width:100%;padding:8px 10px;border-radius:9px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;font-family:system-ui,sans-serif;font-size:.88rem">
+          <option value="">— select —</option>
+          <option value="flight">✈️ Flight</option><option value="train">🚆 Train</option>
+          <option value="bus">🚌 Bus</option><option value="car">🚗 Car</option>
+          <option value="ferry">⛴️ Ferry</option><option value="mixed">🔀 Mixed</option>
+        </select></div>
+      <div><div style="font-family:system-ui,sans-serif;font-size:.72rem;opacity:.7;margin-bottom:4px">Departure city</div>
+        <input type="text" id="sqCity" placeholder="e.g. Rome" style="width:100%;padding:8px 10px;border-radius:9px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;font-family:system-ui,sans-serif;font-size:.88rem"/></div>
+    </div>
+    <div style="margin-bottom:14px"><div style="font-family:system-ui,sans-serif;font-size:.72rem;opacity:.7;margin-bottom:4px">Minutes from home to station/airport</div>
+      <input type="number" id="sqTransit" placeholder="e.g. 45" min="0" style="width:200px;padding:8px 10px;border-radius:9px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;font-family:system-ui,sans-serif;font-size:.88rem"/></div>
+    <div style="display:flex;gap:10px">
+      <button onclick="submitTripSurveyBanner()" style="background:#fff;color:var(--bark);border:none;border-radius:50px;padding:9px 22px;font-family:system-ui,sans-serif;font-size:.85rem;cursor:pointer;transition:.2s">Save debrief ✓</button>
+      <button onclick="document.getElementById('tripSurveyBanner').style.display='none'" style="background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:50px;padding:9px 18px;font-family:system-ui,sans-serif;font-size:.85rem;cursor:pointer">Skip</button>
+    </div>
+  </div>
+
   <div class="dash-grid">
     <!-- LEFT: reflection + upcoming -->
     <div>
@@ -661,9 +686,11 @@ nav{
               <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎙 Record voice</button>
               <div id="audioPlayer" style="display:none;flex:1"></div>
             </div>
-            <div class="rq-actions" style="margin-top:14px">
+            <div class="rq-actions" style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <button class="btn-ghost" id="rqBackBtn" style="padding:9px 16px;font-size:.85rem;display:none" onclick="prevRq()">← Back</button>
+              <div style="flex:1"></div>
               <button class="rq-skip" onclick="nextRq()">Skip →</button>
-              <button class="btn-primary" style="padding:9px 20px;font-size:.85rem" onclick="nextRq()">Next</button>
+              <button class="btn-primary" style="padding:9px 20px;font-size:.85rem" onclick="nextRq()">Next →</button>
             </div>
           </div>
           <!-- Step 3: Summary -->
@@ -674,7 +701,6 @@ nav{
             <div class="sum-tags" id="sumTags"></div>
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
               <button class="btn-ghost" style="font-size:.82rem" onclick="resetReflect()">Reflect again</button>
-              <button class="btn-accent" style="font-size:.82rem;padding:9px 18px" onclick="saveCurrentReflectionAsTemplate()">Save as template</button>
               <button class="btn-ghost" style="font-size:.82rem" onclick="showView('reflection',document.querySelectorAll('.tab')[4])">View library →</button>
             </div>
           </div>
@@ -709,7 +735,7 @@ nav{
 
       <div class="section-head" style="margin:24px 0 10px">
         <h2>Where I'm going</h2>
-        <a onclick="showView('calendar',document.querySelectorAll('.tab')[3])">calendar →</a>
+        <a onclick="showView('calendar',document.querySelectorAll('.tab')[2])">calendar →</a>
       </div>
       <div class="mini-cal" id="miniCal"></div>
     </div>
@@ -1171,8 +1197,8 @@ nav{
   <div id="reflectionsList"></div>
 </div>
 
-<!-- ═══════════════════ TEMPLATES ═══════════════════ -->
-<div class="view" id="v-templates">
+<!-- ═══════════════════ TEMPLATES (hidden) ═══════════════════ -->
+<div class="view" id="v-templates" style="display:none!important">
   <div class="page-header">
     <h1>Templates</h1>
     <p>Reusable templates for reflections and packing lists</p>
@@ -1332,8 +1358,8 @@ nav{
   </div>
 </div>
 
-<!-- ═══════════════════ VIDEO ═══════════════════ -->
-<div class="view" id="v-video">
+<!-- ═══════════════════ VIDEO (hidden) ═══════════════════ -->
+<div class="view" id="v-video" style="display:none!important">
   <div class="page-header"><h1>Video</h1><p>Turn your clips into a travel reel</p></div>
   <div class="video-layout">
     <div>
@@ -2206,26 +2232,11 @@ function openTripDetail(idx) {
   // Сбрасываем поле заметки
   const noteArea = document.getElementById('tripNoteArea');
   if (noteArea) noteArea.value = '';
-  document.getElementById('tdTitle').textContent = t.name;
-  document.getElementById('tdSub').textContent = t.sub;
-  document.getElementById('tdDesc').textContent = t.desc;
-  // info grid
-  const ig = document.getElementById('tdInfoGrid');
-  ig.innerHTML = t.info.map(i=>`<div class="info-block"><div class="ib-label">${i.l}</div><div class="ib-val">${i.v}</div></div>`).join('');
-  // logistics — sort chronologically by time, show time badges
-  const ll = document.getElementById('tdLogistics');
-  const logs = (t.logistics||[]).slice();
-  // tolerate legacy string format
-  const normalized = logs.map((l,i)=> typeof l === 'string' ? {time:'', text:l, icon:(t.logIcons?.[i]||'·')} : l);
-  normalized.sort((a,b)=>{
-    const ta = (a.time||'99:99'), tb = (b.time||'99:99');
-    return ta.localeCompare(tb);
-  });
-  ll.innerHTML = normalized.map(l=>{
-    const timeDisp = l.time || '—:—';
-    const timeCls = l.time ? 'lg-time' : 'lg-time empty';
-    return `<li><span class="lg-icon">${l.icon||'·'}</span><span class="${timeCls}">${timeDisp}</span><span class="lg-text">${l.text}</span></li>`;
-  }).join('');
+  const safeText = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val||''; };
+  safeText('tdTitle', t.name);
+  safeText('tdSub', t.sub);
+  // tdDesc and tdInfoGrid removed — overview handled by new structured panel
+  // tdLogistics removed — handled by new logistics panel with cards
   // pack — load from server if available
   const pl = document.getElementById('tdPackList');
   pl.innerHTML='<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">Загружаем список...</p>';
@@ -3091,40 +3102,56 @@ function pickMood(mood, btn){
   document.getElementById('modeChoice').classList.add('show');
 }
 function startReflect(mode){
-  rqList = mode==='quick' ? quickQs : deepQs;
+  rqList = mode==='mood' ? (moodQuestionsMap[currentMood] || quickQs) : (mode==='deep' ? deepQs : quickQs);
   rqCurrent = 0;
+  rqAnswers = {};
   document.getElementById('rc-mood').style.display = 'none';
   document.getElementById('rc-questions').classList.add('show');
   renderRq();
 }
 function renderRq(){
   const prog = document.getElementById('rqProgress');
-  prog.innerHTML = rqList.map((_,i)=>`<div class="rq-dot${i<rqCurrent?' done':i===rqCurrent?' active':''}"></div>`).join('');
-  document.getElementById('rqLabel').textContent = `Question ${rqCurrent+1} of ${rqList.length}`;
-  document.getElementById('rqText').textContent = rqList[rqCurrent];
-  document.getElementById('rqInput').value = '';
+  if(prog) prog.innerHTML = rqList.map((_,i)=>`<div class="rq-dot${i<rqCurrent?' done':i===rqCurrent?' active':''}"></div>`).join('');
+  const lbl = document.getElementById('rqLabel');
+  if(lbl) lbl.textContent = `Question ${rqCurrent+1} of ${rqList.length}`;
+  const txt = document.getElementById('rqText');
+  if(txt) txt.textContent = rqList[rqCurrent];
+  const inp = document.getElementById('rqInput');
+  if(inp) inp.value = rqAnswers[rqCurrent] || '';
+  const backBtn = document.getElementById('rqBackBtn');
+  if(backBtn) backBtn.style.display = rqCurrent > 0 ? '' : 'none';
+  if(inp) inp.focus();
 }
-let rqAnswers = [];
+// rqAnswers declared above as [] — repurpose as object for index-keyed answers
 function nextRq(){
-  const answer = document.getElementById('rqInput').value.trim();
-  rqAnswers.push(answer);
+  const inp = document.getElementById('rqInput');
+  rqAnswers[rqCurrent] = inp ? inp.value.trim() : '';
   rqCurrent++;
   if(rqCurrent >= rqList.length){
     document.getElementById('rc-questions').classList.remove('show');
     document.getElementById('rc-summary').classList.add('show');
-    // Сохраняем рефлексию на сервере
-    const mood = document.querySelector('.mood-btn.on span')?.textContent || '';
-    const mode = rqList.length <= 3 ? 'quick' : 'deep';
+    const mood = currentMood || document.querySelector('.mood-btn.on span')?.textContent?.toLowerCase() || 'neutral';
+    const answers = rqList.map((_,i) => rqAnswers[i] || '');
+    const tags = buildReflectionTags(mood, answers);
+    const sumTagsEl = document.getElementById('sumTags');
+    if(sumTagsEl) sumTagsEl.innerHTML = tags.map(t=>`<span class="tag">${t}</span>`).join('');
     const tripIdVal = document.getElementById('reflectTripSel')?.value || '';
+    const tripName = tripIdVal ? (trips.find(t=>(t._serverId||t.id)==tripIdVal)||{}).name||'' : '';
+    const reflObj = { id: Date.now(), mood, mode: rqList.length<=3?'mood':'deep', answers, tags, date: new Date().toISOString(), tripId: tripIdVal||null, tripName };
+    saveReflectionLocally(reflObj);
     fetch('/api/reflections', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ mood, mode, answers: rqAnswers, trip_id: tripIdVal || null })
-    }).catch(console.error);
-    rqAnswers = [];
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ mood, mode: reflObj.mode, answers, trip_id: tripIdVal||null })
+    }).catch(()=>{});
+    rqAnswers = {};
     return;
   }
   renderRq();
+}
+function prevRq(){
+  const inp = document.getElementById('rqInput');
+  rqAnswers[rqCurrent] = inp ? inp.value.trim() : '';
+  if(rqCurrent > 0) { rqCurrent--; renderRq(); }
 }
 async function saveTripReflection(){
   const answers = [
@@ -3822,6 +3849,7 @@ const _origOpenTripDetail = openTripDetail;
 openTripDetail = function(idx) {
   _origOpenTripDetail(idx);
   const t = trips[idx];
+  if(!t) return;
   _ovEditServerId = t._serverId || t.id;
   const extra = loadTripExtraData(_ovEditServerId);
   renderOvMetaBar(t, extra);
@@ -3989,57 +4017,28 @@ function renderCalStats() {
 }
 
 // ── DASHBOARD SURVEY (last trip debrief) ──
+let _surveyTripId = null;
 function renderTripSurvey() {
-  const block = document.getElementById('tripSurveyBlock');
-  if(!block) return;
+  const banner = document.getElementById('tripSurveyBanner');
+  if(!banner) return;
   const lastTrip = trips.filter(t=>t.status==='done')
     .sort((a,b)=>(b.start_date||b.date||'').localeCompare(a.start_date||a.date||''))[0];
-  if(!lastTrip) { block.style.display='none'; return; }
-  const sid = lastTrip._serverId || lastTrip.id;
-  const alreadyDone = tripSurveys.some(s => s.tripId == sid);
-  if(alreadyDone) { block.style.display='none'; return; }
-  block.style.display = '';
-  block.innerHTML = `
-    <div style="font-family:system-ui,sans-serif;font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:8px">Quick debrief</div>
-    <div style="font-size:1rem;color:var(--bark);margin-bottom:16px">How was <strong>${lastTrip.emoji||'✈️'} ${lastTrip.name}</strong>?</div>
-    <div class="survey-q">
-      <label>Ticket / transport cost (€)</label>
-      <input type="number" id="sqTickets" placeholder="e.g. 120" min="0"/>
-    </div>
-    <div class="survey-q">
-      <label>On-location spend (€, total)</label>
-      <input type="number" id="sqOnsite" placeholder="e.g. 350" min="0"/>
-    </div>
-    <div class="survey-q">
-      <label>How did you get there?</label>
-      <select id="sqTransport">
-        <option value="">— select —</option>
-        <option value="flight">✈️ Flight</option>
-        <option value="train">🚆 Train</option>
-        <option value="bus">🚌 Bus</option>
-        <option value="car">🚗 Car</option>
-        <option value="ferry">⛴️ Ferry</option>
-        <option value="mixed">🔀 Mixed</option>
-      </select>
-    </div>
-    <div class="survey-q">
-      <label>City / departure point</label>
-      <input type="text" id="sqCity" placeholder="e.g. Rome, Paris..."/>
-    </div>
-    <div class="survey-q">
-      <label>Minutes to reach the station / airport from home</label>
-      <input type="number" id="sqTransit" placeholder="e.g. 45" min="0"/>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:4px">
-      <button class="btn-primary" style="font-size:.85rem;padding:9px 20px" onclick="submitTripSurvey(${sid})">Save debrief</button>
-      <button class="btn-ghost" style="font-size:.85rem;padding:9px 16px" onclick="document.getElementById('tripSurveyBlock').style.display='none'">Skip</button>
-    </div>`;
+  if(!lastTrip) { banner.style.display='none'; return; }
+  _surveyTripId = lastTrip._serverId || lastTrip.id;
+  if(tripSurveys.some(s => s.tripId == _surveyTripId)) { banner.style.display='none'; return; }
+  const titleEl = document.getElementById('surveyBannerTitle');
+  if(titleEl) titleEl.textContent = `How was ${lastTrip.emoji||'✈️'} ${lastTrip.name}?`;
+  // clear previous values
+  ['sqTickets','sqOnsite','sqTransport','sqCity','sqTransit'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  banner.style.display = '';
 }
 
-function submitTripSurvey(tripId) {
+function submitTripSurveyBanner() {
   const v = k => { const el=document.getElementById(k); return el?el.value:''; };
   tripSurveys.push({
-    tripId, date: new Date().toISOString(),
+    tripId: _surveyTripId, date: new Date().toISOString(),
     tickets: parseFloat(v('sqTickets'))||0,
     onsite: parseFloat(v('sqOnsite'))||0,
     transport: v('sqTransport'),
@@ -4047,8 +4046,8 @@ function submitTripSurvey(tripId) {
     transitMin: parseInt(v('sqTransit'))||0
   });
   saveTripSurveys();
-  document.getElementById('tripSurveyBlock').style.display='none';
-  showToast('Debrief saved — check Calendar for updated stats');
+  document.getElementById('tripSurveyBanner').style.display='none';
+  showToast('Debrief saved — check Calendar → Stats for insights');
 }
 
 // ── PACK TEMPLATES STRIP ──
