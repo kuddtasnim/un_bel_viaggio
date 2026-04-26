@@ -204,8 +204,10 @@ nav{
 .cal-cell.other-month .cn{opacity:.3}
 .cal-cell.weekend{background:#faf8f5}
 .cal-cell.today{background:#fde8d3}
-.cal-cell.has-trip{cursor:pointer}
-.cal-cell.has-trip:hover{background:var(--sand)}
+.cal-cell.has-trip{cursor:pointer;background:linear-gradient(135deg,#fde8d3,#f5e0c0);border-left:3px solid var(--accent)}
+.cal-cell.has-trip:hover{background:linear-gradient(135deg,#fbd4b0,#f0d0a8)}
+.cal-cell.has-trip .cn{color:var(--bark);font-weight:600}
+.cal-log-item{font-family:system-ui,sans-serif;font-size:.6rem;color:var(--clay);line-height:1.3;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cn{font-family:system-ui,sans-serif;font-size:.8rem;color:var(--dusk);margin-bottom:2px}
 .cal-cell.today .cn{color:var(--bark);font-weight:700}
 .trip-dot{font-size:.75rem;line-height:1}
@@ -870,10 +872,10 @@ nav{
         </div>
       </div>
 
-      <!-- Flights section -->
+      <!-- Getting there section -->
       <div class="ov-card" style="margin-top:14px" id="ovFlightCard">
         <div class="section-header-row" style="margin-bottom:12px">
-          <p class="label-sm" style="margin-bottom:0">Flights</p>
+          <p class="label-sm" style="margin-bottom:0">Getting there</p>
           <button class="section-edit" id="flEditBtn" onclick="toggleFlightEdit()">✎ Edit</button>
         </div>
         <!-- View mode: boarding pass cards -->
@@ -881,7 +883,7 @@ nav{
         <!-- Edit mode -->
         <div id="flEditMode" style="display:none">
           <div style="margin-bottom:14px">
-            <div class="fl-edit-label">✈ Outbound</div>
+            <div class="fl-edit-label">Outbound (flight no. / transport, from, dep. time, to, arr. time)</div>
             <div class="fl-edit-grid">
               <input id="flOutNo" type="text" placeholder="Flight no. e.g. FR3421"/>
               <input id="flOutDep" type="text" placeholder="From e.g. Rome FCO"/>
@@ -935,6 +937,12 @@ nav{
         <button class="btn-primary" style="padding:9px 20px;font-size:.82rem" onclick="submitNote()">Save note</button>
       </div>
       <div id="noteSavedMsg" style="display:none;font-family:system-ui,sans-serif;font-size:.78rem;color:var(--moss);margin-top:8px">✓ Note saved</div>
+
+      <!-- Saved notes list -->
+      <div style="margin-top:20px">
+        <p class="label-sm" style="margin-bottom:10px">Saved notes</p>
+        <div id="savedNotesList"></div>
+      </div>
 
       <!-- Photo Gallery -->
       <div style="margin-top:24px">
@@ -1308,52 +1316,8 @@ nav{
     <button class="btn-accent" onclick="openModal('expModal')">+ Add experience</button>
   </div>
   <div class="kb-grid" id="kbGrid">
-    <div class="kb-card" data-tags="transit,no luggage,night,germany">
-      <div class="kb-head"><div class="kb-emoji">🚌</div><div><h3>Munich Transit</h3><div class="kb-route">Prague → Munich → midnight bus</div></div></div>
-      <div class="kb-body">
-        <div class="kb-sec"><div class="kb-sec-label">Situation</div><p>Worth spending 3h in Munich before the midnight bus, or arrive late? Travelling without luggage.</p></div>
-        <div class="kb-sec"><div class="kb-sec-label">Solution — yes, go to the city</div>
-          <ul class="kb-bullets"><li>ZOB & Hbf are 5 min walk apart (Arnulfstraße 21)</li><li>U-Bahn from Hbf to Marienplatz: 10 min</li><li>Hofbräuhaus open until midnight, 15 min from ZOB</li><li>Leave at 23:15 to be safe</li></ul>
-        </div>
-        <div class="kb-insight"><div class="ki-label">💡 Insight for next time</div><p>Without luggage, never wait at a station. A 2–3h window at a transit city is a bonus, not a loss.</p></div>
-      </div>
-      <div class="kb-footer"><span class="kb-tag">🇩🇪 Germany</span><span class="kb-tag">transit</span><span class="kb-tag">no luggage</span><span class="kb-tag">night</span></div>
-    </div>
-    <div class="kb-card" data-tags="airport,logistics,china">
-      <div class="kb-head"><div class="kb-emoji">✈️</div><div><h3>Beijing Airport → Centre</h3><div class="kb-route">PEK → hotel in city centre</div></div></div>
-      <div class="kb-body">
-        <div class="kb-sec"><div class="kb-sec-label">Situation</div><p>First time in Beijing — taxi or public transport?</p></div>
-        <div class="kb-sec"><div class="kb-sec-label">Solution</div>
-          <ul class="kb-bullets"><li>Airport Express to Dongzhimen (~30 min, ~25 CNY)</li><li>Transfer to metro — reach anywhere in centre</li><li>Taxi in rush hour can take 1.5–2h</li></ul>
-        </div>
-        <div class="kb-insight"><div class="ki-label">💡 Insight for next time</div><p>In Beijing, airport express is always the first choice. Download offline metro map before landing.</p></div>
-      </div>
-      <div class="kb-footer"><span class="kb-tag">🇨🇳 China</span><span class="kb-tag">airport</span><span class="kb-tag">metro</span><span class="kb-tag">logistics</span></div>
-    </div>
-    <div class="kb-card" data-tags="nature,logistics,russia">
-      <div class="kb-head"><div class="kb-emoji">🌊</div><div><h3>Waterfalls in Sochi</h3><div class="kb-route">Sochi — nature route</div></div></div>
-      <div class="kb-body">
-        <div class="kb-sec"><div class="kb-sec-label">Situation</div><p>How to reach the waterfalls — almost no info, bus schedules unclear.</p></div>
-        <div class="kb-sec"><div class="kb-sec-label">Solution</div>
-          <ul class="kb-bullets"><li>Taxi to trailhead saves ~2h vs waiting for a bus</li><li>Cost reasonable when split</li><li>Bus exists but rare and unreliable schedule</li></ul>
-        </div>
-        <div class="kb-insight"><div class="ki-label">💡 Insight for next time</div><p>For nature routes in Russia off-season: always budget for a taxi. Bus only if schedule confirmed in advance.</p></div>
-      </div>
-      <div class="kb-footer"><span class="kb-tag">🇷🇺 Russia</span><span class="kb-tag">nature</span><span class="kb-tag">taxi</span><span class="kb-tag">logistics</span></div>
-    </div>
-    <div class="kb-card" data-tags="transit,china,great wall">
-      <div class="kb-head"><div class="kb-emoji">🏔️</div><div><h3>Great Wall exit at Badaling</h3><div class="kb-route">Badaling section → Express train</div></div></div>
-      <div class="kb-body">
-        <div class="kb-sec"><div class="kb-sec-label">Situation</div><p>How to get back from the wall exit to the express train — not signposted clearly.</p></div>
-        <div class="kb-sec"><div class="kb-sec-label">Solution</div>
-          <ul class="kb-bullets"><li>Exit via the south gate, not the north</li><li>Shuttle buses run to the train station</li><li>Check the route on the spot — maps don't always match reality</li></ul>
-        </div>
-        <div class="kb-insight"><div class="ki-label">💡 Insight for next time</div><p>Always locate the return route on arrival, before exploring. 10 min spent on this at the start saves 1h of confusion later.</p></div>
-      </div>
-      <div class="kb-footer"><span class="kb-tag">🇨🇳 China</span><span class="kb-tag">transit</span><span class="kb-tag">Great Wall</span></div>
-    </div>
-    <div class="add-empty" style="min-height:200px" onclick="openModal('expModal')">
-      <div class="plus">+</div>Add experience
+    <div class="add-empty" style="min-height:200px;grid-column:1/-1" onclick="openModal('expModal')">
+      <div class="plus">+</div>Add your first experience
     </div>
   </div>
 </div>
@@ -1641,13 +1605,13 @@ nav{
 .bp-time{font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk)}
 .bp-flno{font-family:system-ui,sans-serif;font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:8px}
 .bp-label{font-family:system-ui,sans-serif;font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--dusk)}
-.fl-edit-grid{display:grid;grid-template-columns:1fr 1fr 80px 1fr 80px;gap:8px;margin-top:8px}
+.fl-edit-grid{display:grid;grid-template-columns:1fr 1fr 110px 1fr 110px;gap:8px;margin-top:8px}
 @media(max-width:560px){.fl-edit-grid{grid-template-columns:1fr 1fr}}
 .fl-edit-label{font-family:system-ui,sans-serif;font-size:.75rem;font-weight:600;color:var(--bark);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
 .fl-edit-grid input{font-family:system-ui,sans-serif;font-size:.83rem;padding:8px 10px;border:1.5px solid var(--mist);border-radius:9px;background:var(--cream);color:var(--ink)}
 /* logistics cards */
 .log-card{background:var(--warm);border:1px solid var(--mist);border-radius:14px;padding:16px;position:relative}
-.log-card-row{display:grid;grid-template-columns:80px 1fr 1fr 1fr;gap:8px;align-items:start}
+.log-card-row{display:grid;grid-template-columns:110px 1fr 1fr 1fr;gap:8px;align-items:start}
 @media(max-width:560px){.log-card-row{grid-template-columns:1fr 1fr}}
 .log-input{font-family:system-ui,sans-serif;font-size:.85rem;padding:7px 10px;border:1.5px solid var(--mist);border-radius:9px;background:var(--cream);color:var(--ink);width:100%}
 .log-input:focus{outline:none;border-color:var(--accent)}
@@ -2008,30 +1972,51 @@ function openEditTripModal() {
 // ── Сохранение заметки ───────────────────────────────
 let currentOpenTripServerId = null; // запоминаем при открытии карточки
 
+function loadNotesFromStorage(serverId) {
+  try { return JSON.parse(localStorage.getItem('ub_notes_' + serverId) || '[]'); } catch(e){ return []; }
+}
+function saveNoteToStorage(serverId, text) {
+  const notes = loadNotesFromStorage(serverId);
+  notes.unshift({ text, date: new Date().toISOString() });
+  try { localStorage.setItem('ub_notes_' + serverId, JSON.stringify(notes.slice(0,50))); } catch(e){}
+  return notes;
+}
+function renderSavedNotes(serverId) {
+  const listEl = document.getElementById('savedNotesList');
+  if(!listEl) return;
+  const notes = loadNotesFromStorage(serverId);
+  if(!notes.length) { listEl.innerHTML='<p style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk)">No notes yet.</p>'; return; }
+  listEl.innerHTML = notes.map(n => {
+    const d = new Date(n.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    return `<div style="background:var(--warm);border:1px solid var(--mist);border-radius:10px;padding:12px 14px;margin-bottom:8px">
+      <div style="font-family:system-ui,sans-serif;font-size:.68rem;color:var(--dusk);margin-bottom:4px">${d}</div>
+      <div style="font-family:system-ui,sans-serif;font-size:.88rem;color:var(--ink);white-space:pre-wrap">${n.text}</div>
+    </div>`;
+  }).join('');
+}
 async function submitNote() {
   const text = document.getElementById('tripNoteArea').value.trim();
-  if (!text) { alert('Напишите заметку'); return; }
-  if (!currentOpenTripServerId) { alert('Откройте карточку путешествия'); return; }
+  if (!text) return;
+  if (!currentOpenTripServerId) return;
 
   const btn = event.target;
   btn.textContent = '...'; btn.disabled = true;
 
-  const res = await fetch(`/api/trips/${currentOpenTripServerId}/notes`, {
+  // Save to localStorage immediately
+  saveNoteToStorage(currentOpenTripServerId, text);
+  renderSavedNotes(currentOpenTripServerId);
+
+  // Also sync to server
+  fetch(`/api/trips/${currentOpenTripServerId}/notes`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ text })
-  });
+  }).catch(()=>{});
 
   btn.textContent = 'Save note'; btn.disabled = false;
-
-  if (res.ok) {
-    document.getElementById('tripNoteArea').value = '';
-    const msg = document.getElementById('noteSavedMsg');
-    msg.style.display = 'block';
-    setTimeout(() => { msg.style.display = 'none'; }, 2500);
-  } else {
-    alert('Ошибка сохранения заметки');
-  }
+  document.getElementById('tripNoteArea').value = '';
+  const msg = document.getElementById('noteSavedMsg');
+  if(msg){ msg.style.display = 'block'; setTimeout(() => msg.style.display='none', 2000); }
 }
 
 // ── Сохранение путешествия (из других мест кода) ─────
@@ -2294,16 +2279,31 @@ function openTdTab(id, btn) {
 let calYear = new Date().getFullYear();
 let calMonth = new Date().getMonth();
 let calPeriod = 'all'; // week | month | year | all
-const tripDates = {
-  '2025-05-28':'🏔️','2025-05-29':'🏔️',
-  '2025-06-10':'🗼','2025-06-11':'🗼','2025-06-12':'🗼','2025-06-13':'🗼','2025-06-14':'🗼','2025-06-15':'🗼',
-  '2024-10-01':'🇰🇷','2024-10-02':'🇰🇷','2024-10-03':'🇰🇷','2024-10-04':'🇰🇷','2024-10-05':'🇰🇷',
-  '2024-10-06':'🇰🇷','2024-10-07':'🇰🇷','2024-10-08':'🇰🇷','2024-10-09':'🇰🇷','2024-10-10':'🇰🇷',
-  '2023-07-01':'🇨🇳','2023-07-02':'🇨🇳','2023-07-03':'🇨🇳','2023-07-04':'🇨🇳','2023-07-05':'🇨🇳','2023-07-06':'🇨🇳','2023-07-07':'🇨🇳',
-  '2023-03-01':'🇹🇷','2023-03-02':'🇹🇷','2023-03-03':'🇹🇷','2023-03-04':'🇹🇷','2023-03-05':'🇹🇷',
-  '2023-05-10':'🇮🇹','2023-05-11':'🇮🇹','2023-05-12':'🇮🇹','2023-05-13':'🇮🇹'
-};
+// tripDates built dynamically from trips array in buildTripDates()
+let tripDates = {};
+function buildTripDates() {
+  tripDates = {};
+  trips.forEach(t => {
+    const emoji = t.emoji || '✈️';
+    const extra = loadTripExtraData ? loadTripExtraData(t._serverId||t.id) : {};
+    const sd = extra.start_date || t.start_date;
+    const ed = extra.end_date   || t.end_date;
+    if(!sd) return;
+    const start = new Date(sd);
+    const end   = ed ? new Date(ed) : start;
+    for(let d = new Date(start); d <= end; d.setDate(d.getDate()+1)){
+      const key = d.toISOString().slice(0,10);
+      tripDates[key] = (tripDates[key] || '') || emoji; // first emoji wins
+    }
+    // also mark logistics dates from localStorage
+    const logs = loadLogEntries ? loadLogEntries(t._serverId||t.id) : [];
+    if(logs.length && sd) {
+      // logistics are assumed to be on the trip dates, already covered above
+    }
+  });
+}
 function renderCalendar() {
+  buildTripDates();
   const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('calMonthLabel').textContent = `${months[calMonth]} ${calYear}`;
   const cells = document.getElementById('calCells');
@@ -2329,14 +2329,31 @@ function renderCalendar() {
     const isToday = (d===today.getDate() && calMonth===today.getMonth() && calYear===today.getFullYear());
     const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const tripFlag = tripDates[dateStr];
+    // build logistics summary for this date
+    let logHtml = '';
+    if(tripFlag) {
+      trips.forEach(t => {
+        const extra = loadTripExtraData ? loadTripExtraData(t._serverId||t.id) : {};
+        const sd = extra.start_date||t.start_date, ed = extra.end_date||t.end_date;
+        if(!sd) return;
+        if(dateStr >= sd && dateStr <= (ed||sd)) {
+          const logs = loadLogEntries ? loadLogEntries(t._serverId||t.id) : [];
+          const dayLogs = logs.filter(l => !l.date || l.date === dateStr || !l.date);
+          dayLogs.slice(0,2).forEach(l => {
+            const icon = transportIcons[l.type]||'📍';
+            if(l.from||l.to) logHtml += `<div class="cal-log-item">${icon} ${l.from||''}${l.to?' → '+l.to:''}</div>`;
+          });
+        }
+      });
+    }
     let cls = 'cal-cell';
     if(isWeekend) cls+=' weekend';
     if(isToday) cls+=' today';
-    if(tripFlag) {cls+=' has-trip';}
+    if(tripFlag) cls+=' has-trip';
     const hasRem = reminders.some(r => r.date === dateStr);
     if(hasRem) cls+=' has-reminder';
     cell.className = cls;
-    cell.innerHTML = `<div class="cn">${d}</div>${tripFlag?`<div class="trip-dot">${tripFlag}</div>`:''}`;
+    cell.innerHTML = `<div class="cn">${d}</div>${tripFlag?`<div class="trip-dot">${tripFlag}</div>`:''}${logHtml}`;
     cells.appendChild(cell);
   }
   updatePeriodStats();
@@ -3165,6 +3182,16 @@ async function saveTripReflection(){
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ mood: '', mode: 'deep', answers, trip_id: currentOpenTripServerId || null })
   }).catch(console.error);
+  // Save locally so it appears in Reflection Library
+  const _t = trips.find(x => (x._serverId||x.id) === currentOpenTripServerId);
+  const _reflObj = {
+    id: Date.now(), mood: 'neutral', mode: 'deep',
+    answers, tags: buildReflectionTags('neutral', answers),
+    date: new Date().toISOString(),
+    tripId: currentOpenTripServerId || null,
+    tripName: _t ? _t.name : ''
+  };
+  saveReflectionLocally(_reflObj);
   const msg = document.getElementById('tdReflectSavedMsg');
   if(msg){ msg.style.display = 'inline'; setTimeout(()=>{ msg.style.display='none'; }, 3000); }
   ['tdRef1','tdRef2','tdRef3'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
@@ -3732,6 +3759,17 @@ function saveOvEdit() {
   document.getElementById('ovEditBtn').classList.remove('on');
   renderOvMetaBar(t||{}, extra);
   renderOvViewMode(t||{}, extra);
+  // update trip hero immediately
+  const titleEl = document.getElementById('tdTitle');
+  if(titleEl && t) titleEl.textContent = t.name;
+  const subEl = document.getElementById('tdSub');
+  if(subEl && extra.start_date) {
+    const fmt = d => new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    subEl.textContent = extra.end_date
+      ? `${fmt(extra.start_date)} – ${fmt(extra.end_date)}`
+      : fmt(extra.start_date);
+  }
+  renderTripsList();
   showToast('Details saved');
 }
 
@@ -3856,6 +3894,7 @@ openTripDetail = function(idx) {
   renderOvViewMode(t, extra);
   renderFlightViewMode(extra);
   renderLogEntries();
+  renderSavedNotes(_ovEditServerId);
   // reset edit modes
   ['ovEditMode','flEditMode'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display='none'; });
   ['ovViewMode','flViewMode'].forEach(id => { const el=document.getElementById(id); if(el) el.style.display=''; });
