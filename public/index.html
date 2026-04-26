@@ -85,10 +85,10 @@ nav{
 .trip-card:hover{box-shadow:var(--sh);transform:translateY(-3px)}
 .tc-top{height:80px;display:flex;align-items:center;justify-content:center;font-size:2.2rem;position:relative}
 .tc-badge{position:absolute;top:8px;right:8px;font-family:system-ui,sans-serif;font-size:.65rem;text-transform:uppercase;letter-spacing:.07em;padding:3px 9px;border-radius:50px}
-.b-soon{background:#fde8d3;color:var(--clay)}
-.b-plan{background:#d8e8d3;color:var(--moss)}
-.b-done{background:var(--mist);color:var(--dusk)}
-.b-idea{background:#e8e0d8;color:var(--dusk)}
+.b-soon{background:#ff8c42;color:#fff}
+.b-plan{background:#4a9668;color:#fff}
+.b-done{background:#8a7f6e;color:#fff}
+.b-idea{background:#c0a87a;color:#fff}
 .tc-body{padding:14px 16px}
 .tc-body h3{font-family:system-ui,sans-serif;font-size:.9rem;color:var(--bark);margin-bottom:3px}
 .tc-date{font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk)}
@@ -534,9 +534,8 @@ nav{
       <button class="tab" onclick="showView('calendar',this)">Calendar</button>
       <button class="tab" onclick="showView('pack',this)">Pack</button>
       <button class="tab" onclick="showView('reflection',this)">Reflection</button>
-      <button class="tab" onclick="showView('kb',this)">Knowledge Base</button>
+      <button class="tab" onclick="showView('kb',this)">KB</button>
       <button class="tab" onclick="showView('maps',this)">Maps</button>
-      <button class="tab" onclick="showView('about',this)">About</button>
     </div>
     <div class="user-menu-wrap" id="userMenuWrap" style="display:none">
       <button class="user-btn" onclick="toggleUserMenu()">
@@ -544,6 +543,8 @@ nav{
       </button>
       <div class="user-dropdown" id="userDropdown">
         <div class="ud-item" onclick="exportData()">📥 Download my data</div>
+        <div class="ud-sep"></div>
+        <div class="ud-item" onclick="showView('about',null);toggleUserMenu()">✦ About</div>
         <div class="ud-sep"></div>
         <div class="ud-item danger" onclick="deleteAccount()">🗑 Delete account</div>
         <div class="ud-sep"></div>
@@ -647,7 +648,7 @@ nav{
       <input type="number" id="sqTransit" placeholder="e.g. 45" min="0" style="width:200px;padding:8px 10px;border-radius:9px;border:1.5px solid rgba(255,255,255,.3);background:rgba(255,255,255,.15);color:#fff;font-family:system-ui,sans-serif;font-size:.88rem"/></div>
     <div style="display:flex;gap:10px">
       <button onclick="submitTripSurveyBanner()" style="background:#fff;color:var(--bark);border:none;border-radius:50px;padding:9px 22px;font-family:system-ui,sans-serif;font-size:.85rem;cursor:pointer;transition:.2s">Save debrief ✓</button>
-      <button onclick="document.getElementById('tripSurveyBanner').style.display='none'" style="background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:50px;padding:9px 18px;font-family:system-ui,sans-serif;font-size:.85rem;cursor:pointer">Skip</button>
+      <button onclick="skipTripSurveyBanner()" style="background:rgba(255,255,255,.2);color:#fff;border:none;border-radius:50px;padding:9px 18px;font-family:system-ui,sans-serif;font-size:.85rem;cursor:pointer">Skip</button>
     </div>
   </div>
 
@@ -673,9 +674,19 @@ nav{
               <button class="mood-btn" onclick="pickMood('neutral',this)">😐<span>Neutral</span></button>
             </div>
             <div class="mode-choice" id="modeChoice">
-              <p style="font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);width:100%;margin-bottom:6px">How deep do you want to go?</p>
-              <button class="mode-pill" onclick="startReflect('mood')">Mood-based · 3 questions</button>
-              <button class="mode-pill" onclick="startReflect('deep')">Deep · 7 questions</button>
+              <p style="font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);width:100%;margin-bottom:6px">How do you want to reflect?</p>
+              <button class="mode-pill" onclick="startReflect('mood')" title="3 questions matched to your mood — quick, personal, done in 2 min">✦ Mood-based &nbsp;<span style="font-size:.72rem;opacity:.7">3 questions</span></button>
+              <button class="mode-pill" onclick="startReflect('deep')" title="7 deeper questions about what you noticed and felt">◎ Deep dive &nbsp;<span style="font-size:.72rem;opacity:.7">7 questions</span></button>
+              <button class="mode-pill" onclick="startReflect('custom')" title="Write your own questions for this reflection" id="customReflectBtn">✏ My questions &nbsp;<span style="font-size:.72rem;opacity:.7">you write them</span></button>
+            </div>
+          </div>
+          <!-- Step 1.5: Custom question editor -->
+          <div id="rc-custom" style="display:none;padding:4px 0">
+            <p class="label-sm" style="margin-bottom:6px">Write your questions — one per line</p>
+            <textarea id="customQsInput" style="width:100%;min-height:120px;border:1.5px solid var(--mist);border-radius:10px;padding:10px 14px;font-family:system-ui,sans-serif;font-size:.85rem;color:var(--bark);background:var(--sand);resize:vertical" placeholder="What was the best moment of the trip?&#10;What do I want to remember?&#10;What would I do differently?"></textarea>
+            <div style="display:flex;gap:10px;margin-top:10px">
+              <button class="btn-ghost" style="font-size:.82rem" onclick="document.getElementById('rc-custom').style.display='none';document.getElementById('rc-mood').style.display=''">← Back</button>
+              <button class="btn-primary" style="font-size:.82rem;padding:9px 20px" onclick="startCustomReflect()">Start →</button>
             </div>
           </div>
           <!-- Step 2: Questions -->
@@ -703,7 +714,7 @@ nav{
             <div class="sum-tags" id="sumTags"></div>
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px">
               <button class="btn-ghost" style="font-size:.82rem" onclick="resetReflect()">Reflect again</button>
-              <button class="btn-ghost" style="font-size:.82rem" onclick="showView('reflection',document.querySelectorAll('.tab')[4])">View library →</button>
+              <button class="btn-ghost" style="font-size:.82rem" onclick="showView('reflection',document.querySelectorAll('.tab')[5])">View library →</button>
             </div>
           </div>
         </div>
@@ -719,7 +730,7 @@ nav{
       <!-- INSIGHTS STRIP -->
       <div class="section-head" style="margin-bottom:12px">
         <h2>Recent Insights</h2>
-        <a onclick="showView('kb',document.querySelectorAll('.tab')[5])">all →</a>
+        <a onclick="showView('kb',document.querySelectorAll('.tab')[6])">all →</a>
       </div>
       <div id="insightsContainer"></div>
 
@@ -766,7 +777,7 @@ nav{
 <div class="view" id="v-plan">
   <div class="page-header">
     <h1>Plan</h1>
-    <p>AI-powered trip planning — tell it what you're into, get a walkable itinerary</p>
+    <p>Type a destination, pick your interests — AI builds a walkable one-day itinerary sorted by distance</p>
   </div>
   <div class="plan-layout">
     <div class="plan-form-card">
@@ -1373,31 +1384,52 @@ nav{
 
 <!-- ═══════════════════ MAPS ═══════════════════ -->
 <div class="view" id="v-maps">
-  <div class="page-header"><h1>Saved Places</h1><p>From Google Maps — filtered by country</p></div>
-  <div class="maps-layout">
-    <div>
-      <div class="cfilter" style="margin-bottom:16px">
-        <span class="cfbtn on">All</span>
-        <span class="cfbtn">🇰🇷 Korea</span>
-        <span class="cfbtn">🇨🇳 China</span>
-        <span class="cfbtn">🇹🇷 Turkey</span>
-        <span class="cfbtn">🇩🇪 Germany</span>
-        <span class="cfbtn">🇮🇹 Italy</span>
-      </div>
-      <div id="googleMap"></div>
-      <p style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);margin-top:10px">Маркеры показывают все твои путешествия. Кликни на маркер, чтобы открыть карточку.</p>
+  <div class="page-header">
+    <h1>Saved Places</h1>
+    <p>Add places you've visited or want to visit — grouped by country. Export to Google My Maps with one click.</p>
+  </div>
+
+  <!-- Add place form -->
+  <div style="background:var(--warm);border:1px solid var(--mist);border-radius:var(--r);padding:18px 20px;margin-bottom:20px">
+    <p class="label-sm" style="margin-bottom:12px">+ Add a place</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 90px 90px;gap:10px;align-items:end">
+      <div><div style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);margin-bottom:4px">Place name</div>
+        <input type="text" id="mpName" placeholder="e.g. Nishiki Market" style="width:100%;padding:8px 10px;border:1.5px solid var(--mist);border-radius:8px;font-family:system-ui,sans-serif;font-size:.85rem;background:var(--cream);color:var(--ink)"/></div>
+      <div><div style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);margin-bottom:4px">City, Country</div>
+        <input type="text" id="mpCity" placeholder="e.g. Kyoto, Japan" style="width:100%;padding:8px 10px;border:1.5px solid var(--mist);border-radius:8px;font-family:system-ui,sans-serif;font-size:.85rem;background:var(--cream);color:var(--ink)"/></div>
+      <div><div style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);margin-bottom:4px">Icon</div>
+        <input type="text" id="mpIcon" placeholder="🍜" maxlength="2" style="width:100%;padding:8px 10px;border:1.5px solid var(--mist);border-radius:8px;font-family:system-ui,sans-serif;font-size:.85rem;background:var(--cream);text-align:center"/></div>
+      <div><div style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);margin-bottom:4px">Status</div>
+        <select id="mpStatus" style="width:100%;padding:8px 10px;border:1.5px solid var(--mist);border-radius:8px;font-family:system-ui,sans-serif;font-size:.85rem;background:var(--cream);color:var(--ink)">
+          <option value="want">want</option>
+          <option value="been">been</option>
+        </select></div>
     </div>
-    <div>
-      <p class="label-sm" style="margin-bottom:10px">Saved (5)</p>
-      <div class="places-list">
-        <div class="place-row"><span class="ppin">☕</span><div class="pinfo"><h4>Café Bora</h4><div class="pm">Hongdae, Seoul</div></div><span class="ptag">🇰🇷 want</span></div>
-        <div class="place-row"><span class="ppin">🍺</span><div class="pinfo"><h4>Hofbräuhaus</h4><div class="pm">Munich</div></div><span class="ptag">🇩🇪 been</span></div>
-        <div class="place-row"><span class="ppin">🕌</span><div class="pinfo"><h4>Grand Bazaar</h4><div class="pm">Istanbul</div></div><span class="ptag">🇹🇷 been</span></div>
-        <div class="place-row"><span class="ppin">🏛</span><div class="pinfo"><h4>Colosseum at night</h4><div class="pm">Rome</div></div><span class="ptag">🇮🇹 been</span></div>
-        <div class="place-row"><span class="ppin">🌸</span><div class="pinfo"><h4>Changdeokgung</h4><div class="pm">Seoul</div></div><span class="ptag">🇰🇷 want</span></div>
+    <div style="margin-top:10px"><div style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);margin-bottom:4px">Note (optional)</div>
+      <input type="text" id="mpNote" placeholder="Why this place, what to remember..." style="width:100%;padding:8px 10px;border:1.5px solid var(--mist);border-radius:8px;font-family:system-ui,sans-serif;font-size:.85rem;background:var(--cream);color:var(--ink)"/></div>
+    <div style="margin-top:12px;display:flex;gap:10px;align-items:center">
+      <button class="btn-primary" style="padding:9px 22px;font-size:.85rem" onclick="addSavedPlace()">Save place</button>
+      <button class="btn-ghost" style="font-size:.82rem;padding:9px 16px" onclick="exportPlacesToKML()" title="Download KML for import into Google My Maps">↓ Export KML</button>
+      <div id="mpGoogleSync" style="margin-left:auto">
+        <button class="btn-ghost" style="font-size:.78rem;padding:8px 14px;display:flex;gap:6px;align-items:center" onclick="connectGoogleMaps()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="currentColor"/></svg>
+          Sync with Google My Maps
+        </button>
       </div>
     </div>
   </div>
+
+  <!-- Country filter (dynamic) -->
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center">
+    <span style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk)">Filter:</span>
+    <span class="cfbtn on" id="mfAll" onclick="setMapFilter('all',this)">All</span>
+    <span id="mapCountryFilters"></span>
+    <span class="cfbtn" style="margin-left:auto" id="mfWant" onclick="setMapFilter('want',this)">⭐ Want to visit</span>
+    <span class="cfbtn" id="mfBeen" onclick="setMapFilter('been',this)">✓ Been</span>
+  </div>
+
+  <!-- Places grouped by country -->
+  <div id="placesGrouped"></div>
 </div>
 
 <!-- ═══════════════════ ABOUT ═══════════════════ -->
@@ -2188,6 +2220,103 @@ async function loadGoogleMapsScript() {
 }
 
 // ════════════════════════════════
+//  SAVED PLACES (Maps tab)
+// ════════════════════════════════
+let savedPlaces = [];
+let mapFilter = 'all';
+let mapCountryFilter = 'all';
+
+function loadSavedPlaces(){
+  try { savedPlaces = JSON.parse(localStorage.getItem('ub_saved_places')||'[]'); } catch(e){ savedPlaces=[]; }
+}
+function saveSavedPlaces(){
+  try { localStorage.setItem('ub_saved_places', JSON.stringify(savedPlaces)); } catch(e){}
+}
+function addSavedPlace(){
+  const name  = document.getElementById('mpName').value.trim();
+  const city  = document.getElementById('mpCity').value.trim();
+  const icon  = document.getElementById('mpIcon').value.trim() || '📍';
+  const status= document.getElementById('mpStatus').value;
+  const note  = document.getElementById('mpNote').value.trim();
+  if(!name || !city){ alert('Введи название и город/страну'); return; }
+  // Extract country from "City, Country"
+  const parts = city.split(',');
+  const country = parts.length > 1 ? parts[parts.length-1].trim() : city.trim();
+  savedPlaces.push({ id: Date.now(), name, city, country, icon, status, note, date: new Date().toISOString().slice(0,10) });
+  saveSavedPlaces();
+  ['mpName','mpCity','mpIcon','mpNote'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  renderSavedPlaces();
+  showToast('Place saved');
+}
+function deleteSavedPlace(id){
+  savedPlaces = savedPlaces.filter(p => p.id !== id);
+  saveSavedPlaces();
+  renderSavedPlaces();
+}
+function setMapFilter(val, el){
+  if(['all','want','been'].includes(val)){ mapFilter = val; }
+  else { mapCountryFilter = val; }
+  document.querySelectorAll('#mfAll,#mfWant,#mfBeen').forEach(b => b.classList.remove('on'));
+  if(el) el.classList.add('on');
+  renderSavedPlaces();
+}
+function renderSavedPlaces(){
+  // Build dynamic country filter buttons
+  const countries = [...new Set(savedPlaces.map(p=>p.country).filter(Boolean))].sort();
+  const filterEl = document.getElementById('mapCountryFilters');
+  if(filterEl){
+    filterEl.innerHTML = countries.map(c =>
+      `<span class="cfbtn${mapCountryFilter===c?' on':''}" onclick="mapCountryFilter='${c}';document.querySelectorAll('.cfbtn').forEach(b=>b.classList.remove('on'));this.classList.add('on');document.getElementById('mfAll').classList.remove('on');renderSavedPlaces()">${c}</span>`
+    ).join('');
+  }
+  // Filter places
+  let filtered = savedPlaces;
+  if(mapCountryFilter !== 'all') filtered = filtered.filter(p => p.country === mapCountryFilter);
+  if(mapFilter === 'want') filtered = filtered.filter(p => p.status === 'want');
+  if(mapFilter === 'been') filtered = filtered.filter(p => p.status === 'been');
+
+  const container = document.getElementById('placesGrouped');
+  if(!container) return;
+  if(filtered.length === 0){
+    container.innerHTML = `<div style="background:var(--warm);border:2px dashed var(--mist);border-radius:var(--r);padding:40px 24px;text-align:center">
+      <p style="font-family:system-ui,sans-serif;font-size:.88rem;color:var(--bark);margin-bottom:4px">${savedPlaces.length===0?'No places saved yet.':'No places match this filter.'}</p>
+      <p style="font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk)">${savedPlaces.length===0?'Use the form above to add your first place.':'Try clearing the filters.'}</p>
+    </div>`; return;
+  }
+  // Group by country
+  const byCountry = {};
+  filtered.forEach(p => { (byCountry[p.country] = byCountry[p.country]||[]).push(p); });
+  container.innerHTML = Object.entries(byCountry).sort((a,b)=>a[0].localeCompare(b[0])).map(([country, places]) => {
+    const rows = places.sort((a,b) => a.name.localeCompare(b.name)).map(p => `
+      <div class="place-row" style="position:relative">
+        <span class="ppin">${p.icon}</span>
+        <div class="pinfo"><h4>${p.name}</h4><div class="pm">${p.city}${p.note?` · <em style="font-style:italic">${p.note}</em>`:''}</div></div>
+        <span class="ptag" style="background:${p.status==='been'?'#d4edda':'#fde8d3'};color:${p.status==='been'?'#2d6a4f':'#a04020'}">${p.status==='been'?'✓ been':'⭐ want'}</span>
+        <button onclick="deleteSavedPlace(${p.id})" style="background:none;border:none;cursor:pointer;color:var(--dusk);font-size:.82rem;padding:4px 8px;margin-left:4px;opacity:.5;transition:.15s" title="Delete" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5">✕</button>
+      </div>`).join('');
+    return `<div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <h3 style="font-family:system-ui,sans-serif;font-size:.82rem;font-weight:600;color:var(--bark);text-transform:uppercase;letter-spacing:.07em">${country}</h3>
+        <span style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk)">${places.length} place${places.length!==1?'s':''}</span>
+      </div>
+      <div class="places-list">${rows}</div>
+    </div>`;
+  }).join('');
+}
+function exportPlacesToKML(){
+  if(!savedPlaces.length){ alert('No places to export'); return; }
+  const placemarks = savedPlaces.map(p =>
+    `  <Placemark>\n    <name>${p.name}</name>\n    <description>${p.city}${p.note?' – '+p.note:''} (${p.status})</description>\n    <Point><coordinates>0,0,0</coordinates></Point>\n  </Placemark>`
+  ).join('\n');
+  const kml = `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2">\n<Document>\n<name>Un Bel Viaggio — Saved Places</name>\n${placemarks}\n</Document>\n</kml>`;
+  const blob = new Blob([kml], {type:'application/vnd.google-earth.kml+xml'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'saved-places.kml'; a.click();
+}
+function connectGoogleMaps(){
+  alert('Google My Maps sync: coming soon.\n\nFor now, use "Export KML" → in Google My Maps click "Import" → upload the KML file. Your places will appear on the map.');
+}
+
+// ════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════
 function showView(id, btn) {
@@ -2201,6 +2330,7 @@ function showView(id, btn) {
   if(id==='reflection') renderReflectionLibrary();
   if(id==='templates') renderTemplatesGrid();
   if(id==='dashboard') renderInsights();
+  if(id==='maps') renderSavedPlaces();
 }
 
 // ════════════════════════════════
@@ -2977,7 +3107,17 @@ function statusBadge(s){
 }
 function tripCardHtml(t, gi){
   const tags = (t.info||[]).slice(0,2).map(i=>`<span class="tag">${i.v}</span>`).join('');
-  const dateStr = t.sub.split('·')[0].trim();
+  // prefer extra-data dates, fall back to sub string
+  const extra = (typeof loadTripExtraData === 'function') ? loadTripExtraData(t._serverId||t.id) : {};
+  const sd = extra.start_date || t.start_date;
+  const ed = extra.end_date   || t.end_date;
+  let dateStr = '';
+  if(sd){
+    const fmt = d => { try { return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); } catch(e){ return d; } };
+    dateStr = ed && ed !== sd ? `${fmt(sd)} – ${fmt(ed)}` : fmt(sd);
+  } else {
+    dateStr = (t.sub||'').split('·')[0].trim();
+  }
   return `<div class="trip-card" onclick="openTripDetail(${t.id})">
     <div class="tc-top" style="background:${tripGradients[gi%tripGradients.length]}">${t.emoji}${statusBadge(t.status)}</div>
     <div class="tc-body"><h3>${t.name}</h3><div class="tc-date">${dateStr}</div><div class="tc-tags">${tags}</div></div>
@@ -3109,20 +3249,40 @@ const deepQs = [
 ];
 let rqCurrent = 0;
 let rqList = [];
+let rqAnswers = {};
+let currentMood = 'neutral';
 let mediaRec = null;
 let audioChunks = [];
 let isRecording = false;
 
 function pickMood(mood, btn){
+  currentMood = mood;
   document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   document.getElementById('modeChoice').classList.add('show');
 }
 function startReflect(mode){
+  if(mode === 'custom'){
+    document.getElementById('rc-mood').style.display = 'none';
+    document.getElementById('rc-custom').style.display = '';
+    return;
+  }
   rqList = mode==='mood' ? (moodQuestionsMap[currentMood] || quickQs) : (mode==='deep' ? deepQs : quickQs);
   rqCurrent = 0;
   rqAnswers = {};
   document.getElementById('rc-mood').style.display = 'none';
+  document.getElementById('rc-custom').style.display = 'none';
+  document.getElementById('rc-questions').classList.add('show');
+  renderRq();
+}
+function startCustomReflect(){
+  const raw = (document.getElementById('customQsInput').value||'').trim();
+  const lines = raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(!lines.length){ alert('Напиши хотя бы один вопрос'); return; }
+  rqList = lines;
+  rqCurrent = 0;
+  rqAnswers = {};
+  document.getElementById('rc-custom').style.display = 'none';
   document.getElementById('rc-questions').classList.add('show');
   renderRq();
 }
@@ -3200,6 +3360,7 @@ async function saveTripReflection(){
 function resetReflect(){
   rqCurrent = 0; rqList = [];
   document.getElementById('rc-mood').style.display = '';
+  document.getElementById('rc-custom').style.display = 'none';
   document.querySelectorAll('.mood-btn').forEach(b=>b.classList.remove('on'));
   document.getElementById('modeChoice').classList.remove('show');
   document.getElementById('rc-questions').classList.remove('show');
@@ -4065,6 +4226,8 @@ function renderTripSurvey() {
   if(!lastTrip) { banner.style.display='none'; return; }
   _surveyTripId = lastTrip._serverId || lastTrip.id;
   if(tripSurveys.some(s => s.tripId == _surveyTripId)) { banner.style.display='none'; return; }
+  const skipped = JSON.parse(localStorage.getItem('ub_skipped_surveys')||'[]');
+  if(skipped.includes(_surveyTripId)) { banner.style.display='none'; return; }
   const titleEl = document.getElementById('surveyBannerTitle');
   if(titleEl) titleEl.textContent = `How was ${lastTrip.emoji||'✈️'} ${lastTrip.name}?`;
   // clear previous values
@@ -4074,6 +4237,13 @@ function renderTripSurvey() {
   banner.style.display = '';
 }
 
+function skipTripSurveyBanner(){
+  // persist skip so banner doesn't reappear after refresh
+  const skipped = JSON.parse(localStorage.getItem('ub_skipped_surveys')||'[]');
+  if(_surveyTripId && !skipped.includes(_surveyTripId)) skipped.push(_surveyTripId);
+  localStorage.setItem('ub_skipped_surveys', JSON.stringify(skipped));
+  document.getElementById('tripSurveyBanner').style.display='none';
+}
 function submitTripSurveyBanner() {
   const v = k => { const el=document.getElementById(k); return el?el.value:''; };
   tripSurveys.push({
@@ -4136,6 +4306,7 @@ showView = function(id, btn) {
 loadReflectionsFromStorage();
 loadTemplatesFromStorage();
 loadTripSurveys();
+loadSavedPlaces();
 renderInsights();
 
 // Запуск приложения

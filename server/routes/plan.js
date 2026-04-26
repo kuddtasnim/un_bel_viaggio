@@ -4,12 +4,16 @@ const requireAuth = require('../middleware/auth');
 const router = express.Router();
 router.use(requireAuth);
 
-// ── POST /api/plan — AI планировщик через Hugging Face ──
+// ── POST /api/plan — AI планировщик через Google Gemini ──
 router.post('/', async (req, res) => {
   const { destination, origin, interests, pace } = req.body;
 
   if (!destination) {
     return res.status(400).json({ error: 'Укажите город' });
+  }
+
+  if (!process.env.GEMINI_KEY) {
+    return res.status(503).json({ error: 'AI модуль не настроен. Добавьте GEMINI_KEY в переменные окружения.' });
   }
 
   const interestList = Array.isArray(interests) && interests.length > 0
@@ -24,13 +28,13 @@ router.post('/', async (req, res) => {
 
   const startingPoint = origin ? `Starting from: ${origin}.` : '';
 
-  const prompt = `<s>[INST] You are a knowledgeable travel guide. Create a detailed one-day itinerary for ${destination}.
+  const prompt = `You are a knowledgeable travel guide. Create a detailed one-day itinerary for ${destination}.
 
 ${startingPoint}
 Traveller interests: ${interestList}.
 Pace: ${paceNote}.
 
-Return ONLY valid JSON (no extra text) in this exact format:
+Return ONLY valid JSON (no markdown, no extra text) in this exact format:
 {
   "city": "${destination}",
   "places": [
@@ -51,51 +55,49 @@ Rules:
 - price: € (free/cheap), €€ (moderate), €€€ (expensive)
 - Include only places that actually exist
 - Sort places in logical walking order
-[/INST]`;
+- Return raw JSON only, no code fences`;
 
   try {
-    const hfResponse = await fetch(
-      'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2',
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${process.env.GEMINI_KEY}`,
       {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.HF_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          inputs: prompt,
-          parameters: {
-            max_new_tokens: 1500,
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
             temperature: 0.7,
-            return_full_text: false
+            maxOutputTokens: 2048
           }
         }),
         signal: AbortSignal.timeout(30000)
       }
     );
 
-    if (!hfResponse.ok) {
-      const errText = await hfResponse.text();
-      console.error('HF API error:', errText);
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      console.error('Gemini API error:', geminiRes.status, errText.slice(0, 300));
+      if (geminiRes.status === 403) {
+        return res.status(502).json({ error: 'Неверный GEMINI_KEY. Проверьте ключ в переменных окружения.' });
+      }
       return res.status(502).json({ error: 'AI сервис временно недоступен, попробуйте позже' });
     }
 
-    const hfData = await hfResponse.json();
+    const geminiData = await geminiRes.json();
 
-    // Hugging Face возвращает массив с generated_text
-    let rawText = '';
-    if (Array.isArray(hfData) && hfData[0]?.generated_text) {
-      rawText = hfData[0].generated_text;
-    } else if (typeof hfData === 'string') {
-      rawText = hfData;
-    } else {
-      rawText = JSON.stringify(hfData);
+    // Extract text from Gemini response structure
+    const rawText = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    if (!rawText) {
+      console.error('Empty Gemini response:', JSON.stringify(geminiData).slice(0, 300));
+      return res.status(502).json({ error: 'AI вернул пустой ответ. Попробуйте ещё раз.' });
     }
 
-    // Извлекаем JSON из ответа
-    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    // Extract JSON from response (strip possible markdown code fences)
+    const cleaned = rawText.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.error('No JSON in HF response:', rawText.slice(0, 300));
+      console.error('No JSON in Gemini response:', rawText.slice(0, 300));
       return res.status(502).json({ error: 'Не удалось разобрать ответ AI. Попробуйте ещё раз.' });
     }
 
