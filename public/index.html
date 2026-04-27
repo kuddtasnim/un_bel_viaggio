@@ -887,33 +887,16 @@ nav{
       <div class="ov-card" style="margin-top:14px" id="ovFlightCard">
         <div class="section-header-row" style="margin-bottom:12px">
           <p class="label-sm" style="margin-bottom:0">Getting there</p>
-          <button class="section-edit" id="flEditBtn" onclick="toggleFlightEdit()">✎ Edit</button>
+          <button class="section-edit" id="flEditBtn" onclick="toggleFlightEdit()">✎ Pin from Logistics</button>
         </div>
-        <!-- View mode: boarding pass cards -->
+        <!-- View mode: selected logistics entries -->
         <div id="flViewMode"></div>
-        <!-- Edit mode -->
+        <!-- Edit mode: checklist of logistics entries -->
         <div id="flEditMode" style="display:none">
-          <div style="margin-bottom:14px">
-            <div class="fl-edit-label">Outbound (flight no. / transport, from, dep. time, to, arr. time)</div>
-            <div class="fl-edit-grid">
-              <input id="flOutNo" type="text" placeholder="Flight no. e.g. FR3421"/>
-              <input id="flOutDep" type="text" placeholder="From e.g. Rome FCO"/>
-              <input id="flOutDepTime" type="time"/>
-              <input id="flOutArr" type="text" placeholder="To e.g. London LHR"/>
-              <input id="flOutArrTime" type="time"/>
-            </div>
-          </div>
-          <div>
-            <div class="fl-edit-label">✈ Return</div>
-            <div class="fl-edit-grid">
-              <input id="flRetNo" type="text" placeholder="Flight no."/>
-              <input id="flRetDep" type="text" placeholder="From"/>
-              <input id="flRetDepTime" type="time"/>
-              <input id="flRetArr" type="text" placeholder="To"/>
-              <input id="flRetArrTime" type="time"/>
-            </div>
-          </div>
-          <button class="btn-primary" style="margin-top:12px;font-size:.85rem" onclick="saveFlightEdit()">✓ Save flights</button>
+          <p style="font-family:system-ui,sans-serif;font-size:.8rem;color:var(--dusk);margin-bottom:10px">Select which logistics entries to show in Overview:</p>
+          <div id="flLogPicker" style="display:flex;flex-direction:column;gap:8px"></div>
+          <p style="font-family:system-ui,sans-serif;font-size:.78rem;color:var(--dusk);margin-top:8px;font-style:italic">Add entries first in the Logistics tab, then pin them here.</p>
+          <button class="btn-primary" style="margin-top:12px;font-size:.85rem" onclick="savePinnedLogEntries()">✓ Save</button>
         </div>
       </div>
     </div>
@@ -1642,13 +1625,15 @@ nav{
 .fl-edit-label{font-family:system-ui,sans-serif;font-size:.75rem;font-weight:600;color:var(--bark);text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
 .fl-edit-grid input{font-family:system-ui,sans-serif;font-size:.83rem;padding:8px 10px;border:1.5px solid var(--mist);border-radius:9px;background:var(--cream);color:var(--ink)}
 /* logistics cards */
-.log-card{background:var(--warm);border:1px solid var(--mist);border-radius:14px;padding:16px;position:relative}
+.log-card{background:var(--warm);border:1px solid var(--mist);border-radius:14px;padding:16px;position:relative;transition:.2s}
+.log-card-done{background:#f0f7f0;border-color:#a8d5a8;opacity:.8}
+.log-card-done .log-input{text-decoration:line-through;color:var(--dusk)}
 .log-card-row{display:grid;grid-template-columns:110px 1fr 1fr 1fr;gap:8px;align-items:start}
 @media(max-width:560px){.log-card-row{grid-template-columns:1fr 1fr}}
 .log-input{font-family:system-ui,sans-serif;font-size:.85rem;padding:7px 10px;border:1.5px solid var(--mist);border-radius:9px;background:var(--cream);color:var(--ink);width:100%}
 .log-input:focus{outline:none;border-color:var(--accent)}
 .log-field-label{font-family:system-ui,sans-serif;font-size:.67rem;text-transform:uppercase;letter-spacing:.07em;color:var(--accent);margin-bottom:3px}
-.log-delete{position:absolute;top:10px;right:10px;background:none;border:none;font-size:.85rem;cursor:pointer;color:var(--dusk);opacity:.6}
+.log-delete{background:none;border:none;font-size:.85rem;cursor:pointer;color:var(--dusk);opacity:.6;padding:2px 6px;border-radius:4px}
 .log-delete:hover{opacity:1;color:#c0392b}
 /* stats grid */
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:0}
@@ -2337,6 +2322,11 @@ function showView(id, btn) {
 //  TRIP DETAIL
 // ════════════════════════════════
 let prevView = 'dashboard';
+// Safe lookup by serverId — avoids stale array-index bugs
+function openTripByServerId(sId) {
+  const idx = trips.findIndex(t => String(t._serverId||t.id) === String(sId));
+  if(idx >= 0) openTripDetail(idx);
+}
 function openTripDetail(idx) {
   // remember where we came from
   const active = [...document.querySelectorAll('.view.active')].find(v => v.id !== 'v-trip-detail');
@@ -2352,30 +2342,9 @@ function openTripDetail(idx) {
   safeText('tdSub', t.sub);
   // tdDesc and tdInfoGrid removed — overview handled by new structured panel
   // tdLogistics removed — handled by new logistics panel with cards
-  // pack — load from server if available
-  const pl = document.getElementById('tdPackList');
-  pl.innerHTML='<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">Загружаем список...</p>';
+  // pack — prefer localStorage edited version, fall back to server
   const serverId = t._serverId || t.id;
-  fetch(`/api/trips/${serverId}/pack`).then(r=>r.ok?r.json():null).then(packItems=>{
-    const items = packItems || t.pack || [];
-    if(items.length){
-      pl.innerHTML = items.map((p,i)=>{
-        const label = p.label || p;
-        const checked = p.checked || false;
-        const id = `tdpc_${i}`;
-        return `<div style="display:flex;align-items:center;gap:10px;background:var(--warm);border:1px solid var(--mist);border-radius:9px;padding:10px 14px"><input type="checkbox" id="${id}" ${checked?'checked':''} style="accent-color:var(--bark)" onchange="savePackCheck(${serverId},this)"><label for="${id}" style="font-family:system-ui,sans-serif;font-size:.88rem;cursor:pointer;${checked?'text-decoration:line-through;color:var(--dusk)':''}">${label}</label></div>`;
-      }).join('');
-    } else {
-      pl.innerHTML='<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">No packing list yet. Go to <b>Pack</b> tab to generate one for this trip.</p>';
-    }
-  }).catch(()=>{
-    const items = t.pack || [];
-    if(items.length){
-      pl.innerHTML = items.map(p=>`<div style="display:flex;align-items:center;gap:10px;background:var(--warm);border:1px solid var(--mist);border-radius:9px;padding:10px 14px"><input type="checkbox" style="accent-color:var(--bark)"><span style="font-family:system-ui,sans-serif;font-size:.88rem">${p}</span></div>`).join('');
-    } else {
-      pl.innerHTML='<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">Go to the Pack tab to generate a full list for this trip.</p>';
-    }
-  });
+  renderTripPackList(serverId, t);
   // Load photo gallery from localStorage
   renderTripPhotoGallery(serverId);
   // reset td tabs
@@ -2391,7 +2360,7 @@ function closeTripDetail() {
   const target = document.getElementById(targetId) || document.getElementById('v-dashboard');
   target.classList.add('active');
   // sync the tab highlight to where we returned to
-  const tabIdx = {dashboard:0, trips:1, plan:2, calendar:3, pack:4, kb:5, maps:6, about:7}[prevView] ?? 0;
+  const tabIdx = {dashboard:0, trips:1, plan:2, calendar:3, pack:4, reflection:5, kb:6, maps:7}[prevView] ?? 0;
   document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active', i===tabIdx));
   if(prevView === 'trips') renderTripsList();
   window.scrollTo({top:0,behavior:'smooth'});
@@ -3002,7 +2971,7 @@ function renderDashUpcomingStrip(){
   const cards = upcoming.map(t=>{
     const badgeClass = t.status==='soon'?'b-soon':t.status==='planned'?'b-plan':'b-idea';
     const badgeText = t.status==='soon'?'Soon':t.status==='planned'?'Planned':'Idea';
-    return `<div class="up-card" onclick="openTripDetail(${t.id})">
+    return `<div class="up-card" onclick="openTripByServerId(${t._serverId||t.id})">
       <div class="up-emoji">${t.emoji||'✈️'}</div>
       <div class="up-info"><h3>${t.name}</h3><div class="ud">${t.sub||''}</div></div>
       <span class="tc-badge ${badgeClass} up-badge">${badgeText}</span>
@@ -3022,7 +2991,7 @@ function renderDashTripsList(){
   const cards = upcoming.map(t=>{
     const badgeClass = t.status==='soon'?'b-soon':t.status==='planned'?'b-plan':'b-idea';
     const badgeText = t.status==='soon'?'Soon':t.status==='planned'?'Planned':'Idea';
-    return `<div class="up-card" onclick="openTripDetail(${t.id})">
+    return `<div class="up-card" onclick="openTripByServerId(${t._serverId||t.id})">
       <div class="up-emoji">${t.emoji}</div>
       <div class="up-info"><h3>${t.name}</h3><div class="ud">${t.sub}</div></div>
       <span class="tc-badge ${badgeClass} up-badge">${badgeText}</span>
@@ -3118,7 +3087,7 @@ function tripCardHtml(t, gi){
   } else {
     dateStr = (t.sub||'').split('·')[0].trim();
   }
-  return `<div class="trip-card" onclick="openTripDetail(${t.id})">
+  return `<div class="trip-card" onclick="openTripByServerId(${t._serverId||t.id})">
     <div class="tc-top" style="background:${tripGradients[gi%tripGradients.length]}">${t.emoji}${statusBadge(t.status)}</div>
     <div class="tc-body"><h3>${t.name}</h3><div class="tc-date">${dateStr}</div><div class="tc-tags">${tags}</div></div>
   </div>`;
@@ -3486,10 +3455,80 @@ function openPhotoLightbox(tripId, idx) {
 }
 
 // ════════════════════════════════
-//  PACK CHECK PERSISTENCE
+//  PACK ITEMS — editable/deletable in trip detail
 // ════════════════════════════════
+function loadTripPackItems(serverId){ try{ return JSON.parse(localStorage.getItem('ub_pack_items_'+serverId)||'null'); }catch(e){ return null; } }
+function saveTripPackItems(serverId, items){ try{ localStorage.setItem('ub_pack_items_'+serverId, JSON.stringify(items)); }catch(e){} }
+
+function renderTripPackList(serverId, t) {
+  const pl = document.getElementById('tdPackList'); if(!pl) return;
+  const stored = loadTripPackItems(serverId);
+  if(stored !== null) {
+    _renderPackItems(pl, stored, serverId); return;
+  }
+  pl.innerHTML='<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">Loading...</p>';
+  fetch(`/api/trips/${serverId}/pack`).then(r=>r.ok?r.json():null).then(packItems=>{
+    const items = (packItems||t?.pack||[]).map(p => typeof p === 'string' ? {label:p,checked:false} : p);
+    saveTripPackItems(serverId, items);
+    _renderPackItems(pl, items, serverId);
+  }).catch(()=>{
+    const items = (t?.pack||[]).map(p => typeof p === 'string' ? {label:p,checked:false} : p);
+    _renderPackItems(pl, items, serverId);
+  });
+}
+
+function _renderPackItems(pl, items, serverId) {
+  if(!items.length){
+    pl.innerHTML='<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">No packing list yet. Go to <b>Pack</b> tab to generate one for this trip.</p>'; return;
+  }
+  pl.innerHTML = items.map((p,i)=>{
+    const label = p.label||p; const checked = p.checked||false;
+    const chkId = `tdpc_${serverId}_${i}`;
+    return `<div style="display:flex;align-items:center;gap:8px;background:var(--warm);border:1px solid var(--mist);border-radius:9px;padding:9px 12px">
+      <input type="checkbox" id="${chkId}" ${checked?'checked':''} style="accent-color:var(--bark);flex-shrink:0" onchange="toggleTripPackItem('${serverId}',${i},this.checked)"/>
+      <label for="${chkId}" id="${chkId}_lbl" style="font-family:system-ui,sans-serif;font-size:.85rem;cursor:pointer;flex:1;${checked?'text-decoration:line-through;color:var(--dusk)':''}" ondblclick="editTripPackItem('${serverId}',${i},this)">${label}</label>
+      <button onclick="deleteTripPackItem('${serverId}',${i})" style="background:none;border:none;cursor:pointer;color:var(--dusk);font-size:.78rem;opacity:.5;transition:.15s;flex-shrink:0" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.5" title="Delete">✕</button>
+    </div>`;
+  }).join('') + `<div style="margin-top:10px;display:flex;gap:8px">
+    <input type="text" id="newPackItemInput_${serverId}" placeholder="Add item..." style="flex:1;padding:8px 10px;border:1.5px solid var(--mist);border-radius:9px;font-family:system-ui,sans-serif;font-size:.85rem;background:var(--cream);color:var(--ink)" onkeydown="if(event.key==='Enter')addTripPackItem('${serverId}')"/>
+    <button onclick="addTripPackItem('${serverId}')" style="padding:8px 14px;background:var(--bark);color:#fff;border:none;border-radius:9px;font-family:system-ui,sans-serif;font-size:.82rem;cursor:pointer">+</button>
+  </div>`;
+}
+
+function toggleTripPackItem(serverId, i, checked) {
+  const items = loadTripPackItems(serverId)||[];
+  if(items[i]) { items[i].checked = checked; saveTripPackItems(serverId, items); }
+  const lbl = document.getElementById(`tdpc_${serverId}_${i}_lbl`);
+  if(lbl) lbl.style.cssText = checked ? 'font-family:system-ui,sans-serif;font-size:.85rem;cursor:pointer;flex:1;text-decoration:line-through;color:var(--dusk)' : 'font-family:system-ui,sans-serif;font-size:.85rem;cursor:pointer;flex:1';
+}
+function deleteTripPackItem(serverId, i) {
+  const items = loadTripPackItems(serverId)||[];
+  items.splice(i, 1); saveTripPackItems(serverId, items);
+  renderTripPackList(serverId, null);
+}
+function addTripPackItem(serverId) {
+  const inp = document.getElementById('newPackItemInput_'+serverId); if(!inp) return;
+  const label = inp.value.trim(); if(!label) return;
+  const items = loadTripPackItems(serverId)||[];
+  items.push({label, checked:false}); saveTripPackItems(serverId, items);
+  renderTripPackList(serverId, null);
+}
+function editTripPackItem(serverId, i, el) {
+  const current = el.textContent;
+  const inp = document.createElement('input');
+  inp.type='text'; inp.value=current;
+  inp.style.cssText='font-family:system-ui,sans-serif;font-size:.85rem;flex:1;border:1.5px solid var(--accent);border-radius:6px;padding:2px 6px;background:var(--cream);color:var(--ink)';
+  el.replaceWith(inp); inp.focus(); inp.select();
+  const save = () => {
+    const nv = inp.value.trim()||current;
+    const items = loadTripPackItems(serverId)||[];
+    if(items[i]) { items[i].label = nv; saveTripPackItems(serverId, items); }
+    renderTripPackList(serverId, null);
+  };
+  inp.addEventListener('blur', save);
+  inp.addEventListener('keydown', e => { if(e.key==='Enter') save(); if(e.key==='Escape'){ inp.value=current; save(); } });
+}
 function savePackCheck(tripId, checkbox) {
-  // visual feedback only for now — server update on next full save
   const label = checkbox.nextElementSibling;
   if(label) label.style.cssText = checkbox.checked ? 'text-decoration:line-through;color:var(--dusk);font-family:system-ui,sans-serif;font-size:.88rem;cursor:pointer' : 'font-family:system-ui,sans-serif;font-size:.88rem;cursor:pointer';
 }
@@ -3563,10 +3602,17 @@ function renderReflectionLibrary(){
     const tripName=r.tripId!==null?trips.find(t=>(t._serverId||t.id)===r.tripId)?.name:null;
     const preview=r.content?r.content.slice(0,180)+(r.content.length>180?'…':''):'(No content)';
     const tags=(r.tags||[]).map(t=>`<span class="refl-tag" onclick="setReflTagFilter('${t}',this)">#${t}</span>`).join('');
-    return `<div class="refl-card"><div class="refl-card-head"><span class="refl-mood-badge mood-${r.mood}">${moodEmoji} ${moodLabel}</span><span class="refl-date">${date}</span>${tripName?`<span class="refl-trip">• ${tripName}</span>`:''}</div><div class="refl-content">${preview}</div><div class="refl-tags">${tags}</div></div>`;
+    return `<div class="refl-card" style="position:relative"><button onclick="deleteReflection('${r.id}')" style="position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;color:var(--dusk);font-size:.78rem;opacity:.4;transition:.15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.4" title="Delete">✕</button><div class="refl-card-head"><span class="refl-mood-badge mood-${r.mood}">${moodEmoji} ${moodLabel}</span><span class="refl-date">${date}</span>${tripName?`<span class="refl-trip">• ${tripName}</span>`:''}</div><div class="refl-content">${preview}</div><div class="refl-tags">${tags}</div></div>`;
   }).join('');
 }
 function setReflTagFilter(tag, el){ reflTagFilter=tag; renderReflectionLibrary(); }
+function deleteReflection(id) {
+  if(!confirm('Delete this reflection? This cannot be undone.')) return;
+  reflections = reflections.filter(r => String(r.id) !== String(id));
+  try { localStorage.setItem('ub_reflections', JSON.stringify(reflections)); } catch(e){}
+  renderReflectionLibrary();
+  renderInsights();
+}
 function openReflectModal(){ showView('dashboard',document.querySelectorAll('.tab')[0]); document.getElementById('reflectCard').scrollIntoView({behavior:'smooth',block:'center'}); }
 
 // ════════════════════════════════
@@ -3837,26 +3883,28 @@ function renderOvViewMode(t, extra) {
 
 function renderFlightViewMode(extra) {
   const el = document.getElementById('flViewMode'); if(!el) return;
-  const out = extra.flOut || {};
-  const ret = extra.flRet || {};
-  const hasOut = out.dep || out.arr;
-  const hasRet = ret.dep || ret.arr;
-  if(!hasOut && !hasRet) {
-    el.innerHTML = '<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">No flight info yet — click ✎ Edit to add your flights.</p>';
+  const pinnedIds = extra.pinnedLogIds || [];
+  const entries = loadLogEntries(_ovEditServerId);
+  const pinned = entries.filter((_,i) => pinnedIds.includes(i));
+  if(!pinned.length) {
+    el.innerHTML = '<p style="font-family:system-ui,sans-serif;font-size:.85rem;color:var(--dusk)">No transport pinned yet — add legs in the <b>Logistics</b> tab, then click ✎ Pin from Logistics to select them.</p>';
     return;
   }
-  const bp = (f, label) => {
-    if(!f.dep && !f.arr) return '';
-    return `<div class="boarding-pass">
-      <div class="bp-flno">${label}${f.no ? ' · ' + f.no : ''}</div>
+  el.innerHTML = pinned.map(e => {
+    const icon = transportIcons[e.type]||'📍';
+    const dep = e.time||'';
+    const arr = e.timeTo||'';
+    const times = dep&&arr ? `${dep} → ${arr}` : dep||arr||'';
+    return `<div class="boarding-pass" style="padding:14px 18px">
+      <div class="bp-flno">${icon} ${(e.type||'').charAt(0).toUpperCase()+(e.type||'').slice(1)}${times?' · '+times:''}</div>
       <div class="bp-row">
-        <div><div class="bp-airport">${f.dep||'—'}</div><div class="bp-time">${f.depTime||''}</div></div>
-        <div class="bp-arrow">——✈——</div>
-        <div style="text-align:right"><div class="bp-airport">${f.arr||'—'}</div><div class="bp-time">${f.arrTime||''}</div></div>
+        <div><div class="bp-airport">${e.from||'—'}</div><div class="bp-time" style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk)">${e.fromDetail||''}</div></div>
+        <div class="bp-arrow">——→——</div>
+        <div style="text-align:right"><div class="bp-airport">${e.to||'—'}</div><div class="bp-time" style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk)">${e.toDetail||''}</div></div>
       </div>
+      ${e.notes?`<div style="font-family:system-ui,sans-serif;font-size:.75rem;color:var(--dusk);margin-top:6px">${e.notes}</div>`:''}
     </div>`;
-  };
-  el.innerHTML = bp(out,'Outbound') + bp(ret,'Return');
+  }).join('');
 }
 
 function populateOvEditMode(t, extra) {
@@ -3931,6 +3979,9 @@ function saveOvEdit() {
       : fmt(extra.start_date);
   }
   renderTripsList();
+  renderDashTripsList();
+  renderDashUpcomingStrip();
+  buildTripDates();
   showToast('Details saved');
 }
 
@@ -3941,34 +3992,44 @@ function toggleFlightEdit() {
   const isEdit = edit.style.display !== 'none';
   if(isEdit) {
     edit.style.display = 'none'; view.style.display = '';
-    btn.innerHTML = '✎ Edit'; btn.classList.remove('on');
+    btn.innerHTML = '✎ Pin from Logistics'; btn.classList.remove('on');
   } else {
+    // Populate checklist with logistics entries
     const extra = loadTripExtraData(_ovEditServerId);
-    const f = k => document.getElementById(k);
-    const o = extra.flOut||{}, r = extra.flRet||{};
-    f('flOutNo').value=o.no||''; f('flOutDep').value=o.dep||'';
-    f('flOutDepTime').value=o.depTime||''; f('flOutArr').value=o.arr||'';
-    f('flOutArrTime').value=o.arrTime||'';
-    f('flRetNo').value=r.no||''; f('flRetDep').value=r.dep||'';
-    f('flRetDepTime').value=r.depTime||''; f('flRetArr').value=r.arr||'';
-    f('flRetArrTime').value=r.arrTime||'';
+    const pinnedIds = extra.pinnedLogIds || [];
+    const entries = loadLogEntries(_ovEditServerId);
+    const picker = document.getElementById('flLogPicker');
+    if(!entries.length) {
+      picker.innerHTML = '<p style="font-family:system-ui,sans-serif;font-size:.82rem;color:var(--dusk);font-style:italic">No logistics entries yet. Go to the Logistics tab and add your transport legs first.</p>';
+    } else {
+      picker.innerHTML = entries.map((e,i) => {
+        const icon = transportIcons[e.type]||'📍';
+        const dep = e.time||'';
+        const arr = e.timeTo||'';
+        const times = dep&&arr ? ` (${dep}→${arr})` : dep?` (${dep})`:'';
+        const lbl = `${icon} ${e.from||'?'} → ${e.to||'?'}${times}`;
+        return `<label style="display:flex;align-items:center;gap:10px;font-family:system-ui,sans-serif;font-size:.85rem;cursor:pointer;background:var(--warm);border:1px solid var(--mist);border-radius:10px;padding:10px 14px">
+          <input type="checkbox" value="${i}" ${pinnedIds.includes(i)?'checked':''} style="accent-color:var(--bark)"/>
+          ${lbl}
+        </label>`;
+      }).join('');
+    }
     edit.style.display = ''; view.style.display = 'none';
     btn.innerHTML = '✕ Cancel'; btn.classList.add('on');
   }
 }
 
-function saveFlightEdit() {
+function savePinnedLogEntries() {
   const extra = loadTripExtraData(_ovEditServerId);
-  const f = k => document.getElementById(k).value.trim();
-  extra.flOut = { no:f('flOutNo'), dep:f('flOutDep'), depTime:f('flOutDepTime'), arr:f('flOutArr'), arrTime:f('flOutArrTime') };
-  extra.flRet = { no:f('flRetNo'), dep:f('flRetDep'), depTime:f('flRetDepTime'), arr:f('flRetArr'), arrTime:f('flRetArrTime') };
+  const checkboxes = document.querySelectorAll('#flLogPicker input[type=checkbox]');
+  extra.pinnedLogIds = [...checkboxes].filter(c=>c.checked).map(c=>parseInt(c.value));
   saveTripExtraData(_ovEditServerId, extra);
   document.getElementById('flEditMode').style.display = 'none';
   document.getElementById('flViewMode').style.display = '';
-  document.getElementById('flEditBtn').innerHTML = '✎ Edit';
+  document.getElementById('flEditBtn').innerHTML = '✎ Pin from Logistics';
   document.getElementById('flEditBtn').classList.remove('on');
   renderFlightViewMode(extra);
-  showToast('Flights saved');
+  showToast('Getting there updated');
 }
 
 // ── LOGISTICS ──
@@ -3993,12 +4054,18 @@ function renderLogEntries() {
   }
   if(emptyEl) emptyEl.style.display = 'none';
   container.innerHTML = entries.map((e, i) => `
-    <div class="log-card">
-      <button class="log-delete" onclick="deleteLogEntry(${i})" title="Remove">✕</button>
+    <div class="log-card${e.done?' log-card-done':''}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <input type="checkbox" ${e.done?'checked':''} style="accent-color:var(--bark);width:15px;height:15px;cursor:pointer" title="Mark as done" onchange="toggleLogDone(${i},this.checked)"/>
+        <span style="font-family:system-ui,sans-serif;font-size:.72rem;color:var(--dusk);flex:1">${e.done?'✓ Done':'Mark as done'}</span>
+        <button class="log-delete" onclick="deleteLogEntry(${i})" title="Remove">✕</button>
+      </div>
       <div class="log-card-row">
         <div>
-          <div class="log-field-label">Time</div>
+          <div class="log-field-label">Dep. time</div>
           <input class="log-input" type="time" value="${e.time||''}" onchange="updateLogField(${i},'time',this.value)"/>
+          <div class="log-field-label" style="margin-top:6px">Arr. time</div>
+          <input class="log-input" type="time" value="${e.timeTo||''}" onchange="updateLogField(${i},'timeTo',this.value)"/>
         </div>
         <div>
           <div class="log-field-label">Transport</div>
@@ -4041,6 +4108,10 @@ function deleteLogEntry(i) {
 function updateLogField(i, field, value) {
   const entries = loadLogEntries(_ovEditServerId);
   if(entries[i]) { entries[i][field] = value; saveLogEntries(_ovEditServerId, entries); }
+}
+function toggleLogDone(i, done) {
+  const entries = loadLogEntries(_ovEditServerId);
+  if(entries[i]) { entries[i].done = done; saveLogEntries(_ovEditServerId, entries); renderLogEntries(); }
 }
 
 // Patch openTripDetail to populate new UI
@@ -4206,7 +4277,7 @@ function renderCalStats() {
         .sort((a,b)=>(b.start_date||b.date||'').localeCompare(a.start_date||a.date||''))
         .map(t=>{
           const d = (t.start_date||t.date) ? new Date(t.start_date||t.date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
-          return `<div class="cal-trip-row" onclick="openTripDetail(${t.id})" style="cursor:pointer">
+          return `<div class="cal-trip-row" onclick="openTripByServerId(${t._serverId||t.id})" style="cursor:pointer">
             <span class="ctr-emoji">${t.emoji||'✈️'}</span>
             <span class="ctr-name">${t.name}</span>
             <span class="ctr-date">${d} · ${statusBadge(t.status).replace(/<[^>]+>/g,'')}</span>
